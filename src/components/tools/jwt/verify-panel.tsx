@@ -3,9 +3,9 @@
 import { CheckCircle2, CircleDashed, Loader2, MinusCircle, XCircle } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 
+import { Panel } from "@/components/tool-panel"
 import { AlgorithmSelect } from "@/components/tools/jwt/algorithm-select"
 import { KeyField } from "@/components/tools/jwt/key-field"
-import { Panel } from "@/components/tools/jwt/panel"
 import { TokenInput } from "@/components/tools/jwt/token-input"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Input } from "@/components/ui/input"

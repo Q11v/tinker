@@ -102,7 +102,7 @@ export const tools: Tool[] = [
     category: "格式化",
     icon: Braces,
     keywords: ["json", "格式化", "美化", "压缩", "校验"],
-    status: "planned",
+    status: "ready",
   },
   {
     slug: "color",

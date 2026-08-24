@@ -8,7 +8,7 @@ const ACCENT_DOT = {
 
 export type PanelAccent = keyof typeof ACCENT_DOT
 
-/** 各工具子面板共用的卡片外壳：标题前的色点用来呼应 token 三段的着色 */
+/** 各工具子面板共用的卡片外壳：标题前的色点用来做分区强调色 */
 export function Panel({
   accent,
   title,
