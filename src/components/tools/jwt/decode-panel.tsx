@@ -1,20 +1,27 @@
 "use client"
 
 import { AlertTriangle, ShieldCheck, Trash2 } from "lucide-react"
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 
 import { CopyButton } from "@/components/copy-button"
 import { ClaimsTable } from "@/components/tools/jwt/claims-table"
 import { JsonBlock } from "@/components/tools/jwt/json-block"
-import { TokenPreview } from "@/components/tools/jwt/token-preview"
+import { Panel } from "@/components/tools/jwt/panel"
+import { TokenInput } from "@/components/tools/jwt/token-input"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
-import { Textarea } from "@/components/ui/textarea"
 import { useNowSeconds } from "@/hooks/use-now-seconds"
 import { decodeToken, REGISTERED_HEADERS, SAMPLE_TOKEN } from "@/lib/jwt"
+import { cn } from "@/lib/utils"
+
+type PayloadView = "json" | "detail"
+
+const PAYLOAD_VIEWS: { value: PayloadView; label: string }[] = [
+  { value: "json", label: "JSON" },
+  { value: "detail", label: "详情" },
+]
 
 interface DecodePanelProps {
   token: string
@@ -25,6 +32,14 @@ interface DecodePanelProps {
 export function DecodePanel({ token, onTokenChange, onGoVerify }: DecodePanelProps) {
   const result = useMemo(() => decodeToken(token), [token])
   const nowSeconds = useNowSeconds()
+  const [payloadView, setPayloadView] = useState<PayloadView>("json")
+  const headerJson = result.ok && result.value.header ? JSON.stringify(result.value.header, null, 2) : ""
+  const payloadJson = result.ok && result.value.payload ? JSON.stringify(result.value.payload, null, 2) : ""
+
+  // Header 只有 alg/typ 这两个最常见字段时，用一行摘要代替完整 JSON，减少和 footer 的重复
+  const headerEntries = result.ok && result.value.header ? Object.entries(result.value.header) : []
+  const isMinimalHeader =
+    headerEntries.length > 0 && headerEntries.every(([key]) => key === "alg" || key === "typ")
 
   return (
     <div className="space-y-6">
@@ -47,16 +62,13 @@ export function DecodePanel({ token, onTokenChange, onGoVerify }: DecodePanelPro
             <CopyButton value={token} label="复制" />
           </div>
         </div>
-        <Textarea
+        <TokenInput
           id="jwt-token"
           value={token}
-          onChange={(event) => onTokenChange(event.target.value)}
+          onChange={onTokenChange}
           placeholder="粘贴 eyJhbGciOi… 形式的 JWT"
-          spellCheck={false}
-          autoComplete="off"
-          className="max-h-64 min-h-28 font-mono text-[13px]"
+          className="max-h-64 min-h-28"
         />
-        <TokenPreview token={token} />
       </div>
 
       {!result.ok ? (
@@ -69,28 +81,6 @@ export function DecodePanel({ token, onTokenChange, onGoVerify }: DecodePanelPro
         ) : null
       ) : (
         <>
-          <div className="flex flex-wrap items-center gap-2">
-            {result.value.alg ? (
-              <Badge variant="secondary" className="font-mono">
-                alg: {result.value.alg}
-              </Badge>
-            ) : null}
-            {typeof result.value.header?.typ === "string" ? (
-              <Badge variant="outline" className="font-mono">
-                typ: {String(result.value.header.typ)}
-              </Badge>
-            ) : null}
-            {typeof result.value.header?.kid === "string" ? (
-              <Badge variant="outline" className="font-mono">
-                kid: {String(result.value.header.kid)}
-              </Badge>
-            ) : null}
-            <Button variant="outline" size="sm" className="ml-auto" onClick={onGoVerify}>
-              <ShieldCheck className="size-3.5" />
-              去校验签名
-            </Button>
-          </div>
-
           {result.value.alg === "none" ? (
             <Alert variant="destructive">
               <AlertTriangle />
@@ -101,94 +91,115 @@ export function DecodePanel({ token, onTokenChange, onGoVerify }: DecodePanelPro
             </Alert>
           ) : null}
 
-          <div className="grid gap-4 lg:grid-cols-2">
-            <Section
+          <div className="space-y-3">
+            <div className="flex items-center justify-between gap-2">
+              <h2 className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
+                解码结果
+              </h2>
+              <Button variant="outline" size="sm" onClick={onGoVerify}>
+                <ShieldCheck className="size-3.5" />
+                去校验签名
+              </Button>
+            </div>
+
+            <Panel
+              accent="rose"
               title="Header"
               hint="描述签名算法与密钥信息"
-              content={result.value.header}
-              error={result.value.headerError}
-              labels={REGISTERED_HEADERS}
-            />
-            <Section
+              action={<CopyButton value={headerJson} />}
+              footer={
+                !isMinimalHeader && result.value.header ? (
+                  <>
+                    {headerEntries
+                      .filter(([key]) => REGISTERED_HEADERS[key])
+                      .map(
+                        ([key, value]) =>
+                          `${key}: ${typeof value === "string" ? value : JSON.stringify(value)} · ${REGISTERED_HEADERS[key]}`
+                      )
+                      .join("　") || "无标准字段"}
+                  </>
+                ) : undefined
+              }
+            >
+              {result.value.headerError ? (
+                <p className="text-destructive text-sm">{result.value.headerError}</p>
+              ) : isMinimalHeader ? (
+                <div className="flex flex-col gap-2">
+                  {headerEntries.map(([key, value]) => (
+                    <div key={key} className="flex items-center gap-2">
+                      <Badge
+                        variant="outline"
+                        className="border-rose-500/30 bg-rose-500/10 font-mono text-rose-600 dark:text-rose-400"
+                      >
+                        {key}: {String(value)}
+                      </Badge>
+                      <span className="text-muted-foreground text-xs">
+                        {REGISTERED_HEADERS[key]}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <JsonBlock value={headerJson} />
+              )}
+            </Panel>
+
+            <Panel
+              accent="violet"
               title="Payload"
               hint="携带的声明（claims）"
-              content={result.value.payload}
-              error={result.value.payloadError}
-            />
-          </div>
+              action={
+                <div className="flex items-center gap-1">
+                  {!result.value.payloadError && result.value.payload ? (
+                    <div className="bg-muted flex items-center gap-0.5 rounded-md p-0.5 text-xs">
+                      {PAYLOAD_VIEWS.map(({ value, label }) => (
+                        <button
+                          key={value}
+                          type="button"
+                          onClick={() => setPayloadView(value)}
+                          className={cn(
+                            "rounded px-2 py-1 transition-colors",
+                            payloadView === value
+                              ? "bg-background text-foreground shadow-sm"
+                              : "text-muted-foreground hover:text-foreground"
+                          )}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
+                  <CopyButton value={payloadJson} />
+                </div>
+              }
+            >
+              {result.value.payloadError ? (
+                <p className="text-destructive text-sm">{result.value.payloadError}</p>
+              ) : payloadView === "detail" && result.value.payload ? (
+                <>
+                  <p className="text-muted-foreground mb-3 text-xs">
+                    时间类声明会自动换算成本地时间。
+                  </p>
+                  <ClaimsTable payload={result.value.payload} nowSeconds={nowSeconds} />
+                </>
+              ) : (
+                <JsonBlock value={payloadJson} />
+              )}
+            </Panel>
 
-          {result.value.payload ? (
-            <div className="space-y-3">
-              <div>
-                <h3 className="text-sm font-medium">声明明细</h3>
-                <p className="text-muted-foreground text-xs">
-                  时间类声明会自动换算成本地时间。
-                </p>
-              </div>
-              <ClaimsTable payload={result.value.payload} nowSeconds={nowSeconds} />
-            </div>
-          ) : null}
-
-          <div className="space-y-2">
-            <Separator />
-            <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
-              <div>
-                <h3 className="text-sm font-medium">Signature</h3>
-                <p className="text-muted-foreground text-xs">
-                  Base64URL 原文。解码不校验签名，请在「校验」标签页里用密钥验证。
-                </p>
-              </div>
-              <CopyButton value={result.value.segments.signature} />
-            </div>
-            <p className="bg-muted/50 rounded-lg border p-3 font-mono text-[13px] break-all text-sky-600 dark:text-sky-400">
-              {result.value.segments.signature || "（空签名）"}
-            </p>
+            <Panel
+              accent="sky"
+              title="Signature"
+              hint="Base64URL 原文。解码不校验签名，请在「校验」标签页里用密钥验证。"
+              action={<CopyButton value={result.value.segments.signature} />}
+            >
+              <p className="bg-muted/50 rounded-lg border p-3 font-mono text-[13px] break-all text-sky-600 dark:text-sky-400">
+                {result.value.segments.signature || "（空签名）"}
+              </p>
+            </Panel>
           </div>
         </>
       )}
-    </div>
-  )
-}
-
-function Section({
-  title,
-  hint,
-  content,
-  error,
-  labels,
-}: {
-  title: string
-  hint: string
-  content: Record<string, unknown> | null
-  error?: string
-  labels?: Record<string, string>
-}) {
-  const json = content ? JSON.stringify(content, null, 2) : ""
-
-  return (
-    <div className="bg-card flex flex-col rounded-xl border">
-      <div className="flex items-center justify-between border-b px-4 py-2.5">
-        <div>
-          <h3 className="text-sm font-medium">{title}</h3>
-          <p className="text-muted-foreground text-xs">{hint}</p>
-        </div>
-        <CopyButton value={json} />
-      </div>
-      <div className="p-4">
-        {error ? (
-          <p className="text-destructive text-sm">{error}</p>
-        ) : (
-          <JsonBlock value={json} />
-        )}
-      </div>
-      {labels && content ? (
-        <div className="text-muted-foreground mt-auto border-t px-4 py-2 text-xs">
-          {Object.keys(content)
-            .filter((key) => labels[key])
-            .map((key) => `${key} · ${labels[key]}`)
-            .join("　") || "无标准字段"}
-        </div>
-      ) : null}
     </div>
   )
 }

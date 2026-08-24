@@ -5,11 +5,11 @@ import { useEffect, useMemo, useState } from "react"
 
 import { AlgorithmSelect } from "@/components/tools/jwt/algorithm-select"
 import { KeyField } from "@/components/tools/jwt/key-field"
-import { TokenPreview } from "@/components/tools/jwt/token-preview"
+import { Panel } from "@/components/tools/jwt/panel"
+import { TokenInput } from "@/components/tools/jwt/token-input"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import { useNowSeconds } from "@/hooks/use-now-seconds"
 import {
   ALGORITHMS,
@@ -117,95 +117,104 @@ export function VerifyPanel({
     <div className="space-y-6">
       <div className="space-y-2">
         <Label htmlFor="verify-token">JWT</Label>
-        <Textarea
+        <TokenInput
           id="verify-token"
           value={token}
-          onChange={(event) => onTokenChange(event.target.value)}
+          onChange={onTokenChange}
           placeholder="粘贴要校验的 JWT"
-          spellCheck={false}
-          autoComplete="off"
-          className="max-h-52 min-h-24 font-mono text-[13px]"
-        />
-        <TokenPreview token={token} />
-      </div>
-
-      <div className="grid gap-4 lg:grid-cols-[220px_1fr]">
-        <AlgorithmSelect id="verify-alg" value={alg} onChange={setAlg} label="期望算法" />
-        <KeyField
-          id="verify-key"
-          alg={alg}
-          usage="verify"
-          value={secret}
-          onChange={onSecretChange}
-          encoding={encoding}
-          onEncodingChange={setEncoding}
+          className="max-h-52 min-h-24"
         />
       </div>
 
-      {tokenAlg && tokenAlg !== alg ? (
-        <p className="text-muted-foreground text-xs">
-          注意：Token header 声明的算法是 <code className="font-mono">{tokenAlg}</code>
-          ，与当前选择的 <code className="font-mono">{alg}</code> 不一致，校验一定会失败。
-        </p>
-      ) : null}
-
-      <StatusBanner state={state} claimsFailed={claimsFailed} />
+      <Panel
+        accent="sky"
+        title="校验密钥"
+        hint="选择算法，并提供用于验证签名的密钥"
+        footer={
+          tokenAlg && tokenAlg !== alg ? (
+            <span className="text-destructive">
+              注意：Token header 声明的算法是 <code className="font-mono">{tokenAlg}</code>
+              ，与当前选择的 <code className="font-mono">{alg}</code> 不一致，校验一定会失败。
+            </span>
+          ) : undefined
+        }
+      >
+        <div className="grid gap-4 lg:grid-cols-[220px_1fr]">
+          <AlgorithmSelect id="verify-alg" value={alg} onChange={setAlg} label="期望算法" />
+          <KeyField
+            id="verify-key"
+            alg={alg}
+            usage="verify"
+            value={secret}
+            onChange={onSecretChange}
+            encoding={encoding}
+            onEncodingChange={setEncoding}
+          />
+        </div>
+      </Panel>
 
       <div className="space-y-3">
-        <div>
-          <h3 className="text-sm font-medium">声明校验（可选）</h3>
-          <p className="text-muted-foreground text-xs">
-            签名之外的检查：有效期总是会检查，签发者与受众填写后才检查。
-          </p>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-3">
-          <div className="space-y-2">
-            <Label htmlFor="verify-iss">期望签发者 iss</Label>
-            <Input
-              id="verify-iss"
-              value={issuer}
-              onChange={(event) => setIssuer(event.target.value)}
-              placeholder="https://auth.example.com"
-              autoComplete="off"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="verify-aud">期望受众 aud</Label>
-            <Input
-              id="verify-aud"
-              value={audience}
-              onChange={(event) => setAudience(event.target.value)}
-              placeholder="my-api"
-              autoComplete="off"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="verify-tolerance">时钟容差（秒）</Label>
-            <Input
-              id="verify-tolerance"
-              value={tolerance}
-              onChange={(event) => setTolerance(event.target.value)}
-              inputMode="numeric"
-              placeholder="0"
-              autoComplete="off"
-            />
-          </div>
-        </div>
-
-        {checks.length > 0 ? (
-          <ul className="divide-y rounded-lg border">
-            {checks.map((check) => (
-              <li key={check.label} className="flex items-start gap-3 px-4 py-3">
-                <CheckIcon status={check.status} />
-                <div className="min-w-0 space-y-0.5">
-                  <p className="text-sm font-medium">{check.label}</p>
-                  <p className="text-muted-foreground text-xs break-all">{check.detail}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        ) : null}
+        <h2 className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
+          校验结果
+        </h2>
+        <StatusBanner state={state} claimsFailed={claimsFailed} />
       </div>
+
+      <Panel
+        accent="violet"
+        title="声明校验（可选）"
+        hint="签名之外的检查：有效期总是会检查，签发者与受众填写后才检查"
+      >
+        <div className="space-y-4">
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div className="space-y-2">
+              <Label htmlFor="verify-iss">期望签发者 iss</Label>
+              <Input
+                id="verify-iss"
+                value={issuer}
+                onChange={(event) => setIssuer(event.target.value)}
+                placeholder="https://auth.example.com"
+                autoComplete="off"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="verify-aud">期望受众 aud</Label>
+              <Input
+                id="verify-aud"
+                value={audience}
+                onChange={(event) => setAudience(event.target.value)}
+                placeholder="my-api"
+                autoComplete="off"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="verify-tolerance">时钟容差（秒）</Label>
+              <Input
+                id="verify-tolerance"
+                value={tolerance}
+                onChange={(event) => setTolerance(event.target.value)}
+                inputMode="numeric"
+                placeholder="0"
+                autoComplete="off"
+              />
+            </div>
+          </div>
+
+          {checks.length > 0 ? (
+            <ul className="divide-y rounded-lg border">
+              {checks.map((check) => (
+                <li key={check.label} className="flex items-start gap-3 px-4 py-3">
+                  <CheckIcon status={check.status} />
+                  <div className="min-w-0 space-y-0.5">
+                    <p className="text-sm font-medium">{check.label}</p>
+                    <p className="text-muted-foreground text-xs break-all">{check.detail}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
+      </Panel>
     </div>
   )
 }

@@ -6,14 +6,14 @@ import { DecodePanel } from "@/components/tools/jwt/decode-panel"
 import { SignPanel } from "@/components/tools/jwt/sign-panel"
 import { VerifyPanel } from "@/components/tools/jwt/verify-panel"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { SAMPLE_SECRET, SAMPLE_TOKEN } from "@/lib/jwt"
+import { SAMPLE_SECRET } from "@/lib/jwt"
 
 type TabKey = "decode" | "verify" | "sign"
 
 export function JwtTool() {
   const [tab, setTab] = useState<TabKey>("decode")
   // Token 与密钥在「解码」「校验」之间共享，切页不用重新粘贴
-  const [token, setToken] = useState(SAMPLE_TOKEN)
+  const [token, setToken] = useState('')
   const [secret, setSecret] = useState(SAMPLE_SECRET)
 
   return (

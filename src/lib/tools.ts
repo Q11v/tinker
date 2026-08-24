@@ -30,6 +30,20 @@ export const CATEGORY_ORDER: ToolCategory[] = [
   "文本处理",
 ]
 
+/** 每个分类对应一个主题色变量（对应 globals.css 里的 --chart-1..5），用于卡片图标着色 */
+const CATEGORY_ACCENTS = [
+  "var(--chart-1)",
+  "var(--chart-2)",
+  "var(--chart-3)",
+  "var(--chart-4)",
+  "var(--chart-5)",
+]
+
+export function categoryAccent(category: ToolCategory): string {
+  const index = CATEGORY_ORDER.indexOf(category)
+  return CATEGORY_ACCENTS[index % CATEGORY_ACCENTS.length]
+}
+
 export interface Tool {
   /** URL 片段，最终路径为 /tools/{slug} */
   slug: string

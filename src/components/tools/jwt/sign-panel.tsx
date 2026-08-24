@@ -8,6 +8,7 @@ import { CopyButton } from "@/components/copy-button"
 import { AlgorithmSelect } from "@/components/tools/jwt/algorithm-select"
 import { JsonBlock } from "@/components/tools/jwt/json-block"
 import { KeyField } from "@/components/tools/jwt/key-field"
+import { Panel } from "@/components/tools/jwt/panel"
 import { TokenPreview } from "@/components/tools/jwt/token-preview"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -114,24 +115,26 @@ export function SignPanel({ onUseToken }: { onUseToken: (token: string) => void 
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 lg:grid-cols-[220px_1fr]">
-        <AlgorithmSelect id="sign-alg" value={alg} onChange={setAlg} />
-        <KeyField
-          id="sign-key"
-          alg={alg}
-          usage="sign"
-          value={key}
-          onChange={setKey}
-          encoding={encoding}
-          onEncodingChange={setEncoding}
-          actions={
-            <Button variant="outline" size="sm" onClick={handleGenerateKey} disabled={busy}>
-              <Sparkles className="size-3.5" />
-              {symmetric ? "随机密钥" : "生成密钥对"}
-            </Button>
-          }
-        />
-      </div>
+      <Panel accent="sky" title="签名密钥" hint="选择算法，生成或粘贴用于签名的密钥">
+        <div className="grid gap-4 lg:grid-cols-[220px_1fr]">
+          <AlgorithmSelect id="sign-alg" value={alg} onChange={setAlg} />
+          <KeyField
+            id="sign-key"
+            alg={alg}
+            usage="sign"
+            value={key}
+            onChange={setKey}
+            encoding={encoding}
+            onEncodingChange={setEncoding}
+            actions={
+              <Button variant="outline" size="sm" onClick={handleGenerateKey} disabled={busy}>
+                <Sparkles className="size-3.5" />
+                {symmetric ? "随机密钥" : "生成密钥对"}
+              </Button>
+            }
+          />
+        </div>
+      </Panel>
 
       {publicKey ? (
         <Alert>
@@ -148,64 +151,65 @@ export function SignPanel({ onUseToken }: { onUseToken: (token: string) => void 
         </Alert>
       ) : null}
 
-      <div className="space-y-2">
-        <div className="flex items-center justify-between gap-2">
-          <Label htmlFor="sign-payload">Payload（JSON）</Label>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setPayloadText(DEFAULT_PAYLOAD)}
-          >
+      <Panel
+        accent="violet"
+        title="Payload"
+        hint="写入 Token 的声明（claims）"
+        action={
+          <Button variant="ghost" size="sm" onClick={() => setPayloadText(DEFAULT_PAYLOAD)}>
             重置
           </Button>
+        }
+      >
+        <div className="space-y-2">
+          <Textarea
+            id="sign-payload"
+            value={payloadText}
+            onChange={(event) => setPayloadText(event.target.value)}
+            spellCheck={false}
+            autoComplete="off"
+            aria-invalid={!parsedPayload.ok}
+            className="max-h-80 min-h-40 font-mono text-[13px]"
+          />
+          {parsedPayload.ok ? (
+            <p className="text-muted-foreground text-xs">
+              iat 与 exp 由下面的开关自动写入，无需在这里手写。
+            </p>
+          ) : (
+            <p className="text-destructive text-xs">{parsedPayload.error}</p>
+          )}
         </div>
-        <Textarea
-          id="sign-payload"
-          value={payloadText}
-          onChange={(event) => setPayloadText(event.target.value)}
-          spellCheck={false}
-          autoComplete="off"
-          aria-invalid={!parsedPayload.ok}
-          className="max-h-80 min-h-40 font-mono text-[13px]"
-        />
-        {parsedPayload.ok ? (
-          <p className="text-muted-foreground text-xs">
-            iat 与 exp 由下面的开关自动写入，无需在这里手写。
-          </p>
-        ) : (
-          <p className="text-destructive text-xs">{parsedPayload.error}</p>
-        )}
-      </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <div className="space-y-2">
-          <Label htmlFor="sign-kid">密钥 ID kid（可选）</Label>
-          <Input
-            id="sign-kid"
-            value={kid}
-            onChange={(event) => setKid(event.target.value)}
-            placeholder="写入 header 的 kid"
-            autoComplete="off"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="sign-exp">有效期</Label>
-          <Input
-            id="sign-exp"
-            value={expiresIn}
-            onChange={(event) => setExpiresIn(event.target.value)}
-            placeholder="2h / 7d / 30m，留空则不设 exp"
-            autoComplete="off"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="sign-iat">签发时间 iat</Label>
-          <div className="flex h-8 items-center gap-2">
-            <Switch id="sign-iat" checked={withIssuedAt} onCheckedChange={setWithIssuedAt} />
-            <span className="text-muted-foreground text-sm">自动写入当前时间</span>
+        <div className="mt-4 grid gap-4 border-t pt-4 sm:grid-cols-3">
+          <div className="space-y-2">
+            <Label htmlFor="sign-kid">密钥 ID kid（可选）</Label>
+            <Input
+              id="sign-kid"
+              value={kid}
+              onChange={(event) => setKid(event.target.value)}
+              placeholder="写入 header 的 kid"
+              autoComplete="off"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="sign-exp">有效期</Label>
+            <Input
+              id="sign-exp"
+              value={expiresIn}
+              onChange={(event) => setExpiresIn(event.target.value)}
+              placeholder="2h / 7d / 30m，留空则不设 exp"
+              autoComplete="off"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="sign-iat">签发时间 iat</Label>
+            <div className="flex h-8 items-center gap-2">
+              <Switch id="sign-iat" checked={withIssuedAt} onCheckedChange={setWithIssuedAt} />
+              <span className="text-muted-foreground text-sm">自动写入当前时间</span>
+            </div>
           </div>
         </div>
-      </div>
+      </Panel>
 
       <div className="flex flex-wrap items-center gap-2">
         <Button onClick={handleSign} disabled={busy || !parsedPayload.ok || !key.trim()}>
@@ -227,22 +231,30 @@ export function SignPanel({ onUseToken }: { onUseToken: (token: string) => void 
 
       {token ? (
         <div className="space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h3 className="text-sm font-medium">生成结果</h3>
-            <div className="flex items-center gap-1">
-              <Button variant="outline" size="sm" onClick={() => onUseToken(token)}>
-                在解码中打开
-              </Button>
-              <CopyButton value={token} />
-            </div>
-          </div>
-          <TokenPreview token={token} />
-          {signedPayload ? (
-            <div className="bg-card rounded-xl border p-4">
-              <p className="text-muted-foreground mb-2 text-xs">最终写入的 Payload</p>
-              <JsonBlock value={signedPayload} />
-            </div>
-          ) : null}
+          <h2 className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
+            生成结果
+          </h2>
+          <Panel
+            accent="sky"
+            title="Token"
+            hint="签名后的完整 Token，可以直接继续在解码 / 校验里打开"
+            action={
+              <div className="flex items-center gap-1">
+                <Button variant="outline" size="sm" onClick={() => onUseToken(token)}>
+                  在解码中打开
+                </Button>
+                <CopyButton value={token} />
+              </div>
+            }
+          >
+            <TokenPreview token={token} />
+            {signedPayload ? (
+              <div className="mt-4 border-t pt-4">
+                <p className="text-muted-foreground mb-2 text-xs">最终写入的 Payload</p>
+                <JsonBlock value={signedPayload} />
+              </div>
+            ) : null}
+          </Panel>
         </div>
       ) : null}
     </div>
