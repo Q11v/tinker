@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { useDict } from "@/i18n/context"
+import { format } from "@/i18n/format"
 import {
   bytesToText,
   decodeBase64,
@@ -21,16 +23,6 @@ import {
 
 type Mode = "encode" | "decode"
 type Source = "text" | "file"
-
-const MODES: { value: Mode; label: string }[] = [
-  { value: "encode", label: "编码" },
-  { value: "decode", label: "解码" },
-]
-
-const SOURCES: { value: Source; label: string }[] = [
-  { value: "text", label: "文本" },
-  { value: "file", label: "文件" },
-]
 
 const VARIANTS: { value: Base64Variant; label: string }[] = [
   { value: "standard", label: "Base64" },
@@ -63,6 +55,7 @@ function useObjectUrl(blob: Blob | null): string | null {
 }
 
 export function Base64Tool() {
+  const dict = useDict()
   const [mode, setMode] = useState<Mode>("encode")
   const [variant, setVariant] = useState<Base64Variant>("standard")
 
@@ -113,28 +106,37 @@ export function Base64Tool() {
   }, [decodeResult, decodedImage, decodedText])
   const decodedBlobUrl = useObjectUrl(decodedBlob)
 
+  const modes = [
+    { value: "encode" as const, label: dict.base64Tool.encode },
+    { value: "decode" as const, label: dict.base64Tool.decode },
+  ]
+  const sources = [
+    { value: "text" as const, label: dict.common.text },
+    { value: "file" as const, label: dict.common.file },
+  ]
+
   return (
     <div className="space-y-4">
-      <SegmentedControl value={mode} onChange={setMode} options={MODES} />
+      <SegmentedControl value={mode} onChange={setMode} options={modes} />
 
       {mode === "encode" ? (
         <div className="grid gap-4 lg:grid-cols-2">
           <Panel
             accent="violet"
-            title="输入"
-            hint="文本或文件，全部在本机完成"
-            action={<SegmentedControl value={source} onChange={setSource} options={SOURCES} />}
+            title={dict.common.input}
+            hint={dict.base64Tool.inputHint}
+            action={<SegmentedControl value={source} onChange={setSource} options={sources} />}
           >
             {source === "text" ? (
               <>
                 <Label htmlFor="b64-encode-text" className="sr-only">
-                  待编码文本
+                  {dict.base64Tool.encodeTextLabel}
                 </Label>
                 <Textarea
                   id="b64-encode-text"
                   value={encodeText}
                   onChange={(event) => setEncodeText(event.target.value)}
-                  placeholder="输入要编码的文本"
+                  placeholder={dict.base64Tool.encodeTextPlaceholder}
                   spellCheck={false}
                   autoComplete="off"
                   className="max-h-64 min-h-40 font-mono text-[13px]"
@@ -143,7 +145,7 @@ export function Base64Tool() {
             ) : (
               <div className="space-y-2">
                 <Label htmlFor="b64-encode-file" className="sr-only">
-                  选择文件
+                  {dict.common.selectFile}
                 </Label>
                 <Input
                   id="b64-encode-file"
@@ -161,8 +163,8 @@ export function Base64Tool() {
 
           <Panel
             accent="sky"
-            title="输出"
-            hint="编码结果"
+            title={dict.common.output}
+            hint={dict.base64Tool.outputHint}
             action={
               <div className="flex items-center gap-1">
                 <SegmentedControl value={variant} onChange={setVariant} options={VARIANTS} />
@@ -171,7 +173,7 @@ export function Base64Tool() {
             }
           >
             {!encodedOutput ? (
-              <p className="text-muted-foreground text-sm">在左侧输入文本或选择文件。</p>
+              <p className="text-muted-foreground text-sm">{dict.base64Tool.encodeEmptyState}</p>
             ) : (
               <p className="bg-muted/50 rounded-lg border p-3 font-mono text-[13px] break-all">
                 {encodedOutput}
@@ -183,12 +185,12 @@ export function Base64Tool() {
         <div className="grid gap-4 lg:grid-cols-2">
           <Panel
             accent="violet"
-            title="输入"
-            hint="粘贴 Base64，标准或 URL-safe 字母表都能识别"
-            footer="可以直接粘贴 data:image/png;base64,... 这种带前缀的字符串"
+            title={dict.common.input}
+            hint={dict.base64Tool.decodeInputHint}
+            footer={dict.base64Tool.decodeInputFooter}
           >
             <Label htmlFor="b64-decode-text" className="sr-only">
-              待解码的 Base64
+              {dict.base64Tool.decodeTextLabel}
             </Label>
             <Textarea
               id="b64-decode-text"
@@ -201,23 +203,25 @@ export function Base64Tool() {
               className="max-h-64 min-h-40 font-mono text-[13px]"
             />
             {decodeResult && !decodeResult.ok ? (
-              <p className="text-destructive mt-2 text-xs">{decodeResult.error}</p>
+              <p className="text-destructive mt-2 text-xs">
+                {dict.errors.base64[decodeResult.error]}
+              </p>
             ) : null}
           </Panel>
 
           <Panel
             accent="sky"
-            title="输出"
+            title={dict.common.output}
             hint={
               !decodeResult
-                ? "输入后自动解码"
+                ? dict.base64Tool.decodeWaiting
                 : !decodeResult.ok
-                  ? "解码失败"
+                  ? dict.base64Tool.decodeFailed
                   : decodedImage
-                    ? "识别为图片"
+                    ? dict.base64Tool.detectedImage
                     : decodedText?.ok
-                      ? "按 UTF-8 文本解码"
-                      : "不是可显示的文本"
+                      ? dict.base64Tool.decodedAsText
+                      : dict.base64Tool.notDisplayable
             }
             action={
               decodeResult?.ok ? (
@@ -227,7 +231,7 @@ export function Base64Tool() {
                     <Button variant="ghost" size="sm" asChild>
                       <a href={decodedBlobUrl} download={`decoded.${decodedImage?.ext ?? "bin"}`}>
                         <Download className="size-3.5" />
-                        下载
+                        {dict.common.download}
                       </a>
                     </Button>
                   ) : null}
@@ -236,21 +240,24 @@ export function Base64Tool() {
             }
           >
             {!decodeResult ? (
-              <p className="text-muted-foreground text-sm">在左侧粘贴 Base64 文本。</p>
+              <p className="text-muted-foreground text-sm">{dict.base64Tool.decodeEmptyState}</p>
             ) : !decodeResult.ok ? (
-              <p className="text-destructive text-sm">{decodeResult.error}</p>
+              <p className="text-destructive text-sm">{dict.errors.base64[decodeResult.error]}</p>
             ) : decodedImage ? (
               <div className="space-y-3">
                 {decodedBlobUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element -- 本地 blob URL，不走 next/image 优化没有意义
                   <img
                     src={decodedBlobUrl}
-                    alt="解码后的图片预览"
+                    alt={dict.base64Tool.imageAlt}
                     className="max-h-64 rounded-lg border object-contain"
                   />
                 ) : null}
                 <p className="text-muted-foreground text-xs">
-                  {decodedImage.mime} · {decodeResult.bytes.length.toLocaleString()} 字节
+                  {format(dict.base64Tool.imageMeta, {
+                    mime: decodedImage.mime,
+                    bytes: decodeResult.bytes.length.toLocaleString(),
+                  })}
                 </p>
               </div>
             ) : decodedText?.ok ? (
@@ -259,8 +266,9 @@ export function Base64Tool() {
               </p>
             ) : (
               <p className="text-muted-foreground text-sm">
-                解码得到 {decodeResult.bytes.length.toLocaleString()}{" "}
-                字节的二进制数据，不是可显示的文本，可以点右上角下载。
+                {format(dict.base64Tool.binaryNote, {
+                  bytes: decodeResult.bytes.length.toLocaleString(),
+                })}
               </p>
             )}
           </Panel>

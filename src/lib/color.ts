@@ -32,7 +32,19 @@ function round(value: number, decimals: number): number {
 /* 解析                                                                 */
 /* ------------------------------------------------------------------ */
 
-export type ColorParseResult = { ok: true; rgb: Rgb } | { ok: false; error: string }
+/** 错误用码表示，具体文案由 UI 层按当前语言从字典里取 */
+export type ColorErrorCode =
+  | "empty"
+  | "hexLength"
+  | "rgbParts"
+  | "rgbValues"
+  | "hslParts"
+  | "hslValues"
+  | "oklchParts"
+  | "oklchValues"
+  | "unknownFormat"
+
+export type ColorParseResult = { ok: true; rgb: Rgb } | { ok: false; error: ColorErrorCode }
 
 function parsePercentOrNumber(text: string, max: number): number | null {
   const trimmed = text.trim()
@@ -62,7 +74,7 @@ function parseHex(text: string): ColorParseResult | null {
     hex = Array.from(hex, (ch) => ch + ch).join("")
   }
   if (hex.length !== 6 && hex.length !== 8) {
-    return { ok: false, error: "HEX 长度不对，应该是 3/4/6/8 位" }
+    return { ok: false, error: "hexLength" }
   }
   const r = Number.parseInt(hex.slice(0, 2), 16)
   const g = Number.parseInt(hex.slice(2, 4), 16)
@@ -75,12 +87,12 @@ function parseRgbFunc(text: string): ColorParseResult | null {
   const match = text.match(/^rgba?\(\s*([^)]+)\)$/i)
   if (!match) return null
   const parts = match[1].split(/[,\s/]+/).filter(Boolean)
-  if (parts.length < 3) return { ok: false, error: "rgb() 至少需要 3 个分量" }
+  if (parts.length < 3) return { ok: false, error: "rgbParts" }
   const r = parsePercentOrNumber(parts[0], 255)
   const g = parsePercentOrNumber(parts[1], 255)
   const b = parsePercentOrNumber(parts[2], 255)
   if (r === null || g === null || b === null) {
-    return { ok: false, error: "rgb() 的分量无法识别" }
+    return { ok: false, error: "rgbValues" }
   }
   return {
     ok: true,
@@ -122,12 +134,12 @@ function parseHslFunc(text: string): ColorParseResult | null {
   const match = text.match(/^hsla?\(\s*([^)]+)\)$/i)
   if (!match) return null
   const parts = match[1].split(/[,\s/]+/).filter(Boolean)
-  if (parts.length < 3) return { ok: false, error: "hsl() 至少需要 3 个分量" }
+  if (parts.length < 3) return { ok: false, error: "hslParts" }
   const h = Number.parseFloat(parts[0])
   const s = Number.parseFloat(parts[1].replace("%", ""))
   const l = Number.parseFloat(parts[2].replace("%", ""))
   if (Number.isNaN(h) || Number.isNaN(s) || Number.isNaN(l)) {
-    return { ok: false, error: "hsl() 的分量无法识别" }
+    return { ok: false, error: "hslValues" }
   }
   const { r, g, b } = hslToRgbValues(h, s, l)
   return { ok: true, rgb: { r, g, b, a: parseAlpha(parts[3]) } }
@@ -137,12 +149,12 @@ function parseOklchFunc(text: string): ColorParseResult | null {
   const match = text.match(/^oklch\(\s*([^)]+)\)$/i)
   if (!match) return null
   const parts = match[1].split(/[,\s/]+/).filter(Boolean)
-  if (parts.length < 3) return { ok: false, error: "oklch() 至少需要 3 个分量" }
+  if (parts.length < 3) return { ok: false, error: "oklchParts" }
   const l = parsePercentOrNumber(parts[0], 1)
   const c = Number.parseFloat(parts[1])
   const h = Number.parseFloat(parts[2].replace("deg", ""))
   if (l === null || Number.isNaN(c) || Number.isNaN(h)) {
-    return { ok: false, error: "oklch() 的分量无法识别" }
+    return { ok: false, error: "oklchValues" }
   }
   const rgb = oklchToRgb({ l, c, h, a: parseAlpha(parts[3]) })
   return { ok: true, rgb }
@@ -150,14 +162,14 @@ function parseOklchFunc(text: string): ColorParseResult | null {
 
 export function parseColor(input: string): ColorParseResult {
   const text = input.trim()
-  if (!text) return { ok: false, error: "请输入颜色" }
+  if (!text) return { ok: false, error: "empty" }
   const lower = text.toLowerCase()
 
   const result =
     parseHex(lower) ?? parseRgbFunc(lower) ?? parseHslFunc(lower) ?? parseOklchFunc(lower)
   if (result) return result
 
-  return { ok: false, error: "无法识别的颜色格式，支持 HEX / RGB / HSL / OKLCH" }
+  return { ok: false, error: "unknownFormat" }
 }
 
 /* ------------------------------------------------------------------ */

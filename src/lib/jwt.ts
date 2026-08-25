@@ -16,11 +16,11 @@ import { formatRelative as formatRelativeMs } from "@/lib/timestamp"
 
 /** 支持的签名算法，按密钥类型分组展示 */
 export const ALGORITHM_GROUPS = [
-  { label: "HMAC（共享密钥）", items: ["HS256", "HS384", "HS512"] },
-  { label: "RSA（公私钥）", items: ["RS256", "RS384", "RS512"] },
-  { label: "RSA-PSS（公私钥）", items: ["PS256", "PS384", "PS512"] },
-  { label: "ECDSA（公私钥）", items: ["ES256", "ES384", "ES512"] },
-  { label: "EdDSA（公私钥）", items: ["EdDSA"] },
+  { key: "hmac", items: ["HS256", "HS384", "HS512"] },
+  { key: "rsa", items: ["RS256", "RS384", "RS512"] },
+  { key: "rsaPss", items: ["PS256", "PS384", "PS512"] },
+  { key: "ecdsa", items: ["ES256", "ES384", "ES512"] },
+  { key: "eddsa", items: ["EdDSA"] },
 ] as const
 
 export const ALGORITHMS = ALGORITHM_GROUPS.flatMap((group) => group.items)
@@ -34,11 +34,7 @@ export function isSymmetric(alg: string): boolean {
 
 export type SecretEncoding = "utf8" | "base64url" | "hex"
 
-export const SECRET_ENCODING_LABELS: Record<SecretEncoding, string> = {
-  utf8: "UTF-8 文本",
-  base64url: "Base64 / Base64URL",
-  hex: "十六进制",
-}
+export const SECRET_ENCODINGS: SecretEncoding[] = ["utf8", "base64url", "hex"]
 
 /* ------------------------------------------------------------------ */
 /* 编解码基础工具                                                       */
@@ -62,7 +58,7 @@ function bytesToBase64Url(bytes: Uint8Array): string {
 function hexToBytes(input: string): Uint8Array {
   const clean = input.replace(/[\s:]/g, "")
   if (clean.length === 0 || clean.length % 2 !== 0 || /[^0-9a-fA-F]/.test(clean)) {
-    throw new Error("不是合法的十六进制字符串")
+    throw new JwtCodedError("badHex")
   }
   const bytes = new Uint8Array(clean.length / 2)
   for (let i = 0; i < bytes.length; i += 1) {
@@ -84,13 +80,13 @@ export interface DecodedJwt {
   segments: { header: string; payload: string; signature: string }
   header: Record<string, unknown> | null
   payload: Record<string, unknown> | null
-  headerError?: string
-  payloadError?: string
+  headerError?: JwtError
+  payloadError?: JwtError
   /** header.alg，解析失败时为 undefined */
   alg?: string
 }
 
-export type DecodeResult = { ok: true; value: DecodedJwt } | { ok: false; error: string }
+export type DecodeResult = { ok: true; value: DecodedJwt } | { ok: false; error: JwtError }
 
 /**
  * 纯本地解码。即使某一段损坏也尽量把能解出来的部分返回，
@@ -98,20 +94,12 @@ export type DecodeResult = { ok: true; value: DecodedJwt } | { ok: false; error:
  */
 export function decodeToken(token: string): DecodeResult {
   const raw = token.trim()
-  if (!raw) return { ok: false, error: "请输入一个 JWT。" }
+  if (!raw) return { ok: false, error: { code: "empty" } }
 
   const parts = raw.split(".")
-  if (parts.length === 5) {
-    return {
-      ok: false,
-      error: "这是一个 JWE（加密令牌，5 段），本工具只处理 JWS 形式的 JWT（3 段）。",
-    }
-  }
+  if (parts.length === 5) return { ok: false, error: { code: "jwe" } }
   if (parts.length !== 3) {
-    return {
-      ok: false,
-      error: `JWT 应由 "." 分隔的 3 段组成，当前是 ${parts.length} 段。`,
-    }
+    return { ok: false, error: { code: "segmentCount", params: { count: String(parts.length) } } }
   }
 
   const [headerB64, payloadB64, signatureB64] = parts
@@ -124,23 +112,23 @@ export function decodeToken(token: string): DecodeResult {
   try {
     const header = decodeSegment(headerB64)
     if (typeof header !== "object" || header === null || Array.isArray(header)) {
-      throw new Error("header 不是 JSON 对象")
+      throw new JwtCodedError("notObject")
     }
     result.header = header as Record<string, unknown>
     const alg = result.header.alg
     if (typeof alg === "string") result.alg = alg
   } catch (error) {
-    result.headerError = `Header 解析失败：${messageOf(error)}`
+    result.headerError = errorOf(error)
   }
 
   try {
     const payload = decodeSegment(payloadB64)
     if (typeof payload !== "object" || payload === null || Array.isArray(payload)) {
-      throw new Error("payload 不是 JSON 对象")
+      throw new JwtCodedError("notObject")
     }
     result.payload = payload as Record<string, unknown>
   } catch (error) {
-    result.payloadError = `Payload 解析失败：${messageOf(error)}`
+    result.payloadError = errorOf(error)
   }
 
   return { ok: true, value: result }
@@ -150,23 +138,20 @@ export function decodeToken(token: string): DecodeResult {
 /* 声明（claims）                                                      */
 /* ------------------------------------------------------------------ */
 
-export const REGISTERED_CLAIMS: Record<string, string> = {
-  iss: "签发者 Issuer",
-  sub: "主题 Subject",
-  aud: "受众 Audience",
-  exp: "过期时间 Expiration",
-  nbf: "生效时间 Not Before",
-  iat: "签发时间 Issued At",
-  jti: "唯一标识 JWT ID",
+/** 有标准含义的声明，说明文案在字典的 jwt.claims / jwt.headers 里 */
+export const REGISTERED_CLAIMS = ["iss", "sub", "aud", "exp", "nbf", "iat", "jti"] as const
+
+export const REGISTERED_HEADERS = ["alg", "typ", "cty", "kid", "jku", "x5t"] as const
+
+export type RegisteredClaim = (typeof REGISTERED_CLAIMS)[number]
+export type RegisteredHeader = (typeof REGISTERED_HEADERS)[number]
+
+export function isRegisteredClaim(key: string): key is RegisteredClaim {
+  return (REGISTERED_CLAIMS as readonly string[]).includes(key)
 }
 
-export const REGISTERED_HEADERS: Record<string, string> = {
-  alg: "签名算法",
-  typ: "令牌类型",
-  cty: "内容类型",
-  kid: "密钥 ID",
-  jku: "JWK Set URL",
-  x5t: "证书指纹",
+export function isRegisteredHeader(key: string): key is RegisteredHeader {
+  return (REGISTERED_HEADERS as readonly string[]).includes(key)
 }
 
 const TIME_CLAIMS = new Set(["exp", "nbf", "iat", "auth_time", "updated_at"])
@@ -175,28 +160,38 @@ export function isTimeClaim(key: string): boolean {
   return TIME_CLAIMS.has(key)
 }
 
-export function formatUnixSeconds(value: number): string {
+/** 无效时间返回 null，让调用方用当前语言的文案兜底 */
+export function formatUnixSeconds(value: number, bcp47: string): string | null {
   const date = new Date(value * 1000)
-  if (Number.isNaN(date.getTime())) return "无效时间"
-  const pad = (n: number) => String(n).padStart(2, "0")
-  return (
-    `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ` +
-    `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
-  )
+  if (Number.isNaN(date.getTime())) return null
+  return new Intl.DateTimeFormat(bcp47, {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  }).format(date)
 }
 
 /** 相对当前时间的人类可读描述，例如「3 小时后」「2 天前」。算法在 lib/time.ts 里，这里只是秒转毫秒的薄封装 */
-export function formatRelative(targetSeconds: number, nowSeconds: number): string {
-  return formatRelativeMs(targetSeconds * 1000, nowSeconds * 1000)
+export function formatRelative(targetSeconds: number, nowSeconds: number, bcp47: string): string {
+  return formatRelativeMs(targetSeconds * 1000, nowSeconds * 1000, bcp47)
 }
 
 export type CheckStatus = "pass" | "fail" | "skip"
 
-export interface ClaimCheck {
-  label: string
-  status: CheckStatus
-  detail: string
-}
+/**
+ * 检查项只返回结构化数据，不拼文案。
+ * 「2026-01-01 12:00:00（3 天前） · 令牌已过期」这种句子的语序各语言不同，
+ * 必须由 UI 层用字典模板组装。
+ */
+export type ClaimCheck =
+  | { kind: "exp"; status: CheckStatus; seconds: number | null }
+  | { kind: "nbf"; status: CheckStatus; seconds: number }
+  | { kind: "iss"; status: CheckStatus; expected: string; actual: string }
+  | { kind: "aud"; status: CheckStatus; expected: string; actual: string }
 
 export interface ClaimCheckOptions {
   issuer?: string
@@ -219,51 +214,41 @@ export function checkClaims(
 
   const exp = payload.exp
   if (typeof exp === "number") {
-    const expired = nowSeconds > exp + tolerance
     checks.push({
-      label: "过期时间 exp",
-      status: expired ? "fail" : "pass",
-      detail: `${formatUnixSeconds(exp)}（${formatRelative(exp, nowSeconds)}）${
-        expired ? " · 令牌已过期" : ""
-      }`,
+      kind: "exp",
+      status: nowSeconds > exp + tolerance ? "fail" : "pass",
+      seconds: exp,
     })
   } else {
-    checks.push({ label: "过期时间 exp", status: "skip", detail: "未设置，令牌永不过期" })
+    checks.push({ kind: "exp", status: "skip", seconds: null })
   }
 
   const nbf = payload.nbf
   if (typeof nbf === "number") {
-    const notYet = nowSeconds + tolerance < nbf
     checks.push({
-      label: "生效时间 nbf",
-      status: notYet ? "fail" : "pass",
-      detail: `${formatUnixSeconds(nbf)}（${formatRelative(nbf, nowSeconds)}）${
-        notYet ? " · 尚未生效" : ""
-      }`,
+      kind: "nbf",
+      status: nowSeconds + tolerance < nbf ? "fail" : "pass",
+      seconds: nbf,
     })
   }
 
   if (options.issuer) {
-    const matched = payload.iss === options.issuer
     checks.push({
-      label: "签发者 iss",
-      status: matched ? "pass" : "fail",
-      detail: matched
-        ? `与期望值一致：${options.issuer}`
-        : `期望 ${options.issuer}，实际 ${JSON.stringify(payload.iss ?? null)}`,
+      kind: "iss",
+      status: payload.iss === options.issuer ? "pass" : "fail",
+      expected: options.issuer,
+      actual: JSON.stringify(payload.iss ?? null),
     })
   }
 
   if (options.audience) {
     const aud = payload.aud
     const list = Array.isArray(aud) ? aud : [aud]
-    const matched = list.includes(options.audience)
     checks.push({
-      label: "受众 aud",
-      status: matched ? "pass" : "fail",
-      detail: matched
-        ? `包含期望值：${options.audience}`
-        : `期望包含 ${options.audience}，实际 ${JSON.stringify(aud ?? null)}`,
+      kind: "aud",
+      status: list.includes(options.audience) ? "pass" : "fail",
+      expected: options.audience,
+      actual: JSON.stringify(aud ?? null),
     })
   }
 
@@ -271,17 +256,61 @@ export function checkClaims(
 }
 
 /* ------------------------------------------------------------------ */
+/* 错误                                                                */
+/* ------------------------------------------------------------------ */
+
+/**
+ * 所有对用户可见的错误都用码表示，文案在字典的 jwt.errors 里。
+ * native 用来兜底 jose / 浏览器抛出的、我们没有专门处理的错误，
+ * 只能把引擎给的英文原文透传出去。
+ */
+export type JwtErrorCode =
+  | "empty"
+  | "jwe"
+  | "segmentCount"
+  | "notObject"
+  | "secretRequired"
+  | "badBase64Secret"
+  | "badHex"
+  | "jwkNotJson"
+  | "jwkSymmetric"
+  | "pkcs1Unsupported"
+  | "unknownKeyFormatVerify"
+  | "unknownKeyFormatSign"
+  | "signatureMismatch"
+  | "jwsInvalid"
+  | "algMismatch"
+  | "algUnsupported"
+  | "jwkInvalid"
+  | "native"
+
+export interface JwtError {
+  code: JwtErrorCode
+  params?: Record<string, string>
+}
+
+/** 带错误码的异常，跨越 async 边界后仍能还原成结构化错误 */
+export class JwtCodedError extends Error {
+  constructor(
+    readonly code: JwtErrorCode,
+    readonly params?: Record<string, string>
+  ) {
+    super(code)
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /* 密钥                                                                */
 /* ------------------------------------------------------------------ */
 
 function secretToBytes(secret: string, encoding: SecretEncoding): Uint8Array {
-  if (!secret) throw new Error("请输入密钥")
+  if (!secret) throw new JwtCodedError("secretRequired")
   if (encoding === "utf8") return new TextEncoder().encode(secret)
   if (encoding === "hex") return hexToBytes(secret)
   try {
     return base64UrlToBytes(secret.trim())
   } catch {
-    throw new Error("不是合法的 Base64 / Base64URL 字符串")
+    throw new JwtCodedError("badBase64Secret")
   }
 }
 
@@ -291,18 +320,18 @@ async function importAsymmetric(
   usage: "verify" | "sign"
 ): Promise<JoseCryptoKey> {
   const text = material.trim()
-  if (!text) throw new Error("请输入密钥")
+  if (!text) throw new JwtCodedError("secretRequired")
 
   if (text.startsWith("{")) {
     let jwk: JWK
     try {
       jwk = JSON.parse(text) as JWK
     } catch {
-      throw new Error("JWK 不是合法的 JSON")
+      throw new JwtCodedError("jwkNotJson")
     }
     const key = await importJWK(jwk, alg)
     if (key instanceof Uint8Array) {
-      throw new Error("这是一把对称密钥（oct），请改用 HS 系列算法")
+      throw new JwtCodedError("jwkSymmetric")
     }
     return key
   }
@@ -311,14 +340,10 @@ async function importAsymmetric(
   if (text.includes("BEGIN PUBLIC KEY")) return importSPKI(text, alg)
   if (text.includes("BEGIN PRIVATE KEY")) return importPKCS8(text, alg)
   if (text.includes("BEGIN RSA PRIVATE KEY")) {
-    throw new Error("PKCS#1 格式暂不支持，请转换为 PKCS#8（-----BEGIN PRIVATE KEY-----）")
+    throw new JwtCodedError("pkcs1Unsupported")
   }
 
-  throw new Error(
-    usage === "verify"
-      ? "无法识别密钥格式，请粘贴 SPKI 公钥（-----BEGIN PUBLIC KEY-----）、X.509 证书或 JWK"
-      : "无法识别密钥格式，请粘贴 PKCS#8 私钥（-----BEGIN PRIVATE KEY-----）或 JWK"
-  )
+  throw new JwtCodedError(usage === "verify" ? "unknownKeyFormatVerify" : "unknownKeyFormatSign")
 }
 
 export async function resolveKey(
@@ -385,23 +410,24 @@ export async function signToken({
   return signer.sign(key)
 }
 
-/** 把 jose 抛出的错误翻译成看得懂的中文提示 */
-export function messageOf(error: unknown): string {
-  if (!(error instanceof Error)) return String(error)
-  const code = (error as { code?: string }).code
-  switch (code) {
+/** 把自己抛的 JwtCodedError 和 jose 抛的错误统一成结构化错误码 */
+export function errorOf(error: unknown): JwtError {
+  if (error instanceof JwtCodedError) return { code: error.code, params: error.params }
+  if (!(error instanceof Error)) return { code: "native", params: { message: String(error) } }
+
+  switch ((error as { code?: string }).code) {
     case "ERR_JWS_SIGNATURE_VERIFICATION_FAILED":
-      return "签名校验失败：密钥与该 Token 不匹配。"
+      return { code: "signatureMismatch" }
     case "ERR_JWS_INVALID":
-      return "Token 结构不合法，无法作为 JWS 解析。"
+      return { code: "jwsInvalid" }
     case "ERR_JOSE_ALG_NOT_ALLOWED":
-      return "Token header 中的算法与所选算法不一致。"
+      return { code: "algMismatch" }
     case "ERR_JOSE_NOT_SUPPORTED":
-      return `当前浏览器或参数不支持该算法：${error.message}`
+      return { code: "algUnsupported", params: { message: error.message } }
     case "ERR_JWK_INVALID":
-      return `JWK 不合法：${error.message}`
+      return { code: "jwkInvalid", params: { message: error.message } }
     default:
-      return error.message
+      return { code: "native", params: { message: error.message } }
   }
 }
 

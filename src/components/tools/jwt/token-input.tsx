@@ -4,6 +4,7 @@ import { useRef, useState } from "react"
 
 import { TokenPreview } from "@/components/tools/jwt/token-preview"
 import { Textarea } from "@/components/ui/textarea"
+import { useDict } from "@/i18n/context"
 import { cn } from "@/lib/utils"
 
 interface TokenInputProps {
@@ -19,6 +20,7 @@ interface TokenInputProps {
  * 避免原文和着色预览同时展示、重复占用空间；点击预览可重新进入编辑。
  */
 export function TokenInput({ id, value, onChange, placeholder, className }: TokenInputProps) {
+  const dict = useDict()
   const [focused, setFocused] = useState(false)
   const ref = useRef<HTMLTextAreaElement>(null)
   const showPreview = !focused && value.trim().split(".").length === 3
@@ -47,7 +49,7 @@ export function TokenInput({ id, value, onChange, placeholder, className }: Toke
         <button
           type="button"
           onClick={() => ref.current?.focus()}
-          aria-label="编辑 JWT"
+          aria-label={dict.jwtTool.preview.editLabel}
           className="absolute inset-0 block w-full text-left"
         >
           <TokenPreview token={value} className="h-full" />

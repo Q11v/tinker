@@ -1,4 +1,7 @@
-export type TimeParseResult = { ok: true; ms: number } | { ok: false; error: string }
+/** 错误用码表示，具体文案由 UI 层按当前语言从字典里取 */
+export type TimeErrorCode = "empty" | "outOfRange" | "unrecognized"
+
+export type TimeParseResult = { ok: true; ms: number } | { ok: false; error: TimeErrorCode }
 
 /**
  * 纯数字按时间戳处理，按位数自动判断单位（秒 / 毫秒 / 微秒 / 纳秒）；
@@ -6,7 +9,7 @@ export type TimeParseResult = { ok: true; ms: number } | { ok: false; error: str
  */
 export function parseTimeInput(text: string): TimeParseResult {
   const trimmed = text.trim()
-  if (!trimmed) return { ok: false, error: "请输入时间戳或日期" }
+  if (!trimmed) return { ok: false, error: "empty" }
 
   if (/^[+-]?\d+$/.test(trimmed)) {
     const digits = trimmed.replace(/^[+-]/, "").length
@@ -18,12 +21,12 @@ export function parseTimeInput(text: string): TimeParseResult {
     else if (digits <= 16)
       ms = Number(trimmed) / 1000 // 微秒
     else ms = Number(trimmed) / 1_000_000 // 纳秒
-    if (!Number.isFinite(ms)) return { ok: false, error: "数字超出可表示范围" }
+    if (!Number.isFinite(ms)) return { ok: false, error: "outOfRange" }
     return { ok: true, ms }
   }
 
   const date = new Date(trimmed)
-  if (Number.isNaN(date.getTime())) return { ok: false, error: "无法识别的时间格式" }
+  if (Number.isNaN(date.getTime())) return { ok: false, error: "unrecognized" }
   return { ok: true, ms: date.getTime() }
 }
 
@@ -35,42 +38,53 @@ export function formatRfc2822(ms: number): string {
   return new Date(ms).toUTCString()
 }
 
-/** 相对当前时间的人类可读描述，例如「3 小时后」「2 天前」 */
-export function formatRelative(targetMs: number, nowMs: number): string {
-  const diff = targetMs - nowMs
-  const abs = Math.abs(diff)
-  if (abs < 1000) return "刚刚"
-
-  let text: string
-  if (abs < 60_000) text = `${Math.floor(abs / 1000)} 秒`
-  else if (abs < 3_600_000) text = `${Math.floor(abs / 60_000)} 分钟`
-  else if (abs < 86_400_000) text = `${Math.floor(abs / 3_600_000)} 小时`
-  else if (abs < 2_592_000_000) text = `${Math.floor(abs / 86_400_000)} 天`
-  else if (abs < 31_536_000_000) text = `${Math.floor(abs / 2_592_000_000)} 个月`
-  else text = `${Math.floor(abs / 31_536_000_000)} 年`
-  return diff >= 0 ? `${text}后` : `${text}前`
-}
-
-export interface TimezoneRow {
-  id: string
-  label: string
-}
-
-export const COMMON_TIMEZONES: TimezoneRow[] = [
-  { id: "UTC", label: "UTC" },
-  { id: "America/Los_Angeles", label: "洛杉矶" },
-  { id: "America/New_York", label: "纽约" },
-  { id: "Europe/London", label: "伦敦" },
-  { id: "Europe/Paris", label: "巴黎" },
-  { id: "Asia/Dubai", label: "迪拜" },
-  { id: "Asia/Kolkata", label: "新德里" },
-  { id: "Asia/Shanghai", label: "北京 / 上海" },
-  { id: "Asia/Tokyo", label: "东京" },
-  { id: "Australia/Sydney", label: "悉尼" },
+/**
+ * 相对当前时间的描述，例如「3 小时后」「2 天前」。
+ * 交给 Intl.RelativeTimeFormat 而不是自己拼字符串 —— 各语言的复数规则、
+ * 词序和「昨天/明天」这类特例都由运行时负责，不需要写进字典。
+ */
+const RELATIVE_UNITS: { limit: number; ms: number; unit: Intl.RelativeTimeFormatUnit }[] = [
+  { limit: 60_000, ms: 1000, unit: "second" },
+  { limit: 3_600_000, ms: 60_000, unit: "minute" },
+  { limit: 86_400_000, ms: 3_600_000, unit: "hour" },
+  { limit: 2_592_000_000, ms: 86_400_000, unit: "day" },
+  { limit: 31_536_000_000, ms: 2_592_000_000, unit: "month" },
+  { limit: Infinity, ms: 31_536_000_000, unit: "year" },
 ]
 
-export function formatInTimeZone(ms: number, timeZone: string): string {
-  return new Intl.DateTimeFormat("zh-CN", {
+export function formatRelative(targetMs: number, nowMs: number, bcp47: string): string {
+  const diff = targetMs - nowMs
+  const abs = Math.abs(diff)
+  const rtf = new Intl.RelativeTimeFormat(bcp47, { numeric: "auto" })
+
+  if (abs < 1000) return rtf.format(0, "second")
+
+  const scale = RELATIVE_UNITS.find((entry) => abs < entry.limit) ?? RELATIVE_UNITS.at(-1)!
+  return rtf.format(Math.trunc(diff / scale.ms), scale.unit)
+}
+
+/**
+ * 时区只存 IANA id，城市名放在字典的 timestamp.timezones 里。
+ * Intl 给不出稳定的城市名（timeZoneName 返回的是「中国标准时间」这类时区名），
+ * 所以这一份确实需要人工翻译。
+ */
+export const COMMON_TIMEZONES = [
+  "UTC",
+  "America/Los_Angeles",
+  "America/New_York",
+  "Europe/London",
+  "Europe/Paris",
+  "Asia/Dubai",
+  "Asia/Kolkata",
+  "Asia/Shanghai",
+  "Asia/Tokyo",
+  "Australia/Sydney",
+] as const
+
+export type TimezoneId = (typeof COMMON_TIMEZONES)[number]
+
+export function formatInTimeZone(ms: number, timeZone: string, bcp47: string): string {
+  return new Intl.DateTimeFormat(bcp47, {
     timeZone,
     year: "numeric",
     month: "2-digit",

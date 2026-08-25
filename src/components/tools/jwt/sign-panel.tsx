@@ -1,7 +1,7 @@
 "use client"
 
 import { AlertTriangle, KeyRound, Loader2, PenLine, Sparkles } from "lucide-react"
-import { useMemo, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 import { toast } from "sonner"
 
 import { CopyButton } from "@/components/copy-button"
@@ -16,15 +16,18 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
+import { useDict } from "@/i18n/context"
+import { format } from "@/i18n/format"
 import {
   decodeToken,
+  errorOf,
   generateKeyPairPem,
   isSymmetric,
-  messageOf,
   randomSecret,
   resolveKey,
   SAMPLE_SECRET,
   signToken,
+  type JwtError,
   type SecretEncoding,
 } from "@/lib/jwt"
 
@@ -35,6 +38,8 @@ const DEFAULT_PAYLOAD = JSON.stringify(
 )
 
 export function SignPanel({ onUseToken }: { onUseToken: (token: string) => void }) {
+  const dict = useDict()
+  const text = dict.jwtTool.sign
   const [alg, setAlg] = useState("HS256")
   const [key, setKey] = useState(SAMPLE_SECRET)
   const [encoding, setEncoding] = useState<SecretEncoding>("utf8")
@@ -44,7 +49,7 @@ export function SignPanel({ onUseToken }: { onUseToken: (token: string) => void 
   const [expiresIn, setExpiresIn] = useState("2h")
   const [publicKey, setPublicKey] = useState("")
   const [token, setToken] = useState("")
-  const [error, setError] = useState("")
+  const [error, setError] = useState<JwtError | null>(null)
   const [busy, setBusy] = useState(false)
 
   const symmetric = isSymmetric(alg)
@@ -56,23 +61,35 @@ export function SignPanel({ onUseToken }: { onUseToken: (token: string) => void 
     return result.ok && result.value.payload ? JSON.stringify(result.value.payload, null, 2) : ""
   }, [token])
 
+  /** JwtError -> 当前语言的句子 */
+  const messageOf = useCallback(
+    (value: unknown) => {
+      const err = errorOf(value)
+      return format(dict.errors.jwt[err.code], err.params ?? {})
+    },
+    [dict]
+  )
+
   const parsedPayload = useMemo(() => {
     try {
       const value: unknown = JSON.parse(payloadText)
       if (typeof value !== "object" || value === null || Array.isArray(value)) {
-        return { ok: false as const, error: "Payload 必须是一个 JSON 对象" }
+        return { ok: false as const, error: text.payloadNotObject }
       }
       return { ok: true as const, value: value as Record<string, unknown> }
     } catch (parseError) {
-      return { ok: false as const, error: `JSON 语法错误：${messageOf(parseError)}` }
+      return {
+        ok: false as const,
+        error: format(text.jsonSyntaxError, { message: messageOf(parseError) }),
+      }
     }
-  }, [payloadText])
+  }, [payloadText, text, messageOf])
 
   async function handleGenerateKey() {
     setPublicKey("")
     if (symmetric) {
       setKey(randomSecret(32))
-      toast.success("已生成 256 位随机密钥")
+      toast.success(text.secretGenerated)
       return
     }
     setBusy(true)
@@ -80,7 +97,7 @@ export function SignPanel({ onUseToken }: { onUseToken: (token: string) => void 
       const pair = await generateKeyPairPem(alg)
       setKey(pair.privateKey)
       setPublicKey(pair.publicKey)
-      toast.success(`已生成 ${alg} 密钥对`)
+      toast.success(format(text.keyPairGenerated, { alg }))
     } catch (generateError) {
       toast.error(messageOf(generateError))
     } finally {
@@ -91,7 +108,7 @@ export function SignPanel({ onUseToken }: { onUseToken: (token: string) => void 
   async function handleSign() {
     if (!parsedPayload.ok) return
     setBusy(true)
-    setError("")
+    setError(null)
     try {
       const resolved = await resolveKey(alg, key, "sign", encoding)
       const signed = await signToken({
@@ -103,10 +120,10 @@ export function SignPanel({ onUseToken }: { onUseToken: (token: string) => void 
         expiresIn: expiresIn.trim() || undefined,
       })
       setToken(signed)
-      toast.success("Token 已生成")
+      toast.success(text.tokenGenerated)
     } catch (signError) {
       setToken("")
-      setError(messageOf(signError))
+      setError(errorOf(signError))
     } finally {
       setBusy(false)
     }
@@ -114,7 +131,7 @@ export function SignPanel({ onUseToken }: { onUseToken: (token: string) => void 
 
   return (
     <div className="space-y-6">
-      <Panel accent="sky" title="签名密钥" hint="选择算法，生成或粘贴用于签名的密钥">
+      <Panel accent="sky" title={text.keyTitle} hint={text.keyHint}>
         <div className="grid gap-4 lg:grid-cols-[220px_1fr]">
           <AlgorithmSelect id="sign-alg" value={alg} onChange={setAlg} />
           <KeyField
@@ -128,7 +145,7 @@ export function SignPanel({ onUseToken }: { onUseToken: (token: string) => void 
             actions={
               <Button variant="outline" size="sm" onClick={handleGenerateKey} disabled={busy}>
                 <Sparkles className="size-3.5" />
-                {symmetric ? "随机密钥" : "生成密钥对"}
+                {symmetric ? text.randomSecret : text.generateKeyPair}
               </Button>
             }
           />
@@ -139,7 +156,7 @@ export function SignPanel({ onUseToken }: { onUseToken: (token: string) => void 
         <Alert>
           <KeyRound />
           <AlertTitle className="flex items-center justify-between gap-2">
-            配套公钥（校验时使用）
+            {text.publicKeyLabel}
             <CopyButton value={publicKey} />
           </AlertTitle>
           <AlertDescription>
@@ -153,10 +170,10 @@ export function SignPanel({ onUseToken }: { onUseToken: (token: string) => void 
       <Panel
         accent="violet"
         title="Payload"
-        hint="写入 Token 的声明（claims）"
+        hint={text.payloadHint}
         action={
           <Button variant="ghost" size="sm" onClick={() => setPayloadText(DEFAULT_PAYLOAD)}>
-            重置
+            {text.reset}
           </Button>
         }
       >
@@ -171,9 +188,7 @@ export function SignPanel({ onUseToken }: { onUseToken: (token: string) => void 
             className="max-h-80 min-h-40 font-mono text-[13px]"
           />
           {parsedPayload.ok ? (
-            <p className="text-muted-foreground text-xs">
-              iat 与 exp 由下面的开关自动写入，无需在这里手写。
-            </p>
+            <p className="text-muted-foreground text-xs">{text.autoClaimsNote}</p>
           ) : (
             <p className="text-destructive text-xs">{parsedPayload.error}</p>
           )}
@@ -181,30 +196,30 @@ export function SignPanel({ onUseToken }: { onUseToken: (token: string) => void 
 
         <div className="mt-4 grid gap-4 border-t pt-4 sm:grid-cols-3">
           <div className="space-y-2">
-            <Label htmlFor="sign-kid">密钥 ID kid（可选）</Label>
+            <Label htmlFor="sign-kid">{text.kidLabel}</Label>
             <Input
               id="sign-kid"
               value={kid}
               onChange={(event) => setKid(event.target.value)}
-              placeholder="写入 header 的 kid"
+              placeholder={text.kidPlaceholder}
               autoComplete="off"
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="sign-exp">有效期</Label>
+            <Label htmlFor="sign-exp">{text.expLabel}</Label>
             <Input
               id="sign-exp"
               value={expiresIn}
               onChange={(event) => setExpiresIn(event.target.value)}
-              placeholder="2h / 7d / 30m，留空则不设 exp"
+              placeholder={text.expPlaceholder}
               autoComplete="off"
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="sign-iat">签发时间 iat</Label>
+            <Label htmlFor="sign-iat">{text.iatLabel}</Label>
             <div className="flex h-8 items-center gap-2">
               <Switch id="sign-iat" checked={withIssuedAt} onCheckedChange={setWithIssuedAt} />
-              <span className="text-muted-foreground text-sm">自动写入当前时间</span>
+              <span className="text-muted-foreground text-sm">{text.iatNote}</span>
             </div>
           </div>
         </div>
@@ -213,34 +228,34 @@ export function SignPanel({ onUseToken }: { onUseToken: (token: string) => void 
       <div className="flex flex-wrap items-center gap-2">
         <Button onClick={handleSign} disabled={busy || !parsedPayload.ok || !key.trim()}>
           {busy ? <Loader2 className="size-3.5 animate-spin" /> : <PenLine className="size-3.5" />}
-          生成 Token
+          {text.generate}
         </Button>
-        <p className="text-muted-foreground text-xs">
-          签名使用浏览器内置的 Web Crypto，密钥不会离开本机。
-        </p>
+        <p className="text-muted-foreground text-xs">{text.cryptoNote}</p>
       </div>
 
       {error ? (
         <Alert variant="destructive">
           <AlertTriangle />
-          <AlertTitle>签名失败</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
+          <AlertTitle>{text.failedTitle}</AlertTitle>
+          <AlertDescription>
+            {format(dict.errors.jwt[error.code], error.params ?? {})}
+          </AlertDescription>
         </Alert>
       ) : null}
 
       {token ? (
         <div className="space-y-3">
           <h2 className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
-            生成结果
+            {text.resultTitle}
           </h2>
           <Panel
             accent="sky"
             title="Token"
-            hint="签名后的完整 Token，可以直接继续在解码 / 校验里打开"
+            hint={text.resultHint}
             action={
               <div className="flex items-center gap-1">
                 <Button variant="outline" size="sm" onClick={() => onUseToken(token)}>
-                  在解码中打开
+                  {text.openInDecode}
                 </Button>
                 <CopyButton value={token} />
               </div>
@@ -249,7 +264,7 @@ export function SignPanel({ onUseToken }: { onUseToken: (token: string) => void 
             <TokenPreview token={token} />
             {signedPayload ? (
               <div className="mt-4 border-t pt-4">
-                <p className="text-muted-foreground mb-2 text-xs">最终写入的 Payload</p>
+                <p className="text-muted-foreground mb-2 text-xs">{text.finalPayload}</p>
                 <JsonBlock value={signedPayload} />
               </div>
             ) : null}

@@ -1,22 +1,19 @@
 import type { Metadata } from "next"
-import { notFound } from "next/navigation"
 
-import { ToolShell } from "@/components/tool-shell"
+import { ToolPage } from "@/components/tool-page"
 import { ColorTool } from "@/components/tools/color/color-tool"
-import { getTool } from "@/lib/tools"
+import { toolMetadata } from "@/lib/tool-metadata"
 
-const tool = getTool("color")
+type Props = PageProps<"/[lang]/tools/color">
 
-export const metadata: Metadata = {
-  title: tool?.name,
-  description: tool?.description,
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  return toolMetadata("color", (await params).lang)
 }
 
-export default function ColorPage() {
-  if (!tool) notFound()
+export default async function Page({ params }: Props) {
   return (
-    <ToolShell tool={tool}>
+    <ToolPage slug="color" lang={(await params).lang}>
       <ColorTool />
-    </ToolShell>
+    </ToolPage>
   )
 }

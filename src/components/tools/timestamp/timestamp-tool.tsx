@@ -8,6 +8,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useNowSeconds } from "@/hooks/use-now-seconds"
+import { LOCALE_HTML_LANG } from "@/i18n/config"
+import { useI18n } from "@/i18n/context"
+import { format } from "@/i18n/format"
 import {
   COMMON_TIMEZONES,
   formatInTimeZone,
@@ -19,11 +22,15 @@ import {
 } from "@/lib/timestamp"
 
 export function TimestampTool() {
+  const { locale, dict } = useI18n()
   const [input, setInput] = useState("")
   const nowSeconds = useNowSeconds()
 
+  // Intl 要的是 BCP 47 标签（zh-CN），不是路由里那个短代码（zh）
+  const bcp47 = LOCALE_HTML_LANG[locale]
+
   const parsed = input.trim() ? parseTimeInput(input) : null
-  const errorMessage = parsed && !parsed.ok ? parsed.error : null
+  const errorMessage = parsed && !parsed.ok ? dict.errors.timestamp[parsed.error] : null
   const ms = parsed && parsed.ok ? parsed.ms : null
 
   // Intl 只在解析出结果后才会用到，不会在初次渲染（含静态导出构建期）里跑，
@@ -34,46 +41,58 @@ export function TimestampTool() {
     ms === null
       ? []
       : [
-          { key: "unix-s", label: "Unix 时间戳（秒）", value: String(Math.floor(ms / 1000)) },
-          { key: "unix-ms", label: "Unix 时间戳（毫秒）", value: String(ms) },
-          { key: "iso", label: "ISO 8601（UTC）", value: formatIso(ms) },
-          { key: "rfc2822", label: "RFC 2822（UTC）", value: formatRfc2822(ms) },
+          {
+            key: "unix-s",
+            label: dict.timestampTool.unixSeconds,
+            value: String(Math.floor(ms / 1000)),
+          },
+          { key: "unix-ms", label: dict.timestampTool.unixMillis, value: String(ms) },
+          { key: "iso", label: dict.timestampTool.iso, value: formatIso(ms) },
+          { key: "rfc2822", label: dict.timestampTool.rfc2822, value: formatRfc2822(ms) },
           {
             key: "local",
-            label: `本地时间（${localTimeZone}）`,
-            value: formatInTimeZone(ms, localTimeZone),
+            label: format(dict.timestampTool.localTime, { zone: localTimeZone }),
+            value: formatInTimeZone(ms, localTimeZone, bcp47),
           },
-          { key: "relative", label: "相对当前时间", value: formatRelative(ms, nowSeconds * 1000) },
+          {
+            key: "relative",
+            label: dict.timestampTool.relative,
+            value: formatRelative(ms, nowSeconds * 1000, bcp47),
+          },
         ]
 
   const timezoneRows =
     ms === null
       ? []
-      : [{ id: localTimeZone, label: `本地 · ${localTimeZone}` }, ...COMMON_TIMEZONES].filter(
-          (zone, index, all) => all.findIndex((z) => z.id === zone.id) === index
-        )
+      : [
+          {
+            id: localTimeZone,
+            label: format(dict.timestampTool.localZone, { zone: localTimeZone }),
+          },
+          ...COMMON_TIMEZONES.map((id) => ({ id, label: dict.timestampTool.timezones[id] })),
+        ].filter((zone, index, all) => all.findIndex((z) => z.id === zone.id) === index)
 
   return (
     <div className="space-y-4">
       <div className="grid gap-4 lg:grid-cols-2">
         <Panel
           accent="violet"
-          title="输入"
-          hint="时间戳或日期字符串，自动识别格式"
+          title={dict.common.input}
+          hint={dict.timestampTool.inputHint}
           action={
             <div className="flex items-center gap-1">
               <Button variant="ghost" size="sm" onClick={() => setInput(String(Date.now()))}>
-                现在
+                {dict.timestampTool.now}
               </Button>
               <Button variant="ghost" size="sm" onClick={() => setInput("")} disabled={!input}>
-                清空
+                {dict.common.clear}
               </Button>
             </div>
           }
-          footer="纯数字按位数自动识别秒 / 毫秒 / 微秒 / 纳秒；其余按 ISO 8601、RFC 2822 等日期字符串解析"
+          footer={dict.timestampTool.inputFooter}
         >
           <Label htmlFor="time-input" className="sr-only">
-            时间戳或日期
+            {dict.timestampTool.inputLabel}
           </Label>
           <Input
             id="time-input"
@@ -90,11 +109,11 @@ export function TimestampTool() {
 
         <Panel
           accent="sky"
-          title="转换结果"
-          hint={ms === null ? "输入后自动转换" : "同一时刻的几种常见表示"}
+          title={dict.timestampTool.resultTitle}
+          hint={ms === null ? dict.timestampTool.waiting : dict.timestampTool.resultHint}
         >
           {rows.length === 0 ? (
-            <p className="text-muted-foreground text-sm">在左侧输入时间戳或日期。</p>
+            <p className="text-muted-foreground text-sm">{dict.timestampTool.emptyState}</p>
           ) : (
             <CopyableList items={rows} />
           )}
@@ -102,7 +121,11 @@ export function TimestampTool() {
       </div>
 
       {timezoneRows.length > 0 && ms !== null ? (
-        <Panel accent="sky" title="时区对照" hint="同一时刻在不同时区的本地时间">
+        <Panel
+          accent="sky"
+          title={dict.timestampTool.timezoneTitle}
+          hint={dict.timestampTool.timezoneHint}
+        >
           <ul className="divide-y rounded-lg border">
             {timezoneRows.map((zone) => (
               <li key={zone.id} className="flex items-center justify-between gap-4 px-3 py-2">
@@ -111,7 +134,9 @@ export function TimestampTool() {
                   <span className="text-muted-foreground font-mono text-xs">
                     {getTimeZoneOffset(ms, zone.id)}
                   </span>
-                  <code className="font-mono text-[13px]">{formatInTimeZone(ms, zone.id)}</code>
+                  <code className="font-mono text-[13px]">
+                    {formatInTimeZone(ms, zone.id, bcp47)}
+                  </code>
                 </div>
               </li>
             ))}

@@ -1,22 +1,19 @@
 import type { Metadata } from "next"
-import { notFound } from "next/navigation"
 
-import { ToolShell } from "@/components/tool-shell"
+import { ToolPage } from "@/components/tool-page"
 import { HashTool } from "@/components/tools/hash/hash-tool"
-import { getTool } from "@/lib/tools"
+import { toolMetadata } from "@/lib/tool-metadata"
 
-const tool = getTool("hash")
+type Props = PageProps<"/[lang]/tools/hash">
 
-export const metadata: Metadata = {
-  title: tool?.name,
-  description: tool?.description,
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  return toolMetadata("hash", (await params).lang)
 }
 
-export default function HashPage() {
-  if (!tool) notFound()
+export default async function Page({ params }: Props) {
   return (
-    <ToolShell tool={tool}>
+    <ToolPage slug="hash" lang={(await params).lang}>
       <HashTool />
-    </ToolShell>
+    </ToolPage>
   )
 }

@@ -42,7 +42,9 @@ function secureRandomIndex(max: number): number {
 
 export function generatePassword(options: PasswordOptions): string {
   const pool = buildCharPool(options)
-  if (!pool) throw new Error("至少选择一种字符类型")
+  // 调用方（UI）保证至少勾选一类字符，走到这里说明是调用错误，不是用户输入问题，
+  // 所以不进字典、不翻译
+  if (!pool) throw new Error("generatePassword: empty character pool")
   let result = ""
   for (let i = 0; i < options.length; i += 1) {
     result += pool[secureRandomIndex(pool.length)]

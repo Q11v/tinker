@@ -6,11 +6,13 @@ import { DecodePanel } from "@/components/tools/jwt/decode-panel"
 import { SignPanel } from "@/components/tools/jwt/sign-panel"
 import { VerifyPanel } from "@/components/tools/jwt/verify-panel"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useDict } from "@/i18n/context"
 import { SAMPLE_SECRET } from "@/lib/jwt"
 
 type TabKey = "decode" | "verify" | "sign"
 
 export function JwtTool() {
+  const dict = useDict()
   const [tab, setTab] = useState<TabKey>("decode")
   // Token 在「解码」「校验」之间共享，切页不用重新粘贴；密钥只有「校验」用得到，
   // 「签名」页自己管理独立的密钥状态
@@ -20,9 +22,9 @@ export function JwtTool() {
   return (
     <Tabs value={tab} onValueChange={(value) => setTab(value as TabKey)}>
       <TabsList className="w-full sm:w-auto sm:self-start">
-        <TabsTrigger value="decode">解码</TabsTrigger>
-        <TabsTrigger value="verify">校验</TabsTrigger>
-        <TabsTrigger value="sign">签名</TabsTrigger>
+        <TabsTrigger value="decode">{dict.jwtTool.tabs.decode}</TabsTrigger>
+        <TabsTrigger value="verify">{dict.jwtTool.tabs.verify}</TabsTrigger>
+        <TabsTrigger value="sign">{dict.jwtTool.tabs.sign}</TabsTrigger>
       </TabsList>
 
       {/* forceMount 保证三个面板的输入在切换标签时不丢失 */}

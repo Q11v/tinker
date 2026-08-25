@@ -3,14 +3,16 @@ import { ArrowUpRight } from "lucide-react"
 
 import { ToolIcon } from "@/components/tool-icon"
 import { Badge } from "@/components/ui/badge"
+import type { Dictionary } from "@/i18n/dictionaries"
 import { categoryAccent, type Tool } from "@/lib/tools"
 
-export function ToolCard({ tool }: { tool: Tool }) {
+export function ToolCard({ tool, dict, href }: { tool: Tool; dict: Dictionary; href: string }) {
   const accent = categoryAccent(tool.category)
+  const text = dict.tools[tool.slug]
 
   return (
     <Link
-      href={`/tools/${tool.slug}`}
+      href={href}
       className="focus-visible:ring-ring rounded-xl focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
     >
       <div
@@ -30,12 +32,12 @@ export function ToolCard({ tool }: { tool: Tool }) {
         </div>
         <div className="relative space-y-1">
           <div className="flex flex-wrap items-center gap-1.5">
-            <h3 className="leading-none font-medium">{tool.name}</h3>
+            <h3 className="leading-none font-medium">{text.name}</h3>
             <Badge variant="outline" className="text-[10px] font-normal">
-              {tool.category}
+              {dict.categories[tool.category]}
             </Badge>
           </div>
-          <p className="text-muted-foreground text-sm leading-relaxed">{tool.description}</p>
+          <p className="text-muted-foreground text-sm leading-relaxed">{text.description}</p>
         </div>
       </div>
     </Link>

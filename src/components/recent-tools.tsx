@@ -11,6 +11,7 @@ import {
   getRecentToolsSnapshot,
   subscribeRecentTools,
 } from "@/lib/recent-tools"
+import { useI18n } from "@/i18n/context"
 import { categoryAccent, getTool, type Tool } from "@/lib/tools"
 
 function useRecentTools(): Tool[] {
@@ -28,21 +29,23 @@ function useRecentTools(): Tool[] {
 }
 
 function RecentToolChip({ tool }: { tool: Tool }) {
+  const { dict, href } = useI18n()
   const accent = categoryAccent(tool.category)
 
   return (
     <Link
-      href={`/tools/${tool.slug}`}
+      href={href(`/tools/${tool.slug}`)}
       style={{ "--tool-accent": accent } as React.CSSProperties}
       className="bg-card focus-visible:ring-ring hover:border-(--tool-accent) inline-flex items-center gap-2 rounded-lg border py-1.5 pr-3 pl-1.5 text-sm transition-colors hover:shadow-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
     >
       <ToolIcon icon={tool.icon} accent={accent} size="xs" />
-      {tool.name}
+      {dict.tools[tool.slug].name}
     </Link>
   )
 }
 
 export function RecentTools() {
+  const { dict } = useI18n()
   const tools = useRecentTools()
 
   // 首次访问没有记录时整块不渲染，不占位、不留空标题
@@ -52,7 +55,7 @@ export function RecentTools() {
     <section className="space-y-3">
       <div className="flex items-center justify-between gap-4">
         <h2 className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
-          最近使用
+          {dict.explorer.recent}
         </h2>
         <Button
           type="button"
@@ -61,7 +64,7 @@ export function RecentTools() {
           onClick={clearRecentTools}
           className="text-muted-foreground hover:text-foreground -mr-2 h-7 text-xs"
         >
-          清除
+          {dict.explorer.clearRecent}
         </Button>
       </div>
       <div className="flex flex-wrap gap-2">

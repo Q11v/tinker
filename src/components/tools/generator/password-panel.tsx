@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
+import { useDict } from "@/i18n/context"
+import { format } from "@/i18n/format"
 import {
   buildCharPool,
   estimateEntropyBits,
@@ -20,17 +22,23 @@ import { cn } from "@/lib/utils"
 
 type CharSetKey = "uppercase" | "lowercase" | "numbers" | "symbols"
 
-const CHAR_TOGGLES: { key: CharSetKey; label: string; sample: string }[] = [
-  { key: "uppercase", label: "大写字母", sample: "ABC" },
-  { key: "lowercase", label: "小写字母", sample: "abc" },
-  { key: "numbers", label: "数字", sample: "123" },
-  { key: "symbols", label: "符号", sample: "!@#" },
+const CHAR_TOGGLES: { key: CharSetKey; sample: string }[] = [
+  { key: "uppercase", sample: "ABC" },
+  { key: "lowercase", sample: "abc" },
+  { key: "numbers", sample: "123" },
+  { key: "symbols", sample: "!@#" },
 ]
 
-function strengthLabel(bits: number): { text: string; className: string } {
-  if (bits < 40) return { text: "较弱", className: "text-destructive" }
-  if (bits < 70) return { text: "中等", className: "text-amber-600 dark:text-amber-400" }
-  return { text: bits < 100 ? "强" : "非常强", className: "text-emerald-600 dark:text-emerald-400" }
+type StrengthKey = "weak" | "medium" | "strong" | "veryStrong"
+
+/** 只判档位，文案交给字典 */
+function strengthOf(bits: number): { key: StrengthKey; className: string } {
+  if (bits < 40) return { key: "weak", className: "text-destructive" }
+  if (bits < 70) return { key: "medium", className: "text-amber-600 dark:text-amber-400" }
+  return {
+    key: bits < 100 ? "strong" : "veryStrong",
+    className: "text-emerald-600 dark:text-emerald-400",
+  }
 }
 
 function generateBatch(options: PasswordOptions, count: number): string[] {
@@ -38,6 +46,8 @@ function generateBatch(options: PasswordOptions, count: number): string[] {
 }
 
 export function PasswordPanel() {
+  const dict = useDict()
+  const text = dict.generatorTool.password
   const [length, setLength] = useState(16)
   const [charSets, setCharSets] = useState<Record<CharSetKey, boolean>>({
     uppercase: true,
@@ -52,7 +62,7 @@ export function PasswordPanel() {
   const options: PasswordOptions = { length, ...charSets, excludeAmbiguous }
   const pool = buildCharPool(options)
   const entropyBits = Math.round(estimateEntropyBits(length, pool.length))
-  const strength = strengthLabel(entropyBits)
+  const strength = strengthOf(entropyBits)
 
   useEffect(() => {
     // 随机内容只能在客户端生成，这里是为了避免和构建期生成的静态 HTML 打架（hydration mismatch）
@@ -63,10 +73,10 @@ export function PasswordPanel() {
 
   return (
     <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
-      <Panel accent="violet" title="生成设置" hint="选择长度与字符集">
+      <Panel accent="violet" title={dict.generatorTool.settingsTitle} hint={text.settingsHint}>
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="password-length">长度</Label>
+            <Label htmlFor="password-length">{text.lengthLabel}</Label>
             <Input
               id="password-length"
               inputMode="numeric"
@@ -75,14 +85,14 @@ export function PasswordPanel() {
                 setLength(Math.min(128, Math.max(4, Number.parseInt(event.target.value, 10) || 4)))
               }
             />
-            <p className="text-muted-foreground text-xs">4 ~ 128 位</p>
+            <p className="text-muted-foreground text-xs">{text.lengthRange}</p>
           </div>
 
           <div className="space-y-3 border-t pt-4">
-            {CHAR_TOGGLES.map(({ key, label, sample }) => (
+            {CHAR_TOGGLES.map(({ key, sample }) => (
               <div key={key} className="flex items-center justify-between">
                 <Label htmlFor={`password-${key}`} className="flex items-center gap-2 font-normal">
-                  {label}
+                  {text.charsets[key]}
                   <span className="text-muted-foreground font-mono text-xs">{sample}</span>
                 </Label>
                 <Switch
@@ -96,7 +106,7 @@ export function PasswordPanel() {
             ))}
             <div className="flex items-center justify-between">
               <Label htmlFor="password-ambiguous" className="font-normal">
-                排除易混淆字符
+                {text.excludeAmbiguous}
                 <span className="text-muted-foreground ml-1.5 font-mono text-xs">Il1O0</span>
               </Label>
               <Switch
@@ -108,7 +118,7 @@ export function PasswordPanel() {
           </div>
 
           <div className="space-y-2 border-t pt-4">
-            <Label htmlFor="password-count">生成数量</Label>
+            <Label htmlFor="password-count">{text.countLabel}</Label>
             <Input
               id="password-count"
               inputMode="numeric"
@@ -120,12 +130,14 @@ export function PasswordPanel() {
           </div>
 
           {!pool ? (
-            <p className="text-destructive text-xs">请至少选择一种字符类型</p>
+            <p className="text-destructive text-xs">{text.needCharset}</p>
           ) : (
             <p className="text-muted-foreground text-xs">
-              强度预估：
-              <span className={cn("font-medium", strength.className)}>{strength.text}</span>
-              （约 {entropyBits} bit 熵，字符集 {pool.length} 种）
+              {text.strengthPrefix}
+              <span className={cn("font-medium", strength.className)}>
+                {text.strength[strength.key]}
+              </span>
+              {format(text.strengthDetail, { bits: entropyBits, pool: pool.length })}
             </p>
           )}
 
@@ -137,20 +149,20 @@ export function PasswordPanel() {
             onClick={() => setPasswords(generateBatch(options, count))}
           >
             <RefreshCw className="size-3.5" />
-            换一批
+            {dict.generatorTool.regenerate}
           </Button>
         </div>
       </Panel>
 
       <Panel
         accent="sky"
-        title="生成结果"
-        hint={`共 ${passwords.length} 个`}
-        action={<CopyButton value={passwords.join("\n")} label="复制全部" />}
+        title={dict.generatorTool.resultTitle}
+        hint={format(dict.generatorTool.resultCount, { count: passwords.length })}
+        action={<CopyButton value={passwords.join("\n")} label={dict.generatorTool.copyAll} />}
       >
         {passwords.length === 0 ? (
           <p className="text-muted-foreground text-sm">
-            {pool ? "生成中…" : "请先至少选择一种字符类型。"}
+            {pool ? dict.generatorTool.generating : text.needCharset}
           </p>
         ) : (
           <CopyableList

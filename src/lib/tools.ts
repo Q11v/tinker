@@ -13,15 +13,21 @@ import {
   type LucideIcon,
 } from "lucide-react"
 
-export type ToolCategory = "加密与安全" | "编码转换" | "格式化" | "生成器" | "时间日期" | "文本处理"
+import type { Dictionary } from "@/i18n/dictionaries"
+
+/**
+ * 分类用稳定 id，不用显示文本。
+ * 显示名在字典的 categories 里，换语言不影响这里的数据结构。
+ */
+export type ToolCategory = "crypto" | "encoding" | "format" | "generator" | "datetime" | "text"
 
 export const CATEGORY_ORDER: ToolCategory[] = [
-  "加密与安全",
-  "编码转换",
-  "格式化",
-  "生成器",
-  "时间日期",
-  "文本处理",
+  "crypto",
+  "encoding",
+  "format",
+  "generator",
+  "datetime",
+  "text",
 ]
 
 /** 每个分类对应一个主题色变量（对应 globals.css 里的 --chart-1..5），用于卡片图标着色 */
@@ -38,15 +44,21 @@ export function categoryAccent(category: ToolCategory): string {
   return CATEGORY_ACCENTS[index % CATEGORY_ACCENTS.length]
 }
 
+/**
+ * 工具 id 直接取自字典的 tools 键集合。
+ * 这样在 tools.ts 里加一个工具却忘了写文案，会在编译期就报错。
+ */
+export type ToolSlug = keyof Dictionary["tools"]
+
 export interface Tool {
-  /** URL 片段，最终路径为 /tools/{slug} */
-  slug: string
-  name: string
-  /** 一句话说明，用于卡片与工具页副标题 */
-  description: string
+  /** URL 片段，最终路径为 /{lang}/tools/{slug}，同时也是字典里的 key */
+  slug: ToolSlug
   category: ToolCategory
   icon: LucideIcon
-  /** 搜索关键字，中英文都写上，方便模糊匹配 */
+  /**
+   * 语言无关的搜索关键字（技术术语、缩写、别名）。
+   * 各语言自己的关键字写在字典的 tools[slug].keywords 里。
+   */
   keywords: string[]
   /** ready 的工具才可点击进入 */
   status: "ready" | "planned"
@@ -55,112 +67,79 @@ export interface Tool {
 export const tools: Tool[] = [
   {
     slug: "jwt",
-    name: "JWT 工具",
-    description: "解码 JWT、校验签名与声明，或用自己的密钥签发新的 Token。",
-    category: "加密与安全",
+    category: "crypto",
     icon: KeyRound,
-    keywords: ["jwt", "jsonwebtoken", "token", "解码", "签名", "校验", "hs256", "rs256"],
+    keywords: ["jwt", "jsonwebtoken", "token", "hs256", "rs256"],
     status: "ready",
   },
   {
     slug: "hash",
-    name: "哈希计算",
-    description: "计算文本或文件的 MD5 / SHA-1 / SHA-256 / SHA-384 / SHA-512 摘要。",
-    category: "加密与安全",
+    category: "crypto",
     icon: Fingerprint,
-    keywords: ["hash", "sha", "md5", "摘要", "指纹", "校验和", "checksum"],
+    keywords: ["hash", "sha", "sha1", "sha256", "sha512", "md5", "checksum", "digest"],
     status: "ready",
   },
   {
     slug: "base64",
-    name: "Base64 编解码",
-    description: "文本、图片与二进制数据的 Base64 / Base64URL 互转。",
-    category: "编码转换",
+    category: "encoding",
     icon: Binary,
-    keywords: ["base64", "编码", "解码", "base64url", "图片"],
+    keywords: ["base64", "base64url", "atob", "btoa"],
     status: "ready",
   },
   {
     slug: "url",
-    name: "URL 编解码",
-    description: "百分号编码互转，并拆解 URL 的各个组成部分与查询参数。",
-    category: "编码转换",
+    category: "encoding",
     icon: Link2,
-    keywords: ["url", "uri", "encode", "decode", "querystring", "编码", "解码", "转义", "参数"],
+    keywords: ["url", "uri", "encode", "decode", "querystring", "percent"],
     status: "ready",
   },
   {
     slug: "json",
-    name: "JSON 格式化",
-    description: "格式化、压缩与校验 JSON，支持树形浏览和路径提取。",
-    category: "格式化",
+    category: "format",
     icon: Braces,
-    keywords: ["json", "格式化", "美化", "压缩", "校验"],
+    keywords: ["json", "format", "beautify", "minify", "validate"],
     status: "ready",
   },
   {
     slug: "color",
-    name: "颜色转换",
-    description: "HEX / RGB / HSL / OKLCH 互转，附对比度检查。",
-    category: "格式化",
+    category: "format",
     icon: Palette,
-    keywords: ["color", "颜色", "hex", "rgb", "hsl", "oklch", "对比度", "wcag"],
+    keywords: ["color", "hex", "rgb", "hsl", "oklch", "wcag", "contrast"],
     status: "ready",
   },
   {
     slug: "generator",
-    name: "随机生成器",
-    description: "批量生成 UUID v4 / v7、NanoID，以及可自定义字符集的高强度密码。",
-    category: "生成器",
+    category: "generator",
     icon: Dices,
-    keywords: [
-      "uuid",
-      "guid",
-      "nanoid",
-      "password",
-      "密码",
-      "随机密码",
-      "强密码",
-      "随机",
-      "id",
-      "生成器",
-    ],
+    keywords: ["uuid", "guid", "uuidv4", "uuidv7", "nanoid", "password", "random", "id"],
     status: "ready",
   },
   {
     slug: "qrcode",
-    name: "二维码生成",
-    description: "把文本、链接或 Wi-Fi 配置生成为可下载的二维码。",
-    category: "生成器",
+    category: "generator",
     icon: QrCode,
-    keywords: ["qrcode", "二维码", "qr"],
+    keywords: ["qrcode", "qr", "wifi"],
     status: "planned",
   },
   {
     slug: "timestamp",
-    name: "时间戳转换",
-    description: "Unix 时间戳与日期互转，支持多时区对照。",
-    category: "时间日期",
+    category: "datetime",
     icon: CalendarClock,
-    keywords: ["timestamp", "时间戳", "unix", "日期", "时区", "iso 8601", "rfc 2822", "timezone"],
+    keywords: ["timestamp", "unix", "epoch", "iso 8601", "rfc 2822", "timezone"],
     status: "ready",
   },
   {
     slug: "regex",
-    name: "正则测试",
-    description: "实时匹配高亮、分组捕获与常用正则速查。",
-    category: "文本处理",
+    category: "text",
     icon: Regex,
-    keywords: ["regex", "正则", "匹配", "regexp"],
+    keywords: ["regex", "regexp", "pattern", "match"],
     status: "planned",
   },
   {
     slug: "diff",
-    name: "文本对比",
-    description: "逐行 / 逐字符对比两段文本的差异。",
-    category: "文本处理",
+    category: "text",
     icon: FileDiff,
-    keywords: ["diff", "对比", "差异", "compare"],
+    keywords: ["diff", "compare"],
     status: "planned",
   },
 ]
@@ -171,14 +150,27 @@ export function getTool(slug: string): Tool | undefined {
   return tools.find((tool) => tool.slug === slug)
 }
 
-/** 名称、描述与关键字的模糊匹配，空查询返回全部 */
-export function searchTools(query: string): Tool[] {
+/** 搜索时要参与匹配的文本，由调用方从当前语言的字典里取 */
+export interface ToolSearchText {
+  name: string
+  description: string
+  category: string
+  /** 该语言特有的关键字，和 Tool.keywords 里的通用关键字合并 */
+  keywords: string[]
+}
+
+/**
+ * 名称、描述、分类与关键字的模糊匹配，空查询返回全部。
+ * 不直接依赖字典模块，改由调用方注入文本，tools.ts 因此保持语言无关。
+ */
+export function searchTools(query: string, textOf: (tool: Tool) => ToolSearchText): Tool[] {
   const q = query.trim().toLowerCase()
   if (!q) return tools
-  return tools.filter((tool) =>
-    [tool.name, tool.description, tool.category, ...tool.keywords]
+  return tools.filter((tool) => {
+    const text = textOf(tool)
+    return [text.name, text.description, text.category, ...text.keywords, ...tool.keywords]
       .join(" ")
       .toLowerCase()
       .includes(q)
-  )
+  })
 }

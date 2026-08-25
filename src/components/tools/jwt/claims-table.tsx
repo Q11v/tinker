@@ -1,6 +1,8 @@
 "use client"
 
-import { formatRelative, formatUnixSeconds, isTimeClaim, REGISTERED_CLAIMS } from "@/lib/jwt"
+import { LOCALE_HTML_LANG } from "@/i18n/config"
+import { useI18n } from "@/i18n/context"
+import { formatRelative, formatUnixSeconds, isRegisteredClaim, isTimeClaim } from "@/lib/jwt"
 
 function renderValue(value: unknown): string {
   if (typeof value === "string") return value
@@ -14,9 +16,12 @@ export function ClaimsTable({
   payload: Record<string, unknown>
   nowSeconds: number
 }) {
+  const { locale, dict } = useI18n()
+  const bcp47 = LOCALE_HTML_LANG[locale]
+
   const entries = Object.entries(payload)
   if (entries.length === 0) {
-    return <p className="text-muted-foreground text-sm">Payload 里没有任何声明。</p>
+    return <p className="text-muted-foreground text-sm">{dict.jwtTool.decode.noClaims}</p>
   }
 
   return (
@@ -28,8 +33,8 @@ export function ClaimsTable({
           <div key={key} className="grid gap-1 px-4 py-3 sm:grid-cols-[180px_1fr] sm:gap-4">
             <div className="min-w-0">
               <code className="font-mono text-[13px] font-medium">{key}</code>
-              {REGISTERED_CLAIMS[key] ? (
-                <p className="text-muted-foreground text-xs">{REGISTERED_CLAIMS[key]}</p>
+              {isRegisteredClaim(key) ? (
+                <p className="text-muted-foreground text-xs">{dict.jwtTool.claims[key]}</p>
               ) : null}
             </div>
             <div className="min-w-0">
@@ -38,9 +43,9 @@ export function ClaimsTable({
                 <p
                   className={expired ? "text-destructive text-xs" : "text-muted-foreground text-xs"}
                 >
-                  {formatUnixSeconds(value as number)} ·{" "}
-                  {formatRelative(value as number, nowSeconds)}
-                  {expired ? " · 已过期" : ""}
+                  {formatUnixSeconds(value as number, bcp47) ?? dict.jwtTool.decode.invalidTime} ·{" "}
+                  {formatRelative(value as number, nowSeconds, bcp47)}
+                  {expired ? dict.jwtTool.decode.expiredSuffix : ""}
                 </p>
               ) : null}
             </div>

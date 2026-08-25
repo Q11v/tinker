@@ -1,6 +1,15 @@
-import { ToolExplorer } from "@/components/tool-explorer"
+import { notFound } from "next/navigation"
 
-export default function HomePage() {
+import { ToolExplorer } from "@/components/tool-explorer"
+import { isLocale } from "@/i18n/config"
+import { getDictionary } from "@/i18n/dictionaries"
+
+export default async function HomePage({ params }: PageProps<"/[lang]">) {
+  const { lang } = await params
+  if (!isLocale(lang)) notFound()
+
+  const dict = await getDictionary(lang)
+
   return (
     <div className="relative overflow-hidden">
       <div
@@ -15,11 +24,9 @@ export default function HomePage() {
       <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6">
         <section className="mb-10 max-w-2xl">
           <h1 className="text-gradient-brand text-3xl font-semibold tracking-tight sm:text-4xl">
-            开发者工具箱
+            {dict.home.title}
           </h1>
-          <p className="text-muted-foreground mt-3 leading-relaxed">
-            一系列轻量、纯前端的开发者小工具。
-          </p>
+          <p className="text-muted-foreground mt-3 leading-relaxed">{dict.home.subtitle}</p>
         </section>
 
         <ToolExplorer />

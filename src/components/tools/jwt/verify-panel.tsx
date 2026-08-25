@@ -11,14 +11,22 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useNowSeconds } from "@/hooks/use-now-seconds"
+import { LOCALE_HTML_LANG } from "@/i18n/config"
+import { useI18n } from "@/i18n/context"
+import type { Dictionary } from "@/i18n/dictionaries"
+import { format } from "@/i18n/format"
 import {
   ALGORITHMS,
   checkClaims,
   decodeToken,
-  messageOf,
+  errorOf,
+  formatRelative,
+  formatUnixSeconds,
   resolveKey,
   verifySignature,
   type CheckStatus,
+  type ClaimCheck,
+  type JwtError,
   type SecretEncoding,
 } from "@/lib/jwt"
 import { cn } from "@/lib/utils"
@@ -27,7 +35,32 @@ type VerifyState =
   | { kind: "idle"; message: string }
   | { kind: "pending" }
   | { kind: "valid" }
-  | { kind: "invalid"; message: string }
+  | { kind: "invalid"; error: JwtError }
+
+/**
+ * 检查项的说明句子在这里组装。
+ * lib 只给出结构化数据（时间戳、期望值、实际值），
+ * 因为「时间（相对时间） · 已过期」这种语序各语言并不一致。
+ */
+function describeCheck(check: ClaimCheck, dict: Dictionary, nowSeconds: number, bcp47: string) {
+  const text = dict.jwtTool.verify.details
+
+  if (check.kind === "exp" || check.kind === "nbf") {
+    if (check.seconds === null) return text.expNotSet
+    const values = {
+      time: formatUnixSeconds(check.seconds, bcp47) ?? dict.jwtTool.decode.invalidTime,
+      relative: formatRelative(check.seconds, nowSeconds, bcp47),
+    }
+    if (check.status !== "fail") return format(text.time, values)
+    return format(check.kind === "exp" ? text.expired : text.notYet, values)
+  }
+
+  const values = { expected: check.expected, actual: check.actual }
+  if (check.kind === "iss") {
+    return format(check.status === "pass" ? text.issMatch : text.issMismatch, values)
+  }
+  return format(check.status === "pass" ? text.audMatch : text.audMismatch, values)
+}
 
 interface VerifyPanelProps {
   token: string
@@ -37,6 +70,9 @@ interface VerifyPanelProps {
 }
 
 export function VerifyPanel({ token, onTokenChange, secret, onSecretChange }: VerifyPanelProps) {
+  const { locale, dict } = useI18n()
+  const text = dict.jwtTool.verify
+  const bcp47 = LOCALE_HTML_LANG[locale]
   const decoded = useMemo(() => decodeToken(token), [token])
   const tokenAlg = decoded.ok ? decoded.value.alg : undefined
 
@@ -56,11 +92,11 @@ export function VerifyPanel({ token, onTokenChange, secret, onSecretChange }: Ve
 
   // 输入不完整时的状态直接在渲染期算出来，不用等异步校验
   const gate: VerifyState | null = useMemo(() => {
-    if (!token.trim()) return { kind: "idle", message: "请输入要校验的 JWT。" }
-    if (!decoded.ok) return { kind: "invalid", message: decoded.error }
-    if (!secret.trim()) return { kind: "idle", message: "请输入密钥后自动校验。" }
+    if (!token.trim()) return { kind: "idle", message: text.needToken }
+    if (!decoded.ok) return { kind: "invalid", error: decoded.error }
+    if (!secret.trim()) return { kind: "idle", message: text.needSecret }
     return null
-  }, [token, decoded, secret])
+  }, [token, decoded, secret, text])
 
   const input = JSON.stringify([token, secret, alg, encoding])
 
@@ -74,7 +110,7 @@ export function VerifyPanel({ token, onTokenChange, secret, onSecretChange }: Ve
         await verifySignature(token, key, alg)
         state = { kind: "valid" }
       } catch (error) {
-        state = { kind: "invalid", message: messageOf(error) }
+        state = { kind: "invalid", error: errorOf(error) }
       }
       if (!cancelled) {
         setResult({ input: JSON.stringify([token, secret, alg, encoding]), state })
@@ -115,26 +151,25 @@ export function VerifyPanel({ token, onTokenChange, secret, onSecretChange }: Ve
           id="verify-token"
           value={token}
           onChange={onTokenChange}
-          placeholder="粘贴要校验的 JWT"
+          placeholder={text.placeholder}
           className="max-h-52 min-h-24"
         />
       </div>
 
       <Panel
         accent="sky"
-        title="校验密钥"
-        hint="选择算法，并提供用于验证签名的密钥"
+        title={text.keyTitle}
+        hint={text.keyHint}
         footer={
           tokenAlg && tokenAlg !== alg ? (
             <span className="text-destructive">
-              注意：Token header 声明的算法是 <code className="font-mono">{tokenAlg}</code>
-              ，与当前选择的 <code className="font-mono">{alg}</code> 不一致，校验一定会失败。
+              {format(text.algMismatchNotice, { tokenAlg, alg })}
             </span>
           ) : undefined
         }
       >
         <div className="grid gap-4 lg:grid-cols-[220px_1fr]">
-          <AlgorithmSelect id="verify-alg" value={alg} onChange={setAlg} label="期望算法" />
+          <AlgorithmSelect id="verify-alg" value={alg} onChange={setAlg} label={text.expectedAlg} />
           <KeyField
             id="verify-key"
             alg={alg}
@@ -149,20 +184,16 @@ export function VerifyPanel({ token, onTokenChange, secret, onSecretChange }: Ve
 
       <div className="space-y-3">
         <h2 className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
-          校验结果
+          {text.resultTitle}
         </h2>
-        <StatusBanner state={state} claimsFailed={claimsFailed} />
+        <StatusBanner state={state} claimsFailed={claimsFailed} dict={dict} />
       </div>
 
-      <Panel
-        accent="violet"
-        title="声明校验（可选）"
-        hint="签名之外的检查：有效期总是会检查，签发者与受众填写后才检查"
-      >
+      <Panel accent="violet" title={text.claimsTitle} hint={text.claimsHint}>
         <div className="space-y-4">
           <div className="grid gap-3 sm:grid-cols-3">
             <div className="space-y-2">
-              <Label htmlFor="verify-iss">期望签发者 iss</Label>
+              <Label htmlFor="verify-iss">{text.expectedIss}</Label>
               <Input
                 id="verify-iss"
                 value={issuer}
@@ -172,7 +203,7 @@ export function VerifyPanel({ token, onTokenChange, secret, onSecretChange }: Ve
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="verify-aud">期望受众 aud</Label>
+              <Label htmlFor="verify-aud">{text.expectedAud}</Label>
               <Input
                 id="verify-aud"
                 value={audience}
@@ -182,7 +213,7 @@ export function VerifyPanel({ token, onTokenChange, secret, onSecretChange }: Ve
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="verify-tolerance">时钟容差（秒）</Label>
+              <Label htmlFor="verify-tolerance">{text.tolerance}</Label>
               <Input
                 id="verify-tolerance"
                 value={tolerance}
@@ -197,11 +228,13 @@ export function VerifyPanel({ token, onTokenChange, secret, onSecretChange }: Ve
           {checks.length > 0 ? (
             <ul className="divide-y rounded-lg border">
               {checks.map((check) => (
-                <li key={check.label} className="flex items-start gap-3 px-4 py-3">
+                <li key={check.kind} className="flex items-start gap-3 px-4 py-3">
                   <CheckIcon status={check.status} />
                   <div className="min-w-0 space-y-0.5">
-                    <p className="text-sm font-medium">{check.label}</p>
-                    <p className="text-muted-foreground text-xs break-all">{check.detail}</p>
+                    <p className="text-sm font-medium">{text.checks[check.kind]}</p>
+                    <p className="text-muted-foreground text-xs break-all">
+                      {describeCheck(check, dict, nowSeconds, bcp47)}
+                    </p>
                   </div>
                 </li>
               ))}
@@ -222,7 +255,17 @@ function CheckIcon({ status }: { status: CheckStatus }) {
   return <MinusCircle className="text-muted-foreground mt-0.5 size-4 shrink-0" />
 }
 
-function StatusBanner({ state, claimsFailed }: { state: VerifyState; claimsFailed: boolean }) {
+function StatusBanner({
+  state,
+  claimsFailed,
+  dict,
+}: {
+  state: VerifyState
+  claimsFailed: boolean
+  dict: Dictionary
+}) {
+  const text = dict.jwtTool.verify
+
   if (state.kind === "idle") {
     return (
       <div className="text-muted-foreground flex items-center gap-2 rounded-xl border border-dashed px-4 py-3 text-sm">
@@ -236,7 +279,7 @@ function StatusBanner({ state, claimsFailed }: { state: VerifyState; claimsFaile
     return (
       <div className="text-muted-foreground flex items-center gap-2 rounded-xl border px-4 py-3 text-sm">
         <Loader2 className="size-4 animate-spin" />
-        正在校验…
+        {text.verifying}
       </div>
     )
   }
@@ -245,8 +288,10 @@ function StatusBanner({ state, claimsFailed }: { state: VerifyState; claimsFaile
     return (
       <Alert variant="destructive">
         <XCircle />
-        <AlertTitle>签名校验未通过</AlertTitle>
-        <AlertDescription>{state.message}</AlertDescription>
+        <AlertTitle>{text.failedTitle}</AlertTitle>
+        <AlertDescription>
+          {format(dict.errors.jwt[state.error.code], state.error.params ?? {})}
+        </AlertDescription>
       </Alert>
     )
   }
@@ -262,11 +307,9 @@ function StatusBanner({ state, claimsFailed }: { state: VerifyState; claimsFaile
     >
       <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
       <div className="space-y-0.5">
-        <p className="text-sm font-medium">签名有效</p>
+        <p className="text-sm font-medium">{text.validTitle}</p>
         <p className="text-muted-foreground text-xs">
-          {claimsFailed
-            ? "密钥与签名匹配，但下面的声明检查没有全部通过，服务端仍会拒绝这个 Token。"
-            : "密钥与签名匹配，声明检查也全部通过。"}
+          {claimsFailed ? text.validButClaims : text.validAll}
         </p>
       </div>
     </div>

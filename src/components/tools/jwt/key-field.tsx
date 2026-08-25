@@ -9,7 +9,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { isSymmetric, SECRET_ENCODING_LABELS, type SecretEncoding } from "@/lib/jwt"
+import { useDict } from "@/i18n/context"
+import { isSymmetric, SECRET_ENCODINGS, type SecretEncoding } from "@/lib/jwt"
 
 interface KeyFieldProps {
   id: string
@@ -32,14 +33,23 @@ export function KeyField({
   onEncodingChange,
   actions,
 }: KeyFieldProps) {
+  const dict = useDict()
+  const text = dict.jwtTool.key
   const symmetric = isSymmetric(alg)
-  const label = symmetric ? "共享密钥 Secret" : usage === "verify" ? "公钥 / 证书" : "私钥"
+
+  const label = symmetric
+    ? text.secretLabel
+    : usage === "verify"
+      ? text.publicLabel
+      : text.privateLabel
 
   const placeholder = symmetric
-    ? "your-256-bit-secret"
+    ? text.secretPlaceholder
     : usage === "verify"
-      ? "-----BEGIN PUBLIC KEY-----\n…\n-----END PUBLIC KEY-----\n\n也可以直接粘贴 JWK 或 X.509 证书"
-      : "-----BEGIN PRIVATE KEY-----\n…\n-----END PRIVATE KEY-----\n\n也可以直接粘贴 JWK（PKCS#8 格式）"
+      ? text.publicPlaceholder
+      : text.privatePlaceholder
+
+  const note = symmetric ? text.secretNote : usage === "verify" ? text.publicNote : text.privateNote
 
   return (
     <div className="space-y-2">
@@ -51,13 +61,13 @@ export function KeyField({
               value={encoding}
               onValueChange={(next) => onEncodingChange(next as SecretEncoding)}
             >
-              <SelectTrigger size="sm" className="h-7 text-xs" aria-label="密钥编码">
+              <SelectTrigger size="sm" className="h-7 text-xs" aria-label={text.encodingLabel}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {(Object.keys(SECRET_ENCODING_LABELS) as SecretEncoding[]).map((key) => (
+                {SECRET_ENCODINGS.map((key) => (
                   <SelectItem key={key} value={key}>
-                    {SECRET_ENCODING_LABELS[key]}
+                    {dict.jwtTool.secretEncodings[key]}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -79,13 +89,7 @@ export function KeyField({
             : "max-h-64 min-h-32 font-mono text-[13px]"
         }
       />
-      <p className="text-muted-foreground text-xs">
-        {symmetric
-          ? "HMAC 使用同一把密钥签名与校验，请注意不要泄露。"
-          : usage === "verify"
-            ? "支持 SPKI 公钥（-----BEGIN PUBLIC KEY-----）、X.509 证书与 JWK。"
-            : "支持 PKCS#8 私钥（-----BEGIN PRIVATE KEY-----）与 JWK。"}
-      </p>
+      <p className="text-muted-foreground text-xs">{note}</p>
     </div>
   )
 }

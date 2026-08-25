@@ -12,32 +12,34 @@ import { JsonTree } from "@/components/tools/json/json-tree"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { useDict } from "@/i18n/context"
+import { format } from "@/i18n/format"
 import { formatJson, parseJson, SAMPLE_JSON, type JsonOutputMode } from "@/lib/json"
 
 type ViewMode = "text" | "tree"
 
-const VIEW_MODES: { value: ViewMode; label: string }[] = [
-  { value: "text", label: "文本" },
-  { value: "tree", label: "树形" },
-]
-
-const OUTPUT_MODES: { value: JsonOutputMode; label: string }[] = [
-  { value: "pretty", label: "格式化" },
-  { value: "minified", label: "压缩" },
-]
-
 export function JsonTool() {
+  const dict = useDict()
   const [input, setInput] = useState("")
   const [viewMode, setViewMode] = useState<ViewMode>("text")
   const [outputMode, setOutputMode] = useState<JsonOutputMode>("pretty")
+
+  const viewModes = [
+    { value: "text" as const, label: dict.jsonTool.viewText },
+    { value: "tree" as const, label: dict.jsonTool.viewTree },
+  ]
+  const outputModes = [
+    { value: "pretty" as const, label: dict.jsonTool.pretty },
+    { value: "minified" as const, label: dict.jsonTool.minified },
+  ]
 
   const result = useMemo(() => parseJson(input), [input])
   const outputText = result.ok ? formatJson(result.value, outputMode) : ""
 
   function copyPath(path: string) {
     navigator.clipboard.writeText(path).then(
-      () => toast.success(`已复制路径 ${path}`),
-      () => toast.error("复制失败，请手动选中内容复制")
+      () => toast.success(format(dict.jsonTool.pathCopied, { path })),
+      () => toast.error(dict.common.copyFailed)
     )
   }
 
@@ -45,24 +47,24 @@ export function JsonTool() {
     <div className="grid gap-4 lg:grid-cols-2">
       <Panel
         accent="violet"
-        title="输入"
-        hint="粘贴或输入 JSON，也支持 JS 对象字面量写法"
-        footer="宽松模式：单引号、不加引号的 key、结尾逗号、// 与 /* 注释都可以"
+        title={dict.common.input}
+        hint={dict.jsonTool.inputHint}
+        footer={dict.jsonTool.inputFooter}
         action={
           <div className="flex items-center gap-1">
             <Button variant="ghost" size="sm" onClick={() => setInput(SAMPLE_JSON)}>
-              示例
+              {dict.common.sample}
             </Button>
             <Button variant="ghost" size="sm" onClick={() => setInput("")} disabled={!input}>
               <Trash2 className="size-3.5" />
-              清空
+              {dict.common.clear}
             </Button>
-            <CopyButton value={input} label="复制" />
+            <CopyButton value={input} label={dict.common.copy} />
           </div>
         }
       >
         <Label htmlFor="json-input" className="sr-only">
-          JSON 输入
+          {dict.jsonTool.inputLabel}
         </Label>
         <Textarea
           id="json-input"
@@ -78,30 +80,37 @@ export function JsonTool() {
 
       <Panel
         accent="sky"
-        title="输出"
-        hint={!input.trim() ? "等待输入" : result.ok ? "合法 JSON" : "JSON 不合法，请检查输入"}
+        title={dict.common.output}
+        hint={
+          !input.trim()
+            ? dict.jsonTool.waiting
+            : result.ok
+              ? dict.jsonTool.valid
+              : dict.jsonTool.invalid
+        }
         action={
           <div className="flex items-center gap-1">
-            <SegmentedControl value={viewMode} onChange={setViewMode} options={VIEW_MODES} />
+            <SegmentedControl value={viewMode} onChange={setViewMode} options={viewModes} />
             {viewMode === "text" ? (
-              <SegmentedControl
-                value={outputMode}
-                onChange={setOutputMode}
-                options={OUTPUT_MODES}
-              />
+              <SegmentedControl value={outputMode} onChange={setOutputMode} options={outputModes} />
             ) : null}
             <CopyButton value={outputText} />
           </div>
         }
       >
         {!input.trim() ? (
-          <p className="text-muted-foreground text-sm">在左侧粘贴或输入 JSON…</p>
+          <p className="text-muted-foreground text-sm">{dict.jsonTool.emptyState}</p>
         ) : !result.ok ? (
           <div className="space-y-1.5">
-            <p className="text-destructive text-sm">{result.error.message}</p>
+            <p className="text-destructive text-sm">
+              {format(dict.errors.json[result.error.code], result.error.params ?? {})}
+            </p>
             {result.error.line ? (
               <p className="text-muted-foreground text-xs">
-                第 {result.error.line} 行第 {result.error.column} 列附近
+                {format(dict.errors.json.position, {
+                  line: result.error.line,
+                  column: result.error.column ?? 0,
+                })}
               </p>
             ) : null}
           </div>

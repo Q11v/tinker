@@ -1,9 +1,11 @@
 "use client"
 
+import { useDict } from "@/i18n/context"
 import { cn } from "@/lib/utils"
 
 /** 按 jwt.io 的习惯给三段着色：header / payload / signature */
 export function TokenPreview({ token, className }: { token: string; className?: string }) {
+  const dict = useDict()
   const parts = token.trim().split(".")
   if (parts.length !== 3) return null
 
@@ -18,7 +20,9 @@ export function TokenPreview({ token, className }: { token: string; className?: 
       <span className="text-muted-foreground">.</span>
       <span className="text-violet-600 dark:text-violet-400">{parts[1]}</span>
       <span className="text-muted-foreground">.</span>
-      <span className="text-sky-600 dark:text-sky-400">{parts[2] || "（无签名）"}</span>
+      <span className="text-sky-600 dark:text-sky-400">
+        {parts[2] || dict.jwtTool.preview.noSignature}
+      </span>
     </div>
   )
 }

@@ -1,22 +1,19 @@
 import type { Metadata } from "next"
-import { notFound } from "next/navigation"
 
+import { ToolPage } from "@/components/tool-page"
 import { JwtTool } from "@/components/tools/jwt/jwt-tool"
-import { ToolShell } from "@/components/tool-shell"
-import { getTool } from "@/lib/tools"
+import { toolMetadata } from "@/lib/tool-metadata"
 
-const tool = getTool("jwt")
+type Props = PageProps<"/[lang]/tools/jwt">
 
-export const metadata: Metadata = {
-  title: tool?.name,
-  description: tool?.description,
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  return toolMetadata("jwt", (await params).lang)
 }
 
-export default function JwtPage() {
-  if (!tool) notFound()
+export default async function Page({ params }: Props) {
   return (
-    <ToolShell tool={tool}>
+    <ToolPage slug="jwt" lang={(await params).lang}>
       <JwtTool />
-    </ToolShell>
+    </ToolPage>
   )
 }

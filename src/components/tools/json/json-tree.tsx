@@ -5,6 +5,7 @@ import { useState } from "react"
 
 import { buildJsonPath } from "@/lib/json"
 import { JSON_COLOR } from "@/lib/json-colors"
+import { useDict } from "@/i18n/context"
 import { cn } from "@/lib/utils"
 
 type PathSegment = string | number
@@ -54,6 +55,7 @@ function TreeNode({
   value: unknown
   onCopyPath: (path: string) => void
 }) {
+  const dict = useDict()
   const kind = valueKind(value)
   const isContainer = kind === "object" || kind === "array"
   const [collapsed, setCollapsed] = useState(false)
@@ -74,7 +76,7 @@ function TreeNode({
           <button
             type="button"
             onClick={() => setCollapsed((value) => !value)}
-            aria-label={collapsed ? "展开" : "折叠"}
+            aria-label={collapsed ? dict.jsonTree.expand : dict.jsonTree.collapse}
             className="text-muted-foreground mt-0.5 shrink-0"
           >
             <ChevronRight

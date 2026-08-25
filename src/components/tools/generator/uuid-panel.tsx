@@ -17,15 +17,11 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
+import { useDict } from "@/i18n/context"
+import { format } from "@/i18n/format"
 import { generateNanoId, generateUuidV4, generateUuidV7 } from "@/lib/uuid"
 
 type GeneratorType = "v4" | "v7" | "nanoid"
-
-const TYPE_LABELS: Record<GeneratorType, string> = {
-  v4: "UUID v4（随机）",
-  v7: "UUID v7（可排序）",
-  nanoid: "NanoID",
-}
 
 function generateOne(type: GeneratorType): string {
   if (type === "v4") return generateUuidV4()
@@ -44,6 +40,8 @@ function formatId(id: string, type: GeneratorType, uppercase: boolean, hyphens: 
 }
 
 export function UuidPanel() {
+  const dict = useDict()
+  const text = dict.generatorTool.uuid
   const [type, setType] = useState<GeneratorType>("v4")
   const [count, setCount] = useState(5)
   const [uppercase, setUppercase] = useState(false)
@@ -60,18 +58,18 @@ export function UuidPanel() {
 
   return (
     <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
-      <Panel accent="violet" title="生成设置" hint="选择类型与数量">
+      <Panel accent="violet" title={dict.generatorTool.settingsTitle} hint={text.settingsHint}>
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="uuid-type">类型</Label>
+            <Label htmlFor="uuid-type">{text.typeLabel}</Label>
             <Select value={type} onValueChange={(value) => setType(value as GeneratorType)}>
               <SelectTrigger id="uuid-type" className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {(Object.keys(TYPE_LABELS) as GeneratorType[]).map((key) => (
+                {(Object.keys(text.types) as GeneratorType[]).map((key) => (
                   <SelectItem key={key} value={key}>
-                    {TYPE_LABELS[key]}
+                    {text.types[key]}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -79,7 +77,7 @@ export function UuidPanel() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="uuid-count">数量</Label>
+            <Label htmlFor="uuid-count">{text.countLabel}</Label>
             <Input
               id="uuid-count"
               inputMode="numeric"
@@ -88,20 +86,20 @@ export function UuidPanel() {
                 setCount(Math.min(200, Math.max(1, Number.parseInt(event.target.value, 10) || 1)))
               }
             />
-            <p className="text-muted-foreground text-xs">1 ~ 200 个</p>
+            <p className="text-muted-foreground text-xs">{text.countRange}</p>
           </div>
 
           {type !== "nanoid" ? (
             <div className="space-y-3 border-t pt-4">
               <div className="flex items-center justify-between">
                 <Label htmlFor="uuid-uppercase" className="font-normal">
-                  大写
+                  {text.uppercase}
                 </Label>
                 <Switch id="uuid-uppercase" checked={uppercase} onCheckedChange={setUppercase} />
               </div>
               <div className="flex items-center justify-between">
                 <Label htmlFor="uuid-hyphens" className="font-normal">
-                  保留连字符
+                  {text.keepDashes}
                 </Label>
                 <Switch id="uuid-hyphens" checked={hyphens} onCheckedChange={setHyphens} />
               </div>
@@ -115,19 +113,19 @@ export function UuidPanel() {
             onClick={() => setIds(generateBatch(type, count))}
           >
             <RefreshCw className="size-3.5" />
-            换一批
+            {dict.generatorTool.regenerate}
           </Button>
         </div>
       </Panel>
 
       <Panel
         accent="sky"
-        title="生成结果"
-        hint={`共 ${formatted.length} 个`}
-        action={<CopyButton value={formatted.join("\n")} label="复制全部" />}
+        title={dict.generatorTool.resultTitle}
+        hint={format(dict.generatorTool.resultCount, { count: formatted.length })}
+        action={<CopyButton value={formatted.join("\n")} label={dict.generatorTool.copyAll} />}
       >
         {formatted.length === 0 ? (
-          <p className="text-muted-foreground text-sm">生成中…</p>
+          <p className="text-muted-foreground text-sm">{dict.generatorTool.generating}</p>
         ) : (
           <CopyableList items={formatted.map((id, index) => ({ key: String(index), value: id }))} />
         )}

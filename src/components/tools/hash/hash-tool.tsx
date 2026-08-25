@@ -8,14 +8,10 @@ import { Panel } from "@/components/tool-panel"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { useDict } from "@/i18n/context"
 import { digest, encodeDigest, HASH_ALGORITHMS, type HashEncoding } from "@/lib/hash"
 
 type SourceMode = "text" | "file"
-
-const SOURCE_MODES: { value: SourceMode; label: string }[] = [
-  { value: "text", label: "文本" },
-  { value: "file", label: "文件" },
-]
 
 const ENCODINGS: { value: HashEncoding; label: string }[] = [
   { value: "hex", label: "Hex" },
@@ -29,6 +25,7 @@ function formatFileSize(bytes: number): string {
 }
 
 export function HashTool() {
+  const dict = useDict()
   const [mode, setMode] = useState<SourceMode>("text")
   const [text, setText] = useState("")
   const [file, setFile] = useState<File | null>(null)
@@ -73,24 +70,29 @@ export function HashTool() {
 
   const hasInput = mode === "text" ? text.length > 0 : file !== null
 
+  const sourceModes = [
+    { value: "text" as const, label: dict.common.text },
+    { value: "file" as const, label: dict.common.file },
+  ]
+
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       <Panel
         accent="violet"
-        title="输入"
-        hint="文本或文件，全部计算都在本机完成"
-        action={<SegmentedControl value={mode} onChange={setMode} options={SOURCE_MODES} />}
+        title={dict.common.input}
+        hint={dict.hashTool.inputHint}
+        action={<SegmentedControl value={mode} onChange={setMode} options={sourceModes} />}
       >
         {mode === "text" ? (
           <>
             <Label htmlFor="hash-text" className="sr-only">
-              待计算文本
+              {dict.hashTool.textLabel}
             </Label>
             <Textarea
               id="hash-text"
               value={text}
               onChange={(event) => setText(event.target.value)}
-              placeholder="输入要计算摘要的文本"
+              placeholder={dict.hashTool.textPlaceholder}
               spellCheck={false}
               autoComplete="off"
               className="max-h-64 min-h-40 font-mono text-[13px]"
@@ -99,7 +101,7 @@ export function HashTool() {
         ) : (
           <div className="space-y-2">
             <Label htmlFor="hash-file" className="sr-only">
-              选择文件
+              {dict.common.selectFile}
             </Label>
             <Input
               id="hash-file"
@@ -117,12 +119,14 @@ export function HashTool() {
 
       <Panel
         accent="sky"
-        title="摘要结果"
-        hint={busy ? "计算中…" : hasInput ? "同一份数据的几种常见摘要算法" : "输入后自动计算"}
+        title={dict.hashTool.resultTitle}
+        hint={
+          busy ? dict.hashTool.busy : hasInput ? dict.hashTool.resultHint : dict.hashTool.waiting
+        }
         action={<SegmentedControl value={encoding} onChange={setEncoding} options={ENCODINGS} />}
       >
         {!hasInput ? (
-          <p className="text-muted-foreground text-sm">在左侧输入文本或选择文件。</p>
+          <p className="text-muted-foreground text-sm">{dict.hashTool.emptyState}</p>
         ) : (
           <CopyableList
             items={HASH_ALGORITHMS.map((alg) => ({

@@ -7,7 +7,8 @@ import { RecentTools } from "@/components/recent-tools"
 import { ToolCard } from "@/components/tool-card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { CATEGORY_ORDER, readyTools, searchTools, type ToolCategory } from "@/lib/tools"
+import { useI18n } from "@/i18n/context"
+import { CATEGORY_ORDER, readyTools, searchTools, type Tool, type ToolCategory } from "@/lib/tools"
 import { cn } from "@/lib/utils"
 
 /**
@@ -15,33 +16,43 @@ import { cn } from "@/lib/utils"
  * 否则选中的分类会在输入时从 DOM 里消失，而筛选状态还留着，
  * 用户就卡在一个看不见任何激活筛选器的空结果里。
  */
-const CATEGORY_TABS = [
-  "全部",
-  ...CATEGORY_ORDER.filter((name) => readyTools.some((tool) => tool.category === name)),
-] as const
+const CATEGORIES: ToolCategory[] = CATEGORY_ORDER.filter((category) =>
+  readyTools.some((tool) => tool.category === category)
+)
 
 export function ToolExplorer() {
+  const { dict, href } = useI18n()
   const [query, setQuery] = useState("")
-  const [category, setCategory] = useState<ToolCategory | "全部">("全部")
+  const [category, setCategory] = useState<ToolCategory | "all">("all")
+
+  const textOf = useMemo(
+    () => (tool: Tool) => ({
+      name: dict.tools[tool.slug].name,
+      description: dict.tools[tool.slug].description,
+      category: dict.categories[tool.category],
+      keywords: dict.tools[tool.slug].keywords,
+    }),
+    [dict]
+  )
 
   const matched = useMemo(
-    () => searchTools(query).filter((tool) => tool.status === "ready"),
-    [query]
+    () => searchTools(query, textOf).filter((tool) => tool.status === "ready"),
+    [query, textOf]
   )
   const visible = useMemo(
-    () => (category === "全部" ? matched : matched.filter((t) => t.category === category)),
+    () => (category === "all" ? matched : matched.filter((t) => t.category === category)),
     [matched, category]
   )
 
   // 只有在没有任何筛选时才露出「最近使用」，否则会干扰搜索结果的阅读
-  const filtering = query.trim().length > 0 || category !== "全部"
+  const filtering = query.trim().length > 0 || category !== "all"
 
   // 当前搜索词下还有结果的分类，其余的置灰，避免点进去只看到空状态
   const nonEmpty = useMemo(() => new Set(matched.map((tool) => tool.category)), [matched])
 
   function reset() {
     setQuery("")
-    setCategory("全部")
+    setCategory("all")
   }
 
   return (
@@ -52,16 +63,16 @@ export function ToolExplorer() {
           <Input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="搜索工具，例如 jwt…"
+            placeholder={dict.explorer.searchPlaceholder}
             className="pl-9"
-            aria-label="搜索工具"
+            aria-label={dict.explorer.searchLabel}
           />
         </div>
         <div className="flex flex-wrap gap-1.5">
-          {CATEGORY_TABS.map((name) => {
+          {(["all", ...CATEGORIES] as const).map((name) => {
             const active = category === name
             // 选中项永远保持可点，否则又会失去退出筛选的入口
-            const empty = !active && name !== "全部" && !nonEmpty.has(name)
+            const empty = !active && name !== "all" && !nonEmpty.has(name)
 
             return (
               <Button
@@ -74,7 +85,7 @@ export function ToolExplorer() {
                 onClick={() => setCategory(name)}
                 className={cn("text-xs", !active && "text-muted-foreground")}
               >
-                {name}
+                {name === "all" ? dict.explorer.all : dict.categories[name]}
               </Button>
             )
           })}
@@ -85,15 +96,15 @@ export function ToolExplorer() {
 
       {visible.length === 0 ? (
         <div className="text-muted-foreground flex flex-col items-center gap-3 rounded-xl border border-dashed py-16 text-center text-sm">
-          <p>没有匹配的工具。</p>
+          <p>{dict.explorer.empty}</p>
           <Button type="button" size="sm" variant="outline" onClick={reset}>
-            清除筛选
+            {dict.explorer.clearFilters}
           </Button>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {visible.map((tool) => (
-            <ToolCard key={tool.slug} tool={tool} />
+            <ToolCard key={tool.slug} tool={tool} dict={dict} href={href(`/tools/${tool.slug}`)} />
           ))}
         </div>
       )}

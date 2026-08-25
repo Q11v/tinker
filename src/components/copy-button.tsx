@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
+import { useDict } from "@/i18n/context"
 import { cn } from "@/lib/utils"
 
 interface CopyButtonProps {
@@ -15,6 +16,7 @@ interface CopyButtonProps {
 }
 
 export function CopyButton({ value, label, size = "sm", className }: CopyButtonProps) {
+  const dict = useDict()
   const [copied, setCopied] = useState(false)
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -33,7 +35,7 @@ export function CopyButton({ value, label, size = "sm", className }: CopyButtonP
       if (timer.current) clearTimeout(timer.current)
       timer.current = setTimeout(() => setCopied(false), 1500)
     } catch {
-      toast.error("复制失败，请手动选中内容复制")
+      toast.error(dict.common.copyFailed)
     }
   }
 
@@ -46,11 +48,11 @@ export function CopyButton({ value, label, size = "sm", className }: CopyButtonP
       size={size}
       onClick={copy}
       disabled={!value}
-      aria-label={label ?? "复制"}
+      aria-label={label ?? dict.common.copy}
       className={cn("text-muted-foreground", className)}
     >
       <Icon className={cn("size-3.5", copied && "text-emerald-600 dark:text-emerald-400")} />
-      {size === "sm" ? (copied ? "已复制" : (label ?? "复制")) : null}
+      {size === "sm" ? (copied ? dict.common.copied : (label ?? dict.common.copy)) : null}
     </Button>
   )
 }

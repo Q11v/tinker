@@ -1,22 +1,19 @@
 import type { Metadata } from "next"
-import { notFound } from "next/navigation"
 
-import { ToolShell } from "@/components/tool-shell"
+import { ToolPage } from "@/components/tool-page"
 import { TimestampTool } from "@/components/tools/timestamp/timestamp-tool"
-import { getTool } from "@/lib/tools"
+import { toolMetadata } from "@/lib/tool-metadata"
 
-const tool = getTool("timestamp")
+type Props = PageProps<"/[lang]/tools/timestamp">
 
-export const metadata: Metadata = {
-  title: tool?.name,
-  description: tool?.description,
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  return toolMetadata("timestamp", (await params).lang)
 }
 
-export default function TimestampPage() {
-  if (!tool) notFound()
+export default async function Page({ params }: Props) {
   return (
-    <ToolShell tool={tool}>
+    <ToolPage slug="timestamp" lang={(await params).lang}>
       <TimestampTool />
-    </ToolShell>
+    </ToolPage>
   )
 }

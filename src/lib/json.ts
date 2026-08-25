@@ -1,5 +1,24 @@
+/**
+ * 错误用码 + 参数表示，具体文案由 UI 层按当前语言从字典里取。
+ * native 是兜底：JSON.parse 之外的意外错误，只能原样带上引擎给的英文信息。
+ */
+export type JsonErrorCode =
+  | "trailingContent"
+  | "minusNeedsDigit"
+  | "unrecognizedChar"
+  | "expectColon"
+  | "expectCommaOrBrace"
+  | "expectKey"
+  | "expectCommaOrBracket"
+  | "unterminatedString"
+  | "badUnicodeEscape"
+  | "badNumber"
+  | "native"
+
 export interface JsonParseError {
-  message: string
+  code: JsonErrorCode
+  /** 填进文案占位符的值，例如 unrecognizedChar 的 {char} */
+  params?: Record<string, string>
   line?: number
   column?: number
 }
@@ -8,10 +27,11 @@ export type JsonParseResult = { ok: true; value: unknown } | { ok: false; error:
 
 class LenientJsonParseError extends Error {
   constructor(
-    message: string,
-    readonly index: number
+    readonly code: JsonErrorCode,
+    readonly index: number,
+    readonly params?: Record<string, string>
   ) {
-    super(message)
+    super(code)
   }
 }
 
@@ -38,13 +58,13 @@ class LenientJsonParser {
     const value = this.parseValue()
     this.skipTrivia()
     if (this.i < this.text.length) {
-      this.fail(`结尾存在多余内容："${this.text.slice(this.i, this.i + 10)}"`)
+      this.fail("trailingContent", { text: this.text.slice(this.i, this.i + 10) })
     }
     return value
   }
 
-  private fail(message: string): never {
-    throw new LenientJsonParseError(message, this.i)
+  private fail(code: JsonErrorCode, params?: Record<string, string>): never {
+    throw new LenientJsonParseError(code, this.i, params)
   }
 
   private peek(offset = 0): string {
@@ -82,11 +102,11 @@ class LenientJsonParser {
       this.i += 1
       const keyword = this.parseKeyword()
       if (typeof keyword === "number") return -keyword
-      this.fail("负号后面需要跟数字")
+      this.fail("minusNeedsDigit")
     }
     if (ch === "" || /[0-9+\-.]/.test(ch)) return this.parseNumber()
     if (isIdentifierStart(ch)) return this.parseKeyword()
-    this.fail(`无法识别的字符 "${ch}"`)
+    this.fail("unrecognizedChar", { char: ch })
   }
 
   private parseObject(): Record<string, unknown> {
@@ -101,7 +121,7 @@ class LenientJsonParser {
       this.skipTrivia()
       const key = this.parseKey()
       this.skipTrivia()
-      if (this.peek() !== ":") this.fail('期望 ":"')
+      if (this.peek() !== ":") this.fail("expectColon")
       this.i += 1
       result[key] = this.parseValue()
       this.skipTrivia()
@@ -119,7 +139,7 @@ class LenientJsonParser {
         this.i += 1
         break
       }
-      this.fail('期望 "," 或 "}"')
+      this.fail("expectCommaOrBrace")
     }
     return result
   }
@@ -133,7 +153,7 @@ class LenientJsonParser {
       while (isIdentifierPart(this.peek())) this.i += 1
       return this.text.slice(start, this.i)
     }
-    this.fail("期望对象的 key")
+    this.fail("expectKey")
   }
 
   private parseArray(): unknown[] {
@@ -161,7 +181,7 @@ class LenientJsonParser {
         this.i += 1
         break
       }
-      this.fail('期望 "," 或 "]"')
+      this.fail("expectCommaOrBracket")
     }
     return result
   }
@@ -171,7 +191,7 @@ class LenientJsonParser {
     let result = ""
     for (;;) {
       const ch = this.peek()
-      if (ch === "") this.fail("字符串没有正确闭合")
+      if (ch === "") this.fail("unterminatedString")
       if (ch === quote) {
         this.i += 1
         break
@@ -181,7 +201,7 @@ class LenientJsonParser {
         const esc = this.peek()
         if (esc === "u") {
           const hex = this.text.slice(this.i + 1, this.i + 5)
-          if (!/^[0-9a-fA-F]{4}$/.test(hex)) this.fail("非法的 \\u 转义")
+          if (!/^[0-9a-fA-F]{4}$/.test(hex)) this.fail("badUnicodeEscape")
           result += String.fromCharCode(Number.parseInt(hex, 16))
           this.i += 5
           continue
@@ -228,7 +248,7 @@ class LenientJsonParser {
     }
     const text = this.text.slice(start, this.i)
     const value = Number(text)
-    if (!text || Number.isNaN(value)) this.fail(`非法的数字 "${text}"`)
+    if (!text || Number.isNaN(value)) this.fail("badNumber", { text })
     return value
   }
 
@@ -252,7 +272,7 @@ class LenientJsonParser {
         return Number.POSITIVE_INFINITY
       default:
         this.i = start
-        this.fail(`无法识别的标识符 "${word}"`)
+        this.fail("unrecognizedChar", { char: word })
     }
   }
 }
@@ -272,10 +292,17 @@ export function parseJson(text: string): JsonParseResult {
     return { ok: true, value: new LenientJsonParser(text).parse() }
   } catch (rawError) {
     if (rawError instanceof LenientJsonParseError) {
-      return { ok: false, error: { message: rawError.message, ...locate(text, rawError.index) } }
+      return {
+        ok: false,
+        error: {
+          code: rawError.code,
+          params: rawError.params,
+          ...locate(text, rawError.index),
+        },
+      }
     }
     const message = rawError instanceof Error ? rawError.message : String(rawError)
-    return { ok: false, error: { message } }
+    return { ok: false, error: { code: "native", params: { message } } }
   }
 }
 

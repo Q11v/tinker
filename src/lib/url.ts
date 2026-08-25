@@ -8,7 +8,13 @@ export function encodeUrlText(text: string, variant: UrlEncodeVariant): string {
   return variant === "component" ? encodeURIComponent(text) : encodeURI(text)
 }
 
-export type UrlDecodeResult = { ok: true; text: string } | { ok: false; error: string }
+/**
+ * 解码失败分两种成因，用码区分；strayPercent 还要带上出错位置，
+ * 文案里用 {position} 占位。
+ */
+export type UrlDecodeError = { code: "strayPercent"; position: number } | { code: "badUtf8" }
+
+export type UrlDecodeResult = { ok: true; text: string } | { ok: false; error: UrlDecodeError }
 
 /**
  * plusAsSpace 对应 application/x-www-form-urlencoded 的约定：
@@ -26,12 +32,9 @@ export function decodeUrlText(text: string, plusAsSpace: boolean): UrlDecodeResu
     // decodeURIComponent 只会抛一句 "URI malformed"，这里区分两种成因给出可操作的提示
     const stray = /%(?![0-9a-fA-F]{2})/.exec(prepared)
     if (stray) {
-      return {
-        ok: false,
-        error: `第 ${stray.index + 1} 个字符处的 % 后面不是两位十六进制数`,
-      }
+      return { ok: false, error: { code: "strayPercent", position: stray.index + 1 } }
     }
-    return { ok: false, error: "百分号序列不是合法的 UTF-8 编码" }
+    return { ok: false, error: { code: "badUtf8" } }
   }
 }
 
@@ -44,11 +47,24 @@ export function safeDecodeUrl(text: string): string {
   }
 }
 
+/** part 只带 key，显示名由 UI 层从字典的 url.parts 里取 */
 export interface UrlPart {
-  key: string
-  label: string
+  key: UrlPartKey
   value: string
 }
+
+export type UrlPartKey =
+  | "protocol"
+  | "username"
+  | "password"
+  | "hostname"
+  | "port"
+  | "origin"
+  | "pathname"
+  | "pathnameDecoded"
+  | "search"
+  | "hash"
+  | "href"
 
 export interface UrlQueryParam {
   /** 同名参数可以重复出现，用下标保证 key 唯一 */
@@ -66,7 +82,10 @@ export interface ParsedUrl {
   relative: boolean
 }
 
-export type ParseUrlResult = { ok: true; parsed: ParsedUrl } | { ok: false; error: string }
+export type UrlParseErrorCode = "empty" | "unparsable"
+
+export type ParseUrlResult =
+  { ok: true; parsed: ParsedUrl } | { ok: false; error: UrlParseErrorCode }
 
 const HAS_SCHEME = /^[a-zA-Z][a-zA-Z0-9+.-]*:/
 
@@ -92,7 +111,7 @@ const RELATIVE_BASE = "https://relative.invalid"
 
 export function parseUrl(input: string): ParseUrlResult {
   const text = input.trim()
-  if (!text) return { ok: false, error: "请输入 URL" }
+  if (!text) return { ok: false, error: "empty" }
 
   let url: URL | null = null
   let inferredProtocol = false
@@ -126,39 +145,36 @@ export function parseUrl(input: string): ParseUrlResult {
     }
   }
 
-  if (!url) return { ok: false, error: "无法解析，请检查是否是合法的 URL" }
+  if (!url) return { ok: false, error: "unparsable" }
 
   const parts: UrlPart[] = []
-  const push = (key: string, label: string, value: string) => {
-    if (value) parts.push({ key, label, value })
+  const push = (key: UrlPartKey, value: string) => {
+    if (value) parts.push({ key, value })
   }
 
   if (!relative) {
-    push("protocol", "协议", url.protocol.replace(/:$/, ""))
-    push("username", "用户名", url.username)
-    push("password", "密码", url.password)
-    push("hostname", "主机", url.hostname)
-    push("port", "端口", url.port)
-    push("origin", "Origin", url.origin === "null" ? "" : url.origin)
+    push("protocol", url.protocol.replace(/:$/, ""))
+    push("username", url.username)
+    push("password", url.password)
+    push("hostname", url.hostname)
+    push("port", url.port)
+    push("origin", url.origin === "null" ? "" : url.origin)
   }
 
-  // 输入是纯查询串或纯锚点时，URL 会补出一个 "/"，那不是用户输入的东西
+  // 输入是纯查询串或纯锚点时，URL 会补出一个 "/"，那不是用户写的东西
   if (!(relative && url.pathname === "/" && !text.startsWith("/"))) {
-    // 输入是纯查询串或纯锚点时，URL 会补出一个 "/"，那不是用户写的东西
-    if (!(relative && url.pathname === "/" && !text.startsWith("/"))) {
-      push("pathname", "路径", url.pathname)
-    }
+    push("pathname", url.pathname)
   }
 
   // 路径里带中文或空格时，解码后的样子才是用户真正想看的
   const decodedPath = safeDecodeUrl(url.pathname)
-  if (decodedPath !== url.pathname) push("pathname-decoded", "路径（解码）", decodedPath)
+  if (decodedPath !== url.pathname) push("pathnameDecoded", decodedPath)
 
-  push("search", "查询串", url.search)
-  push("hash", "锚点", url.hash)
+  push("search", url.search)
+  push("hash", url.hash)
 
   // 浏览器规范化之后的样子（补默认端口、编码非法字符、punycode 域名等）
-  if (!relative && url.href !== text) push("href", "标准化", url.href)
+  if (!relative && url.href !== text) push("href", url.href)
 
   // URLSearchParams 会自动解码、按 form-urlencoded 把 + 当空格，并保留重复的同名参数
   const params = [...url.searchParams.entries()].map(([name, value], index) => ({

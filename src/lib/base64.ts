@@ -21,7 +21,11 @@ export function encodeBase64(bytes: Uint8Array, variant: Base64Variant): string 
     : standard
 }
 
-export type Base64DecodeResult = { ok: true; bytes: Uint8Array } | { ok: false; error: string }
+/** 错误用码表示，具体文案由 UI 层按当前语言从字典里取 */
+export type Base64ErrorCode = "empty" | "illegalChars" | "invalid"
+
+export type Base64DecodeResult =
+  { ok: true; bytes: Uint8Array } | { ok: false; error: Base64ErrorCode }
 
 /**
  * 解码时不强求变体，标准 / URL-safe 字母表都能识别；
@@ -33,13 +37,13 @@ export function decodeBase64(input: string): Base64DecodeResult {
   let text = input.replace(/\s+/g, "")
   const dataUrlMatch = text.match(/^data:[^,]*;base64,(.*)$/)
   if (dataUrlMatch) text = dataUrlMatch[1]
-  if (!text) return { ok: false, error: "请输入 Base64 文本" }
+  if (!text) return { ok: false, error: "empty" }
 
   const normalized = text.replaceAll("-", "+").replaceAll("_", "/")
   const padded = normalized.padEnd(normalized.length + ((4 - (normalized.length % 4)) % 4), "=")
 
   if (!/^[A-Za-z0-9+/]*={0,2}$/.test(padded)) {
-    return { ok: false, error: "包含非法字符，不是合法的 Base64" }
+    return { ok: false, error: "illegalChars" }
   }
 
   try {
@@ -48,7 +52,7 @@ export function decodeBase64(input: string): Base64DecodeResult {
     for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i)
     return { ok: true, bytes }
   } catch {
-    return { ok: false, error: "无法解码，不是合法的 Base64" }
+    return { ok: false, error: "invalid" }
   }
 }
 

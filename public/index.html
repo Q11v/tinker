@@ -1,0 +1,29 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>tinker</title>
+<meta http-equiv="refresh" content="0; url=/zh" />
+<link rel="alternate" hreflang="zh-CN" href="/zh" />
+<link rel="alternate" hreflang="en" href="/en" />
+<link rel="alternate" hreflang="x-default" href="/zh" />
+<script>
+  // 站点页面都在 /{lang}/ 下，这一页只负责把根路径送到某个语言。
+  // 静态导出没有服务端，语言判断只能放在客户端。
+  //
+  // 注意：这份列表是 src/i18n/config.ts 里 LOCALES 的手工副本 ——
+  // 这个文件是纯静态 HTML，进不了构建管线，加语言时两处都要改。
+  var LOCALES = ["zh", "en"]
+  var DEFAULT = "zh"
+  var picked = DEFAULT
+  for (var i = 0; i < navigator.languages.length; i++) {
+    var tag = navigator.languages[i].toLowerCase()
+    var hit = LOCALES.filter(function (l) {
+      return tag === l || tag.indexOf(l + "-") === 0
+    })[0]
+    if (hit) {
+      picked = hit
+      break
+    }
+  }
+  location.replace("/" + picked + location.search + location.hash)
+</script>
+<a href="/zh">tinker</a>

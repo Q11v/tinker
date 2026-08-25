@@ -7,6 +7,8 @@ import { Panel } from "@/components/tool-panel"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { useDict } from "@/i18n/context"
+import { format } from "@/i18n/format"
 import {
   contrastRatio,
   formatHex,
@@ -27,13 +29,8 @@ function toPickerHex(rgb: Rgb | null): string {
   return formatHex({ ...rgb, a: 1 })
 }
 
-interface ContrastCheck {
-  label: string
-  threshold: number
-  pass: boolean
-}
-
 export function ColorTool() {
+  const dict = useDict()
   const [input, setInput] = useState("")
   const [bgInput, setBgInput] = useState("#ffffff")
 
@@ -54,37 +51,37 @@ export function ColorTool() {
         ]
 
   const ratio = rgb && bgRgb ? contrastRatio(rgb, bgRgb) : null
-  const checks: ContrastCheck[] =
+  const checks =
     ratio === null
       ? []
       : [
-          { label: "正常文本 AA", threshold: 4.5, pass: ratio >= 4.5 },
-          { label: "正常文本 AAA", threshold: 7, pass: ratio >= 7 },
-          { label: "大号文本 AA", threshold: 3, pass: ratio >= 3 },
-          { label: "大号文本 AAA", threshold: 4.5, pass: ratio >= 4.5 },
-        ]
+          { label: dict.colorTool.normalAa, threshold: 4.5 },
+          { label: dict.colorTool.normalAaa, threshold: 7 },
+          { label: dict.colorTool.largeAa, threshold: 3 },
+          { label: dict.colorTool.largeAaa, threshold: 4.5 },
+        ].map((check) => ({ ...check, pass: ratio >= check.threshold }))
 
   return (
     <div className="space-y-4">
       <div className="grid gap-4 lg:grid-cols-2">
         <Panel
           accent="violet"
-          title="输入"
-          hint="HEX / RGB / HSL / OKLCH 任意一种格式"
+          title={dict.common.input}
+          hint={dict.colorTool.inputHint}
           action={
             <div className="flex items-center gap-1">
               <Button variant="ghost" size="sm" onClick={() => setInput(SAMPLE_COLOR)}>
-                示例
+                {dict.common.sample}
               </Button>
               <Button variant="ghost" size="sm" onClick={() => setInput("")} disabled={!input}>
-                清空
+                {dict.common.clear}
               </Button>
             </div>
           }
         >
           <div className="flex items-center gap-2">
             <Label htmlFor="color-picker" className="sr-only">
-              颜色选择器
+              {dict.colorTool.pickerLabel}
             </Label>
             <input
               id="color-picker"
@@ -94,7 +91,7 @@ export function ColorTool() {
               className="size-8 shrink-0 cursor-pointer rounded-md border bg-transparent p-0.5"
             />
             <Label htmlFor="color-input" className="sr-only">
-              颜色文本
+              {dict.colorTool.textLabel}
             </Label>
             <Input
               id="color-input"
@@ -108,13 +105,17 @@ export function ColorTool() {
             />
           </div>
           {parsed && !parsed.ok ? (
-            <p className="text-destructive mt-2 text-xs">{parsed.error}</p>
+            <p className="text-destructive mt-2 text-xs">{dict.errors.color[parsed.error]}</p>
           ) : null}
         </Panel>
 
-        <Panel accent="sky" title="输出" hint={rgb ? "同一个颜色的几种常见表示" : "输入后自动转换"}>
+        <Panel
+          accent="sky"
+          title={dict.common.output}
+          hint={rgb ? dict.colorTool.outputHint : dict.colorTool.waiting}
+        >
           {!rgb ? (
-            <p className="text-muted-foreground text-sm">在左侧输入颜色。</p>
+            <p className="text-muted-foreground text-sm">{dict.colorTool.emptyState}</p>
           ) : (
             <div className="space-y-3">
               <div className="h-16 rounded-lg border" style={{ backgroundColor: formatRgb(rgb) }} />
@@ -124,14 +125,14 @@ export function ColorTool() {
         </Panel>
       </div>
 
-      <Panel accent="sky" title="对比度检查" hint="WCAG 2 对比度，检查文字颜色在背景色上是否够清晰">
+      <Panel accent="sky" title={dict.colorTool.contrastTitle} hint={dict.colorTool.contrastHint}>
         <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
           <div className="space-y-2">
-            <Label htmlFor="color-bg-input">背景色</Label>
+            <Label htmlFor="color-bg-input">{dict.colorTool.background}</Label>
             <div className="flex items-center gap-2">
               <input
                 type="color"
-                aria-label="背景色选择器"
+                aria-label={dict.colorTool.backgroundPickerLabel}
                 value={toPickerHex(bgRgb)}
                 onChange={(event) => setBgInput(event.target.value)}
                 className="size-8 shrink-0 cursor-pointer rounded-md border bg-transparent p-0.5"
@@ -155,13 +156,13 @@ export function ColorTool() {
               style={{ backgroundColor: formatRgb(bgRgb as Rgb), color: formatRgb(rgb as Rgb) }}
             >
               <span className="text-2xl font-semibold">{ratio.toFixed(2)}</span>
-              <span className="text-xs opacity-80">对比度</span>
+              <span className="text-xs opacity-80">{dict.colorTool.ratio}</span>
             </div>
           ) : null}
         </div>
 
         {!rgb || !bgRgb ? (
-          <p className="text-muted-foreground mt-4 text-sm">需要先在上面输入一个合法的文字颜色。</p>
+          <p className="text-muted-foreground mt-4 text-sm">{dict.colorTool.needForeground}</p>
         ) : (
           <ul className="mt-4 grid gap-2 sm:grid-cols-2">
             {checks.map((check) => (
@@ -181,7 +182,8 @@ export function ColorTool() {
                     check.pass ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"
                   )}
                 >
-                  {check.pass ? "通过" : "不通过"} · 需 ≥ {check.threshold}
+                  {check.pass ? dict.colorTool.pass : dict.colorTool.fail} ·{" "}
+                  {format(dict.colorTool.requirement, { threshold: check.threshold })}
                 </span>
               </li>
             ))}
