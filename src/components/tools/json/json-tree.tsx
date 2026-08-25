@@ -4,6 +4,7 @@ import { ChevronRight, Copy } from "lucide-react"
 import { useState } from "react"
 
 import { buildJsonPath } from "@/lib/json"
+import { JSON_COLOR } from "@/lib/json-colors"
 import { cn } from "@/lib/utils"
 
 type PathSegment = string | number
@@ -18,10 +19,10 @@ function valueKind(value: unknown): ValueKind {
 }
 
 const VALUE_COLOR: Partial<Record<ValueKind, string>> = {
-  string: "text-emerald-600 dark:text-emerald-400",
-  number: "text-amber-600 dark:text-amber-400",
-  boolean: "text-rose-600 dark:text-rose-400",
-  null: "text-rose-600 dark:text-rose-400",
+  string: JSON_COLOR.string,
+  number: JSON_COLOR.number,
+  boolean: JSON_COLOR.literal,
+  null: JSON_COLOR.literal,
 }
 
 function formatPrimitive(value: unknown): string {
@@ -92,7 +93,7 @@ function TreeNode({
         >
           {keyLabel !== undefined ? (
             <>
-              <span className="text-violet-600 dark:text-violet-400">
+              <span className={JSON_COLOR.key}>
                 {typeof keyLabel === "number" ? keyLabel : JSON.stringify(keyLabel)}
               </span>
               <span className="text-muted-foreground">: </span>

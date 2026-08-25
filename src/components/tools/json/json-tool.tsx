@@ -6,13 +6,13 @@ import { toast } from "sonner"
 
 import { CopyButton } from "@/components/copy-button"
 import { JsonBlock } from "@/components/json-block"
+import { SegmentedControl } from "@/components/segmented-control"
 import { Panel } from "@/components/tool-panel"
 import { JsonTree } from "@/components/tools/json/json-tree"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { formatJson, parseJson, SAMPLE_JSON, type JsonOutputMode } from "@/lib/json"
-import { cn } from "@/lib/utils"
 
 type ViewMode = "text" | "tree"
 
@@ -89,41 +89,13 @@ export function JsonTool() {
         }
         action={
           <div className="flex items-center gap-1">
-            <div className="bg-muted flex items-center gap-0.5 rounded-md p-0.5 text-xs">
-              {VIEW_MODES.map(({ value, label }) => (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => setViewMode(value)}
-                  className={cn(
-                    "rounded px-2 py-1 transition-colors",
-                    viewMode === value
-                      ? "bg-background text-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+            <SegmentedControl value={viewMode} onChange={setViewMode} options={VIEW_MODES} />
             {viewMode === "text" ? (
-              <div className="bg-muted flex items-center gap-0.5 rounded-md p-0.5 text-xs">
-                {OUTPUT_MODES.map(({ value, label }) => (
-                  <button
-                    key={value}
-                    type="button"
-                    onClick={() => setOutputMode(value)}
-                    className={cn(
-                      "rounded px-2 py-1 transition-colors",
-                      outputMode === value
-                        ? "bg-background text-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground"
-                    )}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
+              <SegmentedControl
+                value={outputMode}
+                onChange={setOutputMode}
+                options={OUTPUT_MODES}
+              />
             ) : null}
             <CopyButton value={outputText} />
           </div>

@@ -23,6 +23,7 @@ import {
   messageOf,
   randomSecret,
   resolveKey,
+  SAMPLE_SECRET,
   signToken,
   type SecretEncoding,
 } from "@/lib/jwt"
@@ -35,7 +36,7 @@ const DEFAULT_PAYLOAD = JSON.stringify(
 
 export function SignPanel({ onUseToken }: { onUseToken: (token: string) => void }) {
   const [alg, setAlg] = useState("HS256")
-  const [key, setKey] = useState("a-string-secret-at-least-256-bits-long")
+  const [key, setKey] = useState(SAMPLE_SECRET)
   const [encoding, setEncoding] = useState<SecretEncoding>("utf8")
   const [payloadText, setPayloadText] = useState(DEFAULT_PAYLOAD)
   const [kid, setKid] = useState("")

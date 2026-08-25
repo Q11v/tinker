@@ -5,6 +5,7 @@ import { useMemo, useState } from "react"
 
 import { CopyButton } from "@/components/copy-button"
 import { JsonBlock } from "@/components/json-block"
+import { SegmentedControl } from "@/components/segmented-control"
 import { Panel } from "@/components/tool-panel"
 import { ClaimsTable } from "@/components/tools/jwt/claims-table"
 import { TokenInput } from "@/components/tools/jwt/token-input"
@@ -14,7 +15,6 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { useNowSeconds } from "@/hooks/use-now-seconds"
 import { decodeToken, REGISTERED_HEADERS, SAMPLE_TOKEN } from "@/lib/jwt"
-import { cn } from "@/lib/utils"
 
 type PayloadView = "json" | "detail"
 
@@ -151,23 +151,11 @@ export function DecodePanel({ token, onTokenChange, onGoVerify }: DecodePanelPro
               action={
                 <div className="flex items-center gap-1">
                   {!result.value.payloadError && result.value.payload ? (
-                    <div className="bg-muted flex items-center gap-0.5 rounded-md p-0.5 text-xs">
-                      {PAYLOAD_VIEWS.map(({ value, label }) => (
-                        <button
-                          key={value}
-                          type="button"
-                          onClick={() => setPayloadView(value)}
-                          className={cn(
-                            "rounded px-2 py-1 transition-colors",
-                            payloadView === value
-                              ? "bg-background text-foreground shadow-sm"
-                              : "text-muted-foreground hover:text-foreground"
-                          )}
-                        >
-                          {label}
-                        </button>
-                      ))}
-                    </div>
+                    <SegmentedControl
+                      value={payloadView}
+                      onChange={setPayloadView}
+                      options={PAYLOAD_VIEWS}
+                    />
                   ) : null}
                   <CopyButton value={payloadJson} />
                 </div>

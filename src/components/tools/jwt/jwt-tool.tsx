@@ -12,7 +12,8 @@ type TabKey = "decode" | "verify" | "sign"
 
 export function JwtTool() {
   const [tab, setTab] = useState<TabKey>("decode")
-  // Token 与密钥在「解码」「校验」之间共享，切页不用重新粘贴
+  // Token 在「解码」「校验」之间共享，切页不用重新粘贴；密钥只有「校验」用得到，
+  // 「签名」页自己管理独立的密钥状态
   const [token, setToken] = useState('')
   const [secret, setSecret] = useState(SAMPLE_SECRET)
 

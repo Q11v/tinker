@@ -4,6 +4,7 @@ import { RefreshCw } from "lucide-react"
 import { useEffect, useState } from "react"
 
 import { CopyButton } from "@/components/copy-button"
+import { CopyableList } from "@/components/copyable-list"
 import { Panel } from "@/components/tool-panel"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -128,14 +129,9 @@ export function UuidPanel() {
         {formatted.length === 0 ? (
           <p className="text-muted-foreground text-sm">生成中…</p>
         ) : (
-          <ul className="divide-y rounded-lg border">
-            {formatted.map((id, index) => (
-              <li key={index} className="flex items-center justify-between gap-2 px-3 py-1.5">
-                <code className="min-w-0 flex-1 truncate font-mono text-[13px]">{id}</code>
-                <CopyButton value={id} size="icon" />
-              </li>
-            ))}
-          </ul>
+          <CopyableList
+            items={formatted.map((id, index) => ({ key: String(index), value: id }))}
+          />
         )}
       </Panel>
     </div>

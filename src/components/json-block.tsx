@@ -2,20 +2,13 @@
 
 import { useMemo } from "react"
 
+import { JSON_COLOR } from "@/lib/json-colors"
 import { cn } from "@/lib/utils"
 
 const TOKEN_PATTERN =
   /"(?:\\u[\da-fA-F]{4}|\\[^u]|[^\\"])*"(?:\s*:)?|\b(?:true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?/g
 
-type Kind = "key" | "string" | "number" | "literal" | "plain"
-
-const COLORS: Record<Kind, string> = {
-  key: "text-violet-600 dark:text-violet-400",
-  string: "text-emerald-600 dark:text-emerald-400",
-  number: "text-amber-600 dark:text-amber-400",
-  literal: "text-rose-600 dark:text-rose-400",
-  plain: "text-muted-foreground",
-}
+type Kind = keyof typeof JSON_COLOR
 
 function classify(text: string): Kind {
   if (text.startsWith('"')) return text.trimEnd().endsWith(":") ? "key" : "string"
@@ -46,7 +39,7 @@ export function JsonBlock({ value, className }: { value: string; className?: str
       )}
     >
       {parts.map((part, i) => (
-        <span key={i} className={COLORS[part.kind]}>
+        <span key={i} className={JSON_COLOR[part.kind]}>
           {part.text}
         </span>
       ))}

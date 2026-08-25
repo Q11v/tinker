@@ -4,6 +4,7 @@ import { RefreshCw } from "lucide-react"
 import { useEffect, useState } from "react"
 
 import { CopyButton } from "@/components/copy-button"
+import { CopyableList } from "@/components/copyable-list"
 import { Panel } from "@/components/tool-panel"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -151,14 +152,9 @@ export function PasswordPanel() {
             {pool ? "生成中…" : "请先至少选择一种字符类型。"}
           </p>
         ) : (
-          <ul className="divide-y rounded-lg border">
-            {passwords.map((pwd, index) => (
-              <li key={index} className="flex items-center justify-between gap-2 px-3 py-1.5">
-                <code className="min-w-0 flex-1 truncate font-mono text-[13px]">{pwd}</code>
-                <CopyButton value={pwd} size="icon" />
-              </li>
-            ))}
-          </ul>
+          <CopyableList
+            items={passwords.map((pwd, index) => ({ key: String(index), value: pwd }))}
+          />
         )}
       </Panel>
     </div>

@@ -27,15 +27,6 @@ export function ToolExplorer() {
     [matched]
   )
 
-  const grouped = useMemo(
-    () =>
-      CATEGORY_ORDER.map((name) => ({
-        name,
-        items: visible.filter((tool) => tool.category === name),
-      })).filter((group) => group.items.length > 0),
-    [visible]
-  )
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -65,23 +56,16 @@ export function ToolExplorer() {
         </div>
       </div>
 
-      {grouped.length === 0 ? (
+      {visible.length === 0 ? (
         <p className="text-muted-foreground rounded-xl border border-dashed py-16 text-center text-sm">
           没有匹配的工具。
         </p>
       ) : (
-        grouped.map((group) => (
-          <section key={group.name} className="space-y-3">
-            <h2 className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
-              {group.name}
-            </h2>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {group.items.map((tool) => (
-                <ToolCard key={tool.slug} tool={tool} />
-              ))}
-            </div>
-          </section>
-        ))
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {visible.map((tool) => (
+            <ToolCard key={tool.slug} tool={tool} />
+          ))}
+        </div>
       )}
     </div>
   )

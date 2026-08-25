@@ -1,15 +1,30 @@
 "use client"
 
+import { ChevronDown } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
-import { readyTools } from "@/lib/tools"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { CATEGORY_ORDER, readyTools } from "@/lib/tools"
 import { cn } from "@/lib/utils"
+
+const GROUPED_TOOLS = CATEGORY_ORDER.map((name) => ({
+  name,
+  items: readyTools.filter((tool) => tool.category === name),
+})).filter((group) => group.items.length > 0)
 
 export function SiteHeader() {
   const pathname = usePathname()
+  const onToolPage = pathname?.startsWith("/tools/") ?? false
 
   return (
     <header className="bg-background/80 sticky top-0 z-50 w-full border-b backdrop-blur">
@@ -28,26 +43,42 @@ export function SiteHeader() {
           <span className="text-gradient-brand tracking-tight">Tinker</span>
         </Link>
 
-        <nav className="hidden items-center gap-1 sm:flex">
-          {readyTools.map((tool) => {
-            const href = `/tools/${tool.slug}`
-            const active = pathname === href
-            return (
-              <Button
-                key={tool.slug}
-                asChild
-                variant="ghost"
-                size="sm"
-                className={cn(
-                  "text-muted-foreground",
-                  active && "text-accent-foreground bg-accent"
-                )}
-              >
-                <Link href={href}>{tool.name}</Link>
-              </Button>
-            )
-          })}
-        </nav>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={cn(
+                "hidden gap-1 sm:inline-flex",
+                onToolPage ? "text-accent-foreground bg-accent" : "text-muted-foreground"
+              )}
+            >
+              全部工具
+              <ChevronDown className="size-3.5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-56">
+            {GROUPED_TOOLS.map((group, index) => (
+              <div key={group.name}>
+                {index > 0 ? <DropdownMenuSeparator /> : null}
+                <DropdownMenuLabel className="text-muted-foreground text-xs font-normal">
+                  {group.name}
+                </DropdownMenuLabel>
+                {group.items.map((tool) => {
+                  const href = `/tools/${tool.slug}`
+                  const active = pathname === href
+                  return (
+                    <DropdownMenuItem key={tool.slug} asChild>
+                      <Link href={href} className={cn(active && "font-medium")}>
+                        {tool.name}
+                      </Link>
+                    </DropdownMenuItem>
+                  )
+                })}
+              </div>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         <div className="ml-auto flex items-center gap-2">
           <ThemeToggle />

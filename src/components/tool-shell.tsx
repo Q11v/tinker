@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { ChevronLeft } from "lucide-react"
 
+import { ToolIcon } from "@/components/tool-icon"
 import { Badge } from "@/components/ui/badge"
 import { categoryAccent, type Tool } from "@/lib/tools"
 
@@ -11,7 +12,6 @@ interface ToolShellProps {
 
 /** 所有工具页共用的标题区与容器，新增工具时直接复用 */
 export function ToolShell({ tool, children }: ToolShellProps) {
-  const Icon = tool.icon
   const accent = categoryAccent(tool.category)
 
   return (
@@ -25,16 +25,7 @@ export function ToolShell({ tool, children }: ToolShellProps) {
       </Link>
 
       <div className="mb-8 flex items-start gap-4">
-        <span
-          className="flex size-11 shrink-0 items-center justify-center rounded-xl border"
-          style={{
-            backgroundColor: `color-mix(in oklch, ${accent} 14%, transparent)`,
-            borderColor: `color-mix(in oklch, ${accent} 30%, transparent)`,
-            color: accent,
-          }}
-        >
-          <Icon className="size-5" />
-        </span>
+        <ToolIcon icon={tool.icon} accent={accent} size="lg" />
         <div className="space-y-1">
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-2xl font-semibold tracking-tight">{tool.name}</h1>

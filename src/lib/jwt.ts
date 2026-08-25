@@ -12,6 +12,8 @@ import {
   type JWK,
 } from "jose"
 
+import { formatRelative as formatRelativeMs } from "@/lib/timestamp"
+
 /** 支持的签名算法，按密钥类型分组展示 */
 export const ALGORITHM_GROUPS = [
   { label: "HMAC（共享密钥）", items: ["HS256", "HS384", "HS512"] },
@@ -22,8 +24,6 @@ export const ALGORITHM_GROUPS = [
 ] as const
 
 export const ALGORITHMS = ALGORITHM_GROUPS.flatMap((group) => group.items)
-
-export type JwtAlgorithm = (typeof ALGORITHMS)[number]
 
 export type KeyMaterial = JoseCryptoKey | Uint8Array
 
@@ -44,7 +44,7 @@ export const SECRET_ENCODING_LABELS: Record<SecretEncoding, string> = {
 /* 编解码基础工具                                                       */
 /* ------------------------------------------------------------------ */
 
-export function base64UrlToBytes(input: string): Uint8Array {
+function base64UrlToBytes(input: string): Uint8Array {
   const normalized = input.replace(/-/g, "+").replace(/_/g, "/")
   const padded = normalized.padEnd(
     normalized.length + ((4 - (normalized.length % 4)) % 4),
@@ -56,7 +56,7 @@ export function base64UrlToBytes(input: string): Uint8Array {
   return bytes
 }
 
-export function bytesToBase64Url(bytes: Uint8Array): string {
+function bytesToBase64Url(bytes: Uint8Array): string {
   let binary = ""
   for (const byte of bytes) binary += String.fromCharCode(byte)
   return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "")
@@ -190,18 +190,9 @@ export function formatUnixSeconds(value: number): string {
   )
 }
 
-/** 相对当前时间的人类可读描述，例如「3 小时后」「2 天前」 */
+/** 相对当前时间的人类可读描述，例如「3 小时后」「2 天前」。算法在 lib/time.ts 里，这里只是秒转毫秒的薄封装 */
 export function formatRelative(targetSeconds: number, nowSeconds: number): string {
-  const diff = targetSeconds - nowSeconds
-  const abs = Math.abs(diff)
-  let text: string
-  if (abs < 60) text = `${abs} 秒`
-  else if (abs < 3600) text = `${Math.floor(abs / 60)} 分钟`
-  else if (abs < 86400) text = `${Math.floor(abs / 3600)} 小时`
-  else if (abs < 2592000) text = `${Math.floor(abs / 86400)} 天`
-  else if (abs < 31536000) text = `${Math.floor(abs / 2592000)} 个月`
-  else text = `${Math.floor(abs / 31536000)} 年`
-  return diff >= 0 ? `${text}后` : `${text}前`
+  return formatRelativeMs(targetSeconds * 1000, nowSeconds * 1000)
 }
 
 export type CheckStatus = "pass" | "fail" | "skip"
