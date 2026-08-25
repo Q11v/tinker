@@ -2,6 +2,7 @@ import Link from "next/link"
 import { ChevronLeft } from "lucide-react"
 
 import { ToolIcon } from "@/components/tool-icon"
+import { TrackRecentTool } from "@/components/track-recent-tool"
 import { Badge } from "@/components/ui/badge"
 import { categoryAccent, type Tool } from "@/lib/tools"
 
@@ -16,6 +17,8 @@ export function ToolShell({ tool, children }: ToolShellProps) {
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">
+      <TrackRecentTool slug={tool.slug} />
+
       <Link
         href="/"
         className="text-muted-foreground hover:text-foreground mb-6 inline-flex items-center gap-1 text-sm transition-colors"

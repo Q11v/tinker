@@ -33,11 +33,7 @@ export function KeyField({
   actions,
 }: KeyFieldProps) {
   const symmetric = isSymmetric(alg)
-  const label = symmetric
-    ? "共享密钥 Secret"
-    : usage === "verify"
-      ? "公钥 / 证书"
-      : "私钥"
+  const label = symmetric ? "共享密钥 Secret" : usage === "verify" ? "公钥 / 证书" : "私钥"
 
   const placeholder = symmetric
     ? "your-256-bit-secret"

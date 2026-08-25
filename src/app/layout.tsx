@@ -17,8 +17,7 @@ export const metadata: Metadata = {
     default: "tinker · 开发者小工具箱",
     template: "%s · tinker",
   },
-  description:
-    "一系列轻量、纯前端的开发者小工具，无需登录、即开即用。所有计算都在浏览器本地完成。",
+  description: "一系列轻量、纯前端的开发者小工具，无需登录、即开即用。所有计算都在浏览器本地完成。",
 }
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

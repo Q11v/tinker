@@ -18,9 +18,12 @@ export function CopyButton({ value, label, size = "sm", className }: CopyButtonP
   const [copied, setCopied] = useState(false)
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  useEffect(() => () => {
-    if (timer.current) clearTimeout(timer.current)
-  }, [])
+  useEffect(
+    () => () => {
+      if (timer.current) clearTimeout(timer.current)
+    },
+    []
+  )
 
   async function copy() {
     if (!value) return

@@ -1,0 +1,11 @@
+# 构建产物
+.next/
+out/
+next-env.d.ts
+tsconfig.tsbuildinfo
+
+# 锁文件交给 npm 自己管
+package-lock.json
+
+# next dev 会自动重写这个文件，格式化它只会制造无谓的改动
+AGENTS.md

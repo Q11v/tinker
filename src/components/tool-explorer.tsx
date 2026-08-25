@@ -3,11 +3,22 @@
 import { Search } from "lucide-react"
 import { useMemo, useState } from "react"
 
+import { RecentTools } from "@/components/recent-tools"
 import { ToolCard } from "@/components/tool-card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { CATEGORY_ORDER, searchTools, type ToolCategory } from "@/lib/tools"
+import { CATEGORY_ORDER, readyTools, searchTools, type ToolCategory } from "@/lib/tools"
 import { cn } from "@/lib/utils"
+
+/**
+ * 分类栏是固定的一整排，不随搜索结果增删。
+ * 否则选中的分类会在输入时从 DOM 里消失，而筛选状态还留着，
+ * 用户就卡在一个看不见任何激活筛选器的空结果里。
+ */
+const CATEGORY_TABS = [
+  "全部",
+  ...CATEGORY_ORDER.filter((name) => readyTools.some((tool) => tool.category === name)),
+] as const
 
 export function ToolExplorer() {
   const [query, setQuery] = useState("")
@@ -22,10 +33,16 @@ export function ToolExplorer() {
     [matched, category]
   )
 
-  const categoryOptions = useMemo(
-    () => CATEGORY_ORDER.filter((name) => matched.some((tool) => tool.category === name)),
-    [matched]
-  )
+  // 只有在没有任何筛选时才露出「最近使用」，否则会干扰搜索结果的阅读
+  const filtering = query.trim().length > 0 || category !== "全部"
+
+  // 当前搜索词下还有结果的分类，其余的置灰，避免点进去只看到空状态
+  const nonEmpty = useMemo(() => new Set(matched.map((tool) => tool.category)), [matched])
+
+  function reset() {
+    setQuery("")
+    setCategory("全部")
+  }
 
   return (
     <div className="space-y-6">
@@ -41,25 +58,38 @@ export function ToolExplorer() {
           />
         </div>
         <div className="flex flex-wrap gap-1.5">
-          {(["全部", ...categoryOptions] as const).map((name) => (
-            <Button
-              key={name}
-              type="button"
-              size="sm"
-              variant={category === name ? "secondary" : "ghost"}
-              onClick={() => setCategory(name)}
-              className={cn("text-xs", category !== name && "text-muted-foreground")}
-            >
-              {name}
-            </Button>
-          ))}
+          {CATEGORY_TABS.map((name) => {
+            const active = category === name
+            // 选中项永远保持可点，否则又会失去退出筛选的入口
+            const empty = !active && name !== "全部" && !nonEmpty.has(name)
+
+            return (
+              <Button
+                key={name}
+                type="button"
+                size="sm"
+                variant={active ? "secondary" : "ghost"}
+                aria-pressed={active}
+                disabled={empty}
+                onClick={() => setCategory(name)}
+                className={cn("text-xs", !active && "text-muted-foreground")}
+              >
+                {name}
+              </Button>
+            )
+          })}
         </div>
       </div>
 
+      {filtering ? null : <RecentTools />}
+
       {visible.length === 0 ? (
-        <p className="text-muted-foreground rounded-xl border border-dashed py-16 text-center text-sm">
-          没有匹配的工具。
-        </p>
+        <div className="text-muted-foreground flex flex-col items-center gap-3 rounded-xl border border-dashed py-16 text-center text-sm">
+          <p>没有匹配的工具。</p>
+          <Button type="button" size="sm" variant="outline" onClick={reset}>
+            清除筛选
+          </Button>
+        </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {visible.map((tool) => (

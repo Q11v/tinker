@@ -53,12 +53,7 @@ export function JsonTool() {
             <Button variant="ghost" size="sm" onClick={() => setInput(SAMPLE_JSON)}>
               示例
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setInput("")}
-              disabled={!input}
-            >
+            <Button variant="ghost" size="sm" onClick={() => setInput("")} disabled={!input}>
               <Trash2 className="size-3.5" />
               清空
             </Button>
@@ -84,9 +79,7 @@ export function JsonTool() {
       <Panel
         accent="sky"
         title="输出"
-        hint={
-          !input.trim() ? "等待输入" : result.ok ? "合法 JSON" : "JSON 不合法，请检查输入"
-        }
+        hint={!input.trim() ? "等待输入" : result.ok ? "合法 JSON" : "JSON 不合法，请检查输入"}
         action={
           <div className="flex items-center gap-1">
             <SegmentedControl value={viewMode} onChange={setViewMode} options={VIEW_MODES} />

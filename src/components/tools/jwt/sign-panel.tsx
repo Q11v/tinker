@@ -53,9 +53,7 @@ export function SignPanel({ onUseToken }: { onUseToken: (token: string) => void 
   const signedPayload = useMemo(() => {
     if (!token) return ""
     const result = decodeToken(token)
-    return result.ok && result.value.payload
-      ? JSON.stringify(result.value.payload, null, 2)
-      : ""
+    return result.ok && result.value.payload ? JSON.stringify(result.value.payload, null, 2) : ""
   }, [token])
 
   const parsedPayload = useMemo(() => {

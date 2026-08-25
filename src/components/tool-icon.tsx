@@ -10,13 +10,15 @@ export function ToolIcon({
 }: {
   icon: LucideIcon
   accent: string
-  size?: "sm" | "lg"
+  size?: "xs" | "sm" | "lg"
 }) {
   return (
     <span
       className={cn(
         "flex shrink-0 items-center justify-center border",
-        size === "sm" ? "size-9 rounded-lg" : "size-11 rounded-xl"
+        size === "xs" && "size-7 rounded-md",
+        size === "sm" && "size-9 rounded-lg",
+        size === "lg" && "size-11 rounded-xl"
       )}
       style={{
         backgroundColor: `color-mix(in oklch, ${accent} 14%, transparent)`,
@@ -24,7 +26,13 @@ export function ToolIcon({
         color: accent,
       }}
     >
-      <Icon className={size === "sm" ? "size-4" : "size-5"} />
+      <Icon
+        className={cn(
+          size === "xs" && "size-3.5",
+          size === "sm" && "size-4",
+          size === "lg" && "size-5"
+        )}
+      />
     </span>
   )
 }

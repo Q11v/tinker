@@ -1,6 +1,4 @@
-export type TimeParseResult =
-  | { ok: true; ms: number }
-  | { ok: false; error: string }
+export type TimeParseResult = { ok: true; ms: number } | { ok: false; error: string }
 
 /**
  * 纯数字按时间戳处理，按位数自动判断单位（秒 / 毫秒 / 微秒 / 纳秒）；
@@ -13,9 +11,12 @@ export function parseTimeInput(text: string): TimeParseResult {
   if (/^[+-]?\d+$/.test(trimmed)) {
     const digits = trimmed.replace(/^[+-]/, "").length
     let ms: number
-    if (digits <= 10) ms = Number(trimmed) * 1000 // 秒
-    else if (digits <= 13) ms = Number(trimmed) // 毫秒
-    else if (digits <= 16) ms = Number(trimmed) / 1000 // 微秒
+    if (digits <= 10)
+      ms = Number(trimmed) * 1000 // 秒
+    else if (digits <= 13)
+      ms = Number(trimmed) // 毫秒
+    else if (digits <= 16)
+      ms = Number(trimmed) / 1000 // 微秒
     else ms = Number(trimmed) / 1_000_000 // 纳秒
     if (!Number.isFinite(ms)) return { ok: false, error: "数字超出可表示范围" }
     return { ok: true, ms }

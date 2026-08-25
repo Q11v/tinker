@@ -46,10 +46,7 @@ export const SECRET_ENCODING_LABELS: Record<SecretEncoding, string> = {
 
 function base64UrlToBytes(input: string): Uint8Array {
   const normalized = input.replace(/-/g, "+").replace(/_/g, "/")
-  const padded = normalized.padEnd(
-    normalized.length + ((4 - (normalized.length % 4)) % 4),
-    "="
-  )
+  const padded = normalized.padEnd(normalized.length + ((4 - (normalized.length % 4)) % 4), "=")
   const binary = atob(padded)
   const bytes = new Uint8Array(binary.length)
   for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i)
@@ -93,9 +90,7 @@ export interface DecodedJwt {
   alg?: string
 }
 
-export type DecodeResult =
-  | { ok: true; value: DecodedJwt }
-  | { ok: false; error: string }
+export type DecodeResult = { ok: true; value: DecodedJwt } | { ok: false; error: string }
 
 /**
  * 纯本地解码。即使某一段损坏也尽量把能解出来的部分返回，
@@ -357,11 +352,7 @@ export async function generateKeyPairPem(
 /* ------------------------------------------------------------------ */
 
 /** 只校验签名本身，claims 交给 checkClaims 单独判断 */
-export async function verifySignature(
-  token: string,
-  key: KeyMaterial,
-  alg: string
-): Promise<void> {
+export async function verifySignature(token: string, key: KeyMaterial, alg: string): Promise<void> {
   await compactVerify(token.trim(), key, { algorithms: [alg] })
 }
 

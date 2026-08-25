@@ -25,10 +25,7 @@ export function ClaimsTable({
         const time = isTimeClaim(key) && typeof value === "number"
         const expired = key === "exp" && typeof value === "number" && value < nowSeconds
         return (
-          <div
-            key={key}
-            className="grid gap-1 px-4 py-3 sm:grid-cols-[180px_1fr] sm:gap-4"
-          >
+          <div key={key} className="grid gap-1 px-4 py-3 sm:grid-cols-[180px_1fr] sm:gap-4">
             <div className="min-w-0">
               <code className="font-mono text-[13px] font-medium">{key}</code>
               {REGISTERED_CLAIMS[key] ? (
@@ -39,11 +36,7 @@ export function ClaimsTable({
               <p className="font-mono text-[13px] break-all">{renderValue(value)}</p>
               {time ? (
                 <p
-                  className={
-                    expired
-                      ? "text-destructive text-xs"
-                      : "text-muted-foreground text-xs"
-                  }
+                  className={expired ? "text-destructive text-xs" : "text-muted-foreground text-xs"}
                 >
                   {formatUnixSeconds(value as number)} ·{" "}
                   {formatRelative(value as number, nowSeconds)}

@@ -33,8 +33,10 @@ export function DecodePanel({ token, onTokenChange, onGoVerify }: DecodePanelPro
   const result = useMemo(() => decodeToken(token), [token])
   const nowSeconds = useNowSeconds()
   const [payloadView, setPayloadView] = useState<PayloadView>("json")
-  const headerJson = result.ok && result.value.header ? JSON.stringify(result.value.header, null, 2) : ""
-  const payloadJson = result.ok && result.value.payload ? JSON.stringify(result.value.payload, null, 2) : ""
+  const headerJson =
+    result.ok && result.value.header ? JSON.stringify(result.value.header, null, 2) : ""
+  const payloadJson =
+    result.ok && result.value.payload ? JSON.stringify(result.value.payload, null, 2) : ""
 
   // Header 只有 alg/typ 这两个最常见字段时，用一行摘要代替完整 JSON，减少和 footer 的重复
   const headerEntries = result.ok && result.value.header ? Object.entries(result.value.header) : []
@@ -50,12 +52,7 @@ export function DecodePanel({ token, onTokenChange, onGoVerify }: DecodePanelPro
             <Button variant="ghost" size="sm" onClick={() => onTokenChange(SAMPLE_TOKEN)}>
               示例
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onTokenChange("")}
-              disabled={!token}
-            >
+            <Button variant="ghost" size="sm" onClick={() => onTokenChange("")} disabled={!token}>
               <Trash2 className="size-3.5" />
               清空
             </Button>

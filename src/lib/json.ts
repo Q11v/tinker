@@ -4,9 +4,7 @@ export interface JsonParseError {
   column?: number
 }
 
-export type JsonParseResult =
-  | { ok: true; value: unknown }
-  | { ok: false; error: JsonParseError }
+export type JsonParseResult = { ok: true; value: unknown } | { ok: false; error: JsonParseError }
 
 class LenientJsonParseError extends Error {
   constructor(

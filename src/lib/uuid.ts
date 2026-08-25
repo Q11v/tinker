@@ -33,8 +33,7 @@ export function generateUuidV7(): string {
   return bytesToUuidString(bytes)
 }
 
-const NANOID_ALPHABET =
-  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-"
+const NANOID_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-"
 
 /** 64 个字符正好是 2^6，每字节取低 6 位即可映射到字母表，天然无偏 */
 export function generateNanoId(size = 21): string {

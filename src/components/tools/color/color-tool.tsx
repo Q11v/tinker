@@ -112,30 +112,19 @@ export function ColorTool() {
           ) : null}
         </Panel>
 
-        <Panel
-          accent="sky"
-          title="输出"
-          hint={rgb ? "同一个颜色的几种常见表示" : "输入后自动转换"}
-        >
+        <Panel accent="sky" title="输出" hint={rgb ? "同一个颜色的几种常见表示" : "输入后自动转换"}>
           {!rgb ? (
             <p className="text-muted-foreground text-sm">在左侧输入颜色。</p>
           ) : (
             <div className="space-y-3">
-              <div
-                className="h-16 rounded-lg border"
-                style={{ backgroundColor: formatRgb(rgb) }}
-              />
+              <div className="h-16 rounded-lg border" style={{ backgroundColor: formatRgb(rgb) }} />
               <CopyableList items={rows} />
             </div>
           )}
         </Panel>
       </div>
 
-      <Panel
-        accent="sky"
-        title="对比度检查"
-        hint="WCAG 2 对比度，检查文字颜色在背景色上是否够清晰"
-      >
+      <Panel accent="sky" title="对比度检查" hint="WCAG 2 对比度，检查文字颜色在背景色上是否够清晰">
         <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
           <div className="space-y-2">
             <Label htmlFor="color-bg-input">背景色</Label>
@@ -172,9 +161,7 @@ export function ColorTool() {
         </div>
 
         {!rgb || !bgRgb ? (
-          <p className="text-muted-foreground mt-4 text-sm">
-            需要先在上面输入一个合法的文字颜色。
-          </p>
+          <p className="text-muted-foreground mt-4 text-sm">需要先在上面输入一个合法的文字颜色。</p>
         ) : (
           <ul className="mt-4 grid gap-2 sm:grid-cols-2">
             {checks.map((check) => (
@@ -191,9 +178,7 @@ export function ColorTool() {
                 <span
                   className={cn(
                     "font-medium",
-                    check.pass
-                      ? "text-emerald-600 dark:text-emerald-400"
-                      : "text-destructive"
+                    check.pass ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"
                   )}
                 >
                   {check.pass ? "通过" : "不通过"} · 需 ≥ {check.threshold}

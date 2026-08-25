@@ -225,10 +225,7 @@ export function Base64Tool() {
                   {decodedText?.ok ? <CopyButton value={decodedText.text} /> : null}
                   {decodedBlobUrl ? (
                     <Button variant="ghost" size="sm" asChild>
-                      <a
-                        href={decodedBlobUrl}
-                        download={`decoded.${decodedImage?.ext ?? "bin"}`}
-                      >
+                      <a href={decodedBlobUrl} download={`decoded.${decodedImage?.ext ?? "bin"}`}>
                         <Download className="size-3.5" />
                         下载
                       </a>
@@ -262,7 +259,8 @@ export function Base64Tool() {
               </p>
             ) : (
               <p className="text-muted-foreground text-sm">
-                解码得到 {decodeResult.bytes.length.toLocaleString()} 字节的二进制数据，不是可显示的文本，可以点右上角下载。
+                解码得到 {decodeResult.bytes.length.toLocaleString()}{" "}
+                字节的二进制数据，不是可显示的文本，可以点右上角下载。
               </p>
             )}
           </Panel>

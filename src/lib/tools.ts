@@ -13,13 +13,7 @@ import {
   type LucideIcon,
 } from "lucide-react"
 
-export type ToolCategory =
-  | "加密与安全"
-  | "编码转换"
-  | "格式化"
-  | "生成器"
-  | "时间日期"
-  | "文本处理"
+export type ToolCategory = "加密与安全" | "编码转换" | "格式化" | "生成器" | "时间日期" | "文本处理"
 
 export const CATEGORY_ORDER: ToolCategory[] = [
   "加密与安全",
@@ -92,8 +86,8 @@ export const tools: Tool[] = [
     description: "百分号编码互转，并拆解 URL 的各个组成部分与查询参数。",
     category: "编码转换",
     icon: Link2,
-    keywords: ["url", "uri", "encode", "querystring", "编码"],
-    status: "planned",
+    keywords: ["url", "uri", "encode", "decode", "querystring", "编码", "解码", "转义", "参数"],
+    status: "ready",
   },
   {
     slug: "json",
@@ -148,16 +142,7 @@ export const tools: Tool[] = [
     description: "Unix 时间戳与日期互转，支持多时区对照。",
     category: "时间日期",
     icon: CalendarClock,
-    keywords: [
-      "timestamp",
-      "时间戳",
-      "unix",
-      "日期",
-      "时区",
-      "iso 8601",
-      "rfc 2822",
-      "timezone",
-    ],
+    keywords: ["timestamp", "时间戳", "unix", "日期", "时区", "iso 8601", "rfc 2822", "timezone"],
     status: "ready",
   },
   {

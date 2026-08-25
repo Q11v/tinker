@@ -36,12 +36,7 @@ interface VerifyPanelProps {
   onSecretChange: (secret: string) => void
 }
 
-export function VerifyPanel({
-  token,
-  onTokenChange,
-  secret,
-  onSecretChange,
-}: VerifyPanelProps) {
+export function VerifyPanel({ token, onTokenChange, secret, onSecretChange }: VerifyPanelProps) {
   const decoded = useMemo(() => decodeToken(token), [token])
   const tokenAlg = decoded.ok ? decoded.value.alg : undefined
 
@@ -93,8 +88,7 @@ export function VerifyPanel({
   }, [gate, token, secret, alg, encoding])
 
   // 结果与当前输入不匹配（正在防抖或校验中）时显示 pending，避免展示过期结论
-  const state: VerifyState =
-    gate ?? (result?.input === input ? result.state : { kind: "pending" })
+  const state: VerifyState = gate ?? (result?.input === input ? result.state : { kind: "pending" })
 
   const nowSeconds = useNowSeconds()
   const checks = useMemo(
@@ -221,19 +215,14 @@ export function VerifyPanel({
 
 function CheckIcon({ status }: { status: CheckStatus }) {
   if (status === "pass")
-    return <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
-  if (status === "fail")
-    return <XCircle className="text-destructive mt-0.5 size-4 shrink-0" />
+    return (
+      <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+    )
+  if (status === "fail") return <XCircle className="text-destructive mt-0.5 size-4 shrink-0" />
   return <MinusCircle className="text-muted-foreground mt-0.5 size-4 shrink-0" />
 }
 
-function StatusBanner({
-  state,
-  claimsFailed,
-}: {
-  state: VerifyState
-  claimsFailed: boolean
-}) {
+function StatusBanner({ state, claimsFailed }: { state: VerifyState; claimsFailed: boolean }) {
   if (state.kind === "idle") {
     return (
       <div className="text-muted-foreground flex items-center gap-2 rounded-xl border border-dashed px-4 py-3 text-sm">

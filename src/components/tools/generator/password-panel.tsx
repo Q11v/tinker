@@ -123,7 +123,8 @@ export function PasswordPanel() {
             <p className="text-destructive text-xs">请至少选择一种字符类型</p>
           ) : (
             <p className="text-muted-foreground text-xs">
-              强度预估：<span className={cn("font-medium", strength.className)}>{strength.text}</span>
+              强度预估：
+              <span className={cn("font-medium", strength.className)}>{strength.text}</span>
               （约 {entropyBits} bit 熵，字符集 {pool.length} 种）
             </p>
           )}

@@ -129,9 +129,7 @@ export function UuidPanel() {
         {formatted.length === 0 ? (
           <p className="text-muted-foreground text-sm">生成中…</p>
         ) : (
-          <CopyableList
-            items={formatted.map((id, index) => ({ key: String(index), value: id }))}
-          />
+          <CopyableList items={formatted.map((id, index) => ({ key: String(index), value: id }))} />
         )}
       </Panel>
     </div>

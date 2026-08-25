@@ -9,10 +9,7 @@ function GithubMark(props: React.SVGProps<SVGSVGElement>) {
 export function SiteFooter() {
   return (
     <footer className="relative mt-auto border-t">
-      <div
-        aria-hidden
-        className="bg-gradient-brand absolute inset-x-0 -top-px h-px opacity-70"
-      />
+      <div aria-hidden className="bg-gradient-brand absolute inset-x-0 -top-px h-px opacity-70" />
       <div className="text-muted-foreground mx-auto flex w-full max-w-6xl flex-col gap-1 px-4 py-6 text-xs sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <p>tinker · 一系列轻量、纯前端的开发者小工具，无需登录、即开即用。</p>
         <a

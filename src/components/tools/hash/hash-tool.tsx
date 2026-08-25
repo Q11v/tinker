@@ -8,12 +8,7 @@ import { Panel } from "@/components/tool-panel"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import {
-  digest,
-  encodeDigest,
-  HASH_ALGORITHMS,
-  type HashEncoding,
-} from "@/lib/hash"
+import { digest, encodeDigest, HASH_ALGORITHMS, type HashEncoding } from "@/lib/hash"
 
 type SourceMode = "text" | "file"
 
@@ -46,7 +41,11 @@ export function HashTool() {
 
     async function run() {
       const bytes =
-        mode === "text" ? new TextEncoder().encode(text) : file ? new Uint8Array(await file.arrayBuffer()) : null
+        mode === "text"
+          ? new TextEncoder().encode(text)
+          : file
+            ? new Uint8Array(await file.arrayBuffer())
+            : null
 
       if (!bytes || bytes.length === 0) {
         if (!cancelled) setDigests({})
