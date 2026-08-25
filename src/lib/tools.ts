@@ -71,11 +71,11 @@ export const tools: Tool[] = [
   {
     slug: "hash",
     name: "哈希计算",
-    description: "计算文本或文件的 SHA-1 / SHA-256 / SHA-512 摘要。",
+    description: "计算文本或文件的 MD5 / SHA-1 / SHA-256 / SHA-384 / SHA-512 摘要。",
     category: "加密与安全",
     icon: Fingerprint,
-    keywords: ["hash", "sha", "md5", "摘要", "指纹"],
-    status: "planned",
+    keywords: ["hash", "sha", "md5", "摘要", "指纹", "校验和", "checksum"],
+    status: "ready",
   },
   {
     slug: "base64",
@@ -83,8 +83,8 @@ export const tools: Tool[] = [
     description: "文本、图片与二进制数据的 Base64 / Base64URL 互转。",
     category: "编码转换",
     icon: Binary,
-    keywords: ["base64", "编码", "解码", "base64url"],
-    status: "planned",
+    keywords: ["base64", "编码", "解码", "base64url", "图片"],
+    status: "ready",
   },
   {
     slug: "url",
@@ -110,8 +110,8 @@ export const tools: Tool[] = [
     description: "HEX / RGB / HSL / OKLCH 互转，附对比度检查。",
     category: "格式化",
     icon: Palette,
-    keywords: ["color", "颜色", "hex", "rgb", "hsl", "oklch"],
-    status: "planned",
+    keywords: ["color", "颜色", "hex", "rgb", "hsl", "oklch", "对比度", "wcag"],
+    status: "ready",
   },
   {
     slug: "generator",
