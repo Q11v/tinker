@@ -19,6 +19,7 @@ import {
   type UrlEncodeVariant,
   type UrlQueryParam,
 } from "@/lib/url"
+import { cn, monoField } from "@/lib/utils"
 
 type Mode = "encode" | "decode" | "parse"
 
@@ -120,7 +121,7 @@ export function UrlTool() {
             spellCheck={false}
             autoComplete="off"
             aria-invalid={!!parsed && !parsed.ok}
-            className="font-mono text-[13px]"
+            className={monoField}
           />
           {parsed && !parsed.ok ? (
             <p className="text-destructive mt-2 text-xs">{dict.errors.url[parsed.error]}</p>
@@ -181,7 +182,7 @@ export function UrlTool() {
               placeholder={dict.urlTool.encodeTextPlaceholder}
               spellCheck={false}
               autoComplete="off"
-              className="max-h-64 min-h-40 font-mono text-[13px]"
+              className={cn(monoField, "max-h-64 min-h-40")}
             />
           </Panel>
 
@@ -237,7 +238,7 @@ export function UrlTool() {
               spellCheck={false}
               autoComplete="off"
               aria-invalid={!!decoded && !decoded.ok}
-              className="max-h-64 min-h-40 font-mono text-[13px]"
+              className={cn(monoField, "max-h-64 min-h-40")}
             />
             {decodeError ? <p className="text-destructive mt-2 text-xs">{decodeError}</p> : null}
           </Panel>

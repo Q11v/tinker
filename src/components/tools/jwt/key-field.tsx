@@ -11,6 +11,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { useDict } from "@/i18n/context"
 import { isSymmetric, SECRET_ENCODINGS, type SecretEncoding } from "@/lib/jwt"
+import { cn, monoField } from "@/lib/utils"
 
 interface KeyFieldProps {
   id: string
@@ -84,9 +85,7 @@ export function KeyField({
         spellCheck={false}
         autoComplete="off"
         className={
-          symmetric
-            ? "max-h-40 min-h-16 font-mono text-[13px]"
-            : "max-h-64 min-h-32 font-mono text-[13px]"
+          symmetric ? cn(monoField, "max-h-40 min-h-16") : cn(monoField, "max-h-64 min-h-32")
         }
       />
       <p className="text-muted-foreground text-xs">{note}</p>

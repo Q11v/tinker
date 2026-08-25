@@ -8,3 +8,16 @@ export function format(template: string, values: Record<string, string | number>
     key in values ? String(values[key]) : match
   )
 }
+
+/**
+ * 按语言的复数规则挑选文案。中文只有 other 一种形式，英文要区分 one / other，
+ * 交给 Intl.PluralRules 判断，而不是自己写 count === 1。
+ */
+export function plural(
+  forms: { one: string; other: string },
+  count: number,
+  bcp47: string
+): string {
+  const rule = new Intl.PluralRules(bcp47).select(count)
+  return format(rule === "one" ? forms.one : forms.other, { count })
+}

@@ -15,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { useDict } from "@/i18n/context"
 import { format } from "@/i18n/format"
 import { formatJson, parseJson, SAMPLE_JSON, type JsonOutputMode } from "@/lib/json"
+import { cn, monoField } from "@/lib/utils"
 
 type ViewMode = "text" | "tree"
 
@@ -74,7 +75,7 @@ export function JsonTool() {
           spellCheck={false}
           autoComplete="off"
           aria-invalid={!result.ok && input.trim().length > 0}
-          className="max-h-[32rem] min-h-64 font-mono text-[13px]"
+          className={cn(monoField, "max-h-[32rem] min-h-64")}
         />
       </Panel>
 

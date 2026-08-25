@@ -49,7 +49,8 @@ export function CopyButton({ value, label, size = "sm", className }: CopyButtonP
       onClick={copy}
       disabled={!value}
       aria-label={label ?? dict.common.copy}
-      className={cn("text-muted-foreground", className)}
+      // 图标态默认 32px，移动端偏小；窄屏放大到 36px（列表行高就是 36px，再大会撑破行）
+      className={cn("text-muted-foreground", size === "icon" && "max-sm:size-9", className)}
     >
       <Icon className={cn("size-3.5", copied && "text-emerald-600 dark:text-emerald-400")} />
       {size === "sm" ? (copied ? dict.common.copied : (label ?? dict.common.copy)) : null}

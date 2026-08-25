@@ -20,6 +20,7 @@ import {
   textToBytes,
   type Base64Variant,
 } from "@/lib/base64"
+import { cn, monoField } from "@/lib/utils"
 
 type Mode = "encode" | "decode"
 type Source = "text" | "file"
@@ -139,7 +140,7 @@ export function Base64Tool() {
                   placeholder={dict.base64Tool.encodeTextPlaceholder}
                   spellCheck={false}
                   autoComplete="off"
-                  className="max-h-64 min-h-40 font-mono text-[13px]"
+                  className={cn(monoField, "max-h-64 min-h-40")}
                 />
               </>
             ) : (
@@ -200,7 +201,7 @@ export function Base64Tool() {
               spellCheck={false}
               autoComplete="off"
               aria-invalid={!!decodeResult && !decodeResult.ok}
-              className="max-h-64 min-h-40 font-mono text-[13px]"
+              className={cn(monoField, "max-h-64 min-h-40")}
             />
             {decodeResult && !decodeResult.ok ? (
               <p className="text-destructive mt-2 text-xs">

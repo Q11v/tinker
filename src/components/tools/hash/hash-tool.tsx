@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { useDict } from "@/i18n/context"
 import { digest, encodeDigest, HASH_ALGORITHMS, type HashEncoding } from "@/lib/hash"
+import { cn, monoField } from "@/lib/utils"
 
 type SourceMode = "text" | "file"
 
@@ -95,7 +96,7 @@ export function HashTool() {
               placeholder={dict.hashTool.textPlaceholder}
               spellCheck={false}
               autoComplete="off"
-              className="max-h-64 min-h-40 font-mono text-[13px]"
+              className={cn(monoField, "max-h-64 min-h-40")}
             />
           </>
         ) : (

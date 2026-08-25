@@ -26,15 +26,22 @@ export function Panel({
 }) {
   return (
     <div className="bg-card flex flex-col rounded-xl border">
-      <div className="flex items-center justify-between gap-2 border-b px-4 py-2.5">
-        <div className="flex items-center gap-2">
-          <span className={cn("size-1.5 shrink-0 rounded-full", ACCENT_DOT[accent])} />
-          <div>
+      {/*
+        窄屏上 hint 可能有四五十个字，action 里又常常挂着两个 SegmentedControl 加一个复制按钮。
+        没有 min-w-0 的话 flex 子项不会收缩到内容宽度以下，标题区会把 action 挤出面板；
+        flex-wrap 让 action 在实在放不下时掉到第二行，而不是横向溢出。
+      */}
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5 border-b px-4 py-2.5">
+        <div className="flex min-w-0 flex-1 items-center gap-2">
+          <span
+            className={cn("mt-1.5 size-1.5 shrink-0 self-start rounded-full", ACCENT_DOT[accent])}
+          />
+          <div className="min-w-0">
             <h3 className="text-sm font-medium">{title}</h3>
             <p className="text-muted-foreground text-xs">{hint}</p>
           </div>
         </div>
-        {action}
+        {action ? <div className="ml-auto shrink-0">{action}</div> : null}
       </div>
       <div className="p-4">{children}</div>
       {footer ? (

@@ -20,6 +20,7 @@ import {
   getTimeZoneOffset,
   parseTimeInput,
 } from "@/lib/timestamp"
+import { monoField } from "@/lib/utils"
 
 export function TimestampTool() {
   const { locale, dict } = useI18n()
@@ -102,7 +103,7 @@ export function TimestampTool() {
             spellCheck={false}
             autoComplete="off"
             aria-invalid={!!errorMessage}
-            className="font-mono text-[13px]"
+            className={monoField}
           />
           {errorMessage ? <p className="text-destructive mt-2 text-xs">{errorMessage}</p> : null}
         </Panel>
@@ -128,9 +129,12 @@ export function TimestampTool() {
         >
           <ul className="divide-y rounded-lg border">
             {timezoneRows.map((zone) => (
-              <li key={zone.id} className="flex items-center justify-between gap-4 px-3 py-2">
-                <span className="text-sm">{zone.label}</span>
-                <div className="flex items-center gap-3">
+              <li
+                key={zone.id}
+                className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-3 py-2"
+              >
+                <span className="min-w-0 text-sm">{zone.label}</span>
+                <div className="flex min-w-0 items-center gap-3">
                   <span className="text-muted-foreground font-mono text-xs">
                     {getTimeZoneOffset(ms, zone.id)}
                   </span>

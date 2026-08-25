@@ -21,8 +21,8 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
         className="bg-gradient-brand animate-blob pointer-events-none absolute -top-24 -right-24 -z-10 size-80 rounded-full opacity-15 blur-3xl [animation-delay:4s]"
       />
 
-      <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6">
-        <section className="mb-10 max-w-2xl">
+      <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
+        <section className="mb-8 max-w-2xl sm:mb-10">
           <h1 className="text-gradient-brand text-3xl font-semibold tracking-tight sm:text-4xl">
             {dict.home.title}
           </h1>

@@ -102,7 +102,7 @@ export function ToolExplorer() {
           </Button>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
           {visible.map((tool) => (
             <ToolCard key={tool.slug} tool={tool} dict={dict} href={href(`/tools/${tool.slug}`)} />
           ))}

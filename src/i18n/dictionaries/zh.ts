@@ -4,9 +4,9 @@
  */
 export const zh = {
   meta: {
-    siteName: "tinker",
-    title: "tinker · 开发者小工具箱",
-    titleTemplate: "%s · tinker",
+    siteName: "Tinker",
+    title: "Tinker · 开发者小工具箱",
+    titleTemplate: "%s · Tinker",
     description:
       "一系列轻量、纯前端的开发者小工具，无需登录、即开即用。所有计算都在浏览器本地完成。",
   },
@@ -38,7 +38,7 @@ export const zh = {
   },
 
   footer: {
-    tagline: "tinker · 一系列轻量、纯前端的开发者小工具，无需登录、即开即用。",
+    tagline: "Tinker · 一系列轻量、纯前端的开发者小工具，无需登录、即开即用。",
   },
 
   home: {
@@ -269,6 +269,9 @@ export const zh = {
   jsonTree: {
     expand: "展开",
     collapse: "折叠",
+    copyPath: "复制路径",
+    copyPathTitle: "点击复制路径 {path}",
+    itemCount: { one: "{count} 项", other: "{count} 项" },
   },
 
   generatorTool: {

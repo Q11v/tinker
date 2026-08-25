@@ -20,7 +20,7 @@ import {
   rgbToOklch,
   type Rgb,
 } from "@/lib/color"
-import { cn } from "@/lib/utils"
+import { cn, monoField } from "@/lib/utils"
 
 const SAMPLE_COLOR = "oklch(0.7 0.15 250)"
 
@@ -101,7 +101,7 @@ export function ColorTool() {
               spellCheck={false}
               autoComplete="off"
               aria-invalid={!!parsed && !parsed.ok}
-              className="font-mono text-[13px]"
+              className={monoField}
             />
           </div>
           {parsed && !parsed.ok ? (
@@ -145,7 +145,7 @@ export function ColorTool() {
                 spellCheck={false}
                 autoComplete="off"
                 aria-invalid={!!bgParsed && !bgParsed.ok}
-                className="font-mono text-[13px]"
+                className={monoField}
               />
             </div>
           </div>

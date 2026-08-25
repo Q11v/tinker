@@ -30,6 +30,7 @@ import {
   type JwtError,
   type SecretEncoding,
 } from "@/lib/jwt"
+import { cn, monoField } from "@/lib/utils"
 
 const DEFAULT_PAYLOAD = JSON.stringify(
   { sub: "1234567890", name: "Ada Lovelace", roles: ["admin"] },
@@ -185,7 +186,7 @@ export function SignPanel({ onUseToken }: { onUseToken: (token: string) => void 
             spellCheck={false}
             autoComplete="off"
             aria-invalid={!parsedPayload.ok}
-            className="max-h-80 min-h-40 font-mono text-[13px]"
+            className={cn(monoField, "max-h-80 min-h-40")}
           />
           {parsedPayload.ok ? (
             <p className="text-muted-foreground text-xs">{text.autoClaimsNote}</p>

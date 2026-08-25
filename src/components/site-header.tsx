@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronDown } from "lucide-react"
+import { ChevronDown, LayoutGrid } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useMemo } from "react"
@@ -55,16 +55,22 @@ export function SiteHeader() {
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
+            {/*
+              这个下拉原来是 hidden sm:inline-flex，移动端整个消失，
+              于是手机上换工具只能先退回首页。窄屏保留成图标按钮。
+            */}
             <Button
               variant="ghost"
               size="sm"
+              aria-label={dict.header.allTools}
               className={cn(
-                "hidden gap-1 sm:inline-flex",
+                "gap-1 max-sm:size-9 max-sm:px-0",
                 onToolPage ? "text-accent-foreground bg-accent" : "text-muted-foreground"
               )}
             >
-              {dict.header.allTools}
-              <ChevronDown className="size-3.5" />
+              <LayoutGrid className="size-4 sm:hidden" />
+              <span className="max-sm:hidden">{dict.header.allTools}</span>
+              <ChevronDown className="size-3.5 max-sm:hidden" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-56">

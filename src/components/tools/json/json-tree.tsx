@@ -5,7 +5,9 @@ import { useState } from "react"
 
 import { buildJsonPath } from "@/lib/json"
 import { JSON_COLOR } from "@/lib/json-colors"
-import { useDict } from "@/i18n/context"
+import { LOCALE_HTML_LANG } from "@/i18n/config"
+import { useI18n } from "@/i18n/context"
+import { format, plural } from "@/i18n/format"
 import { cn } from "@/lib/utils"
 
 type PathSegment = string | number
@@ -38,7 +40,9 @@ export function JsonTree({
   onCopyPath: (path: string) => void
 }) {
   return (
-    <div className="font-mono text-[13px] leading-relaxed">
+    // 每层缩进约 19px，深层嵌套在窄屏上会顶宽页面。
+    // 让树自己横向滚动，而不是把整个页面撑出横向滚动条。
+    <div className="-mx-1 overflow-x-auto px-1 font-mono text-[13px] leading-relaxed">
       <TreeNode segments={[]} value={value} onCopyPath={onCopyPath} />
     </div>
   )
@@ -55,7 +59,8 @@ function TreeNode({
   value: unknown
   onCopyPath: (path: string) => void
 }) {
-  const dict = useDict()
+  const { locale, dict } = useI18n()
+  const bcp47 = LOCALE_HTML_LANG[locale]
   const kind = valueKind(value)
   const isContainer = kind === "object" || kind === "array"
   const [collapsed, setCollapsed] = useState(false)
@@ -90,7 +95,7 @@ function TreeNode({
         <button
           type="button"
           onClick={() => onCopyPath(path)}
-          title={`点击复制路径 ${path}`}
+          title={format(dict.jsonTree.copyPathTitle, { path })}
           className="min-w-0 flex-1 text-left"
         >
           {keyLabel !== undefined ? (
@@ -108,7 +113,7 @@ function TreeNode({
               {entries.length > 0 ? (
                 <span className="ml-1.5 text-xs">
                   {collapsed ? `… ${closeBracket} ` : ""}
-                  {entries.length} 项
+                  {plural(dict.jsonTree.itemCount, entries.length, bcp47)}
                 </span>
               ) : (
                 closeBracket
@@ -120,7 +125,7 @@ function TreeNode({
 
           <span className="text-muted-foreground/0 group-hover:text-muted-foreground ml-2 inline-flex items-center gap-1 text-[11px] transition-colors">
             <Copy className="size-3" />
-            复制路径
+            {dict.jsonTree.copyPath}
           </span>
         </button>
       </div>

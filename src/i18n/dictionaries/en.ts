@@ -6,9 +6,9 @@ import type { Dictionary } from "@/i18n/dictionaries"
  */
 export const en: Dictionary = {
   meta: {
-    siteName: "tinker",
-    title: "tinker · Developer Toolbox",
-    titleTemplate: "%s · tinker",
+    siteName: "Tinker",
+    title: "Tinker · Developer Toolbox",
+    titleTemplate: "%s · Tinker",
     description:
       "A set of lightweight, browser-only developer tools. No sign-up, no upload — everything runs locally in your browser.",
   },
@@ -40,7 +40,7 @@ export const en: Dictionary = {
   },
 
   footer: {
-    tagline: "tinker · Lightweight, browser-only developer tools. No sign-up, just open and go.",
+    tagline: "Tinker · Lightweight, browser-only developer tools. No sign-up, just open and go.",
   },
 
   home: {
@@ -277,6 +277,9 @@ export const en: Dictionary = {
   jsonTree: {
     expand: "Expand",
     collapse: "Collapse",
+    copyPath: "Copy path",
+    copyPathTitle: "Click to copy path {path}",
+    itemCount: { one: "{count} item", other: "{count} items" },
   },
 
   generatorTool: {

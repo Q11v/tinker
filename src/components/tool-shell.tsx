@@ -22,7 +22,7 @@ export function ToolShell({ tool, locale, dict, children }: ToolShellProps) {
   const text = dict.tools[tool.slug]
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">
+    <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
       <TrackRecentTool slug={tool.slug} />
 
       <Link
@@ -33,7 +33,7 @@ export function ToolShell({ tool, locale, dict, children }: ToolShellProps) {
         {dict.header.allTools}
       </Link>
 
-      <div className="mb-8 flex items-start gap-4">
+      <div className="mb-6 flex items-start gap-4 sm:mb-8">
         <ToolIcon icon={tool.icon} accent={accent} size="lg" />
         <div className="space-y-1">
           <div className="flex flex-wrap items-center gap-2">

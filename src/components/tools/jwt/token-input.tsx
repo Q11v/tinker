@@ -5,7 +5,7 @@ import { useRef, useState } from "react"
 import { TokenPreview } from "@/components/tools/jwt/token-preview"
 import { Textarea } from "@/components/ui/textarea"
 import { useDict } from "@/i18n/context"
-import { cn } from "@/lib/utils"
+import { cn, monoField } from "@/lib/utils"
 
 interface TokenInputProps {
   id: string
@@ -38,7 +38,7 @@ export function TokenInput({ id, value, onChange, placeholder, className }: Toke
         spellCheck={false}
         autoComplete="off"
         className={cn(
-          "font-mono text-[13px]",
+          monoField,
           className,
           // visibility:hidden 元素无法被 focus()，所以这里只能用透明度 + 禁用点击来隐藏，
           // 否则点击预览层调用 ref.current?.focus() 会静默失败，切不回编辑态
