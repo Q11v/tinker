@@ -200,6 +200,10 @@ export const en: Dictionary = {
       headerPrefix: "Couldn't parse the header: {message}",
       payloadPrefix: "Couldn't parse the payload: {message}",
     },
+    qrcode: {
+      tooLong:
+        "Too much data: {bytes} bytes as UTF-8, but error correction level {ecc} holds at most {max}",
+    },
   },
 
   hashTool: {
@@ -564,6 +568,53 @@ export const en: Dictionary = {
       search: "Query string",
       hash: "Fragment",
       href: "Normalized",
+    },
+  },
+
+  qrcodeTool: {
+    tabs: {
+      text: "Text / link",
+      wifi: "Wi-Fi",
+    },
+    inputTitle: "Content",
+    inputHint: "Text, a link or any string — the code updates as you type",
+    textLabel: "QR code content",
+    textPlaceholder: "https://example.com",
+    bytesFooter: "{bytes} / {max} bytes used (UTF-8; a higher correction level holds less)",
+    previewTitle: "QR code",
+    previewHint: "Generated locally — nothing is uploaded",
+    previewLabel: "Generated QR code",
+    eccLabel: "Error correction",
+    eccHints: {
+      L: "L · ~7% recoverable, sparsest code",
+      M: "M · ~15% recoverable, fine for everyday use",
+      Q: "Q · ~25% recoverable, good for surfaces that get scuffed",
+      H: "H · ~30% recoverable, for print or a logo in the middle",
+    },
+    info: "Version {version} · {count}×{count} modules",
+    emptyState: "Enter something on the left to generate a code.",
+    downloadPng: "PNG",
+    downloadSvg: "SVG",
+    downloadFailed: "Couldn't export the image — please try again",
+    wifi: {
+      settingsTitle: "Wi-Fi settings",
+      settingsHint: "Scan to join the network — the settings stay on this machine",
+      ssidLabel: "Network name (SSID)",
+      ssidPlaceholder: "MyWiFi",
+      passwordLabel: "Password",
+      passwordPlaceholder: "At least 8 characters for WPA",
+      encryptionLabel: "Security",
+      encryption: {
+        WPA: "WPA/WPA2",
+        WEP: "WEP",
+        nopass: "Open",
+      },
+      hidden: "Hidden network",
+      hiddenFooter:
+        "Tick this for a network that doesn't broadcast its SSID, so phones go looking for it",
+      needSsid: "Enter the network name first.",
+      payloadTitle: "Payload",
+      payloadHint: "What the QR code actually encodes",
     },
   },
 }

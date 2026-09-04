@@ -119,7 +119,7 @@ export const tools: Tool[] = [
     category: "generator",
     icon: QrCode,
     keywords: ["qrcode", "qr", "wifi"],
-    status: "planned",
+    status: "ready",
   },
   {
     slug: "timestamp",

@@ -194,6 +194,9 @@ export const zh = {
       headerPrefix: "Header 解析失败：{message}",
       payloadPrefix: "Payload 解析失败：{message}",
     },
+    qrcode: {
+      tooLong: "内容太长了：UTF-8 编码后 {bytes} 字节，纠错等级 {ecc} 最多只能装 {max} 字节",
+    },
   },
 
   hashTool: {
@@ -545,6 +548,52 @@ export const zh = {
       search: "查询串",
       hash: "锚点",
       href: "标准化",
+    },
+  },
+
+  qrcodeTool: {
+    tabs: {
+      text: "文本 / 链接",
+      wifi: "Wi-Fi",
+    },
+    inputTitle: "内容",
+    inputHint: "文本、链接或任意字符串，输入即时生成",
+    textLabel: "二维码内容",
+    textPlaceholder: "https://example.com",
+    bytesFooter: "已用 {bytes} / {max} 字节（按 UTF-8 计算，纠错等级越高容量越小）",
+    previewTitle: "二维码",
+    previewHint: "全部在本机生成，内容不会上传",
+    previewLabel: "生成的二维码",
+    eccLabel: "纠错等级",
+    eccHints: {
+      L: "L · 约 7% 容错，码最稀疏",
+      M: "M · 约 15% 容错，日常够用",
+      Q: "Q · 约 25% 容错，适合贴在容易磨损的地方",
+      H: "H · 约 30% 容错，适合印刷或中心叠 logo",
+    },
+    info: "版本 {version} · {count}×{count} 模块",
+    emptyState: "在左侧输入内容后生成二维码。",
+    downloadPng: "PNG",
+    downloadSvg: "SVG",
+    downloadFailed: "导出图片失败，请重试",
+    wifi: {
+      settingsTitle: "Wi-Fi 配置",
+      settingsHint: "扫码直接连网，配置不会离开本机",
+      ssidLabel: "网络名称（SSID）",
+      ssidPlaceholder: "MyWiFi",
+      passwordLabel: "密码",
+      passwordPlaceholder: "WPA 密码至少 8 位",
+      encryptionLabel: "加密方式",
+      encryption: {
+        WPA: "WPA/WPA2",
+        WEP: "WEP",
+        nopass: "无密码",
+      },
+      hidden: "隐藏网络",
+      hiddenFooter: "SSID 不广播的网络要勾上，手机才会主动去搜",
+      needSsid: "先填写网络名称。",
+      payloadTitle: "配置串",
+      payloadHint: "二维码里实际编码的内容",
     },
   },
 }
