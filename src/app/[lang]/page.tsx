@@ -2,35 +2,14 @@ import { notFound } from "next/navigation"
 
 import { ToolExplorer } from "@/components/tool-explorer"
 import { isLocale } from "@/i18n/config"
-import { getDictionary } from "@/i18n/dictionaries"
 
+/**
+ * 首页的搜索词、分类与「最近使用」都是客户端状态，而 hero 里的搜索条正是入口，
+ * 所以整块交给 ToolExplorer，这里只负责校验语言前缀。
+ */
 export default async function HomePage({ params }: PageProps<"/[lang]">) {
   const { lang } = await params
   if (!isLocale(lang)) notFound()
 
-  const dict = await getDictionary(lang)
-
-  return (
-    <div className="relative overflow-hidden">
-      <div
-        aria-hidden
-        className="bg-gradient-brand animate-blob pointer-events-none absolute -top-40 -left-32 -z-10 size-96 rounded-full opacity-20 blur-3xl"
-      />
-      <div
-        aria-hidden
-        className="bg-gradient-brand animate-blob pointer-events-none absolute -top-24 -right-24 -z-10 size-80 rounded-full opacity-15 blur-3xl [animation-delay:4s]"
-      />
-
-      <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
-        <section className="mb-8 max-w-2xl sm:mb-10">
-          <h1 className="text-gradient-brand text-3xl font-semibold tracking-tight sm:text-4xl">
-            {dict.home.title}
-          </h1>
-          <p className="text-muted-foreground mt-3 leading-relaxed">{dict.home.subtitle}</p>
-        </section>
-
-        <ToolExplorer />
-      </div>
-    </div>
-  )
+  return <ToolExplorer />
 }

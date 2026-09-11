@@ -25,11 +25,13 @@ export const en: Dictionary = {
     file: "File",
     selectFile: "Choose a file",
     localOnly: "Everything runs locally in your browser",
+    localOnlyNote: "Computed locally · never uploaded",
     download: "Download",
   },
 
   header: {
     allTools: "All tools",
+    breadcrumb: "Breadcrumb",
     toggleTheme: "Toggle theme",
     theme: {
       light: "Light",
@@ -40,12 +42,12 @@ export const en: Dictionary = {
   },
 
   footer: {
-    tagline: "Tinker · Lightweight, browser-only developer tools. No sign-up, just open and go.",
+    tagline: "Tinker · No sign-up. Your data stays on this machine.",
   },
 
   home: {
     title: "Developer Toolbox",
-    subtitle: "A set of lightweight, browser-only developer tools.",
+    subtitle: "{count} browser-only tools. Your data never leaves the tab.",
   },
 
   notFound: {
@@ -54,13 +56,29 @@ export const en: Dictionary = {
   },
 
   explorer: {
-    searchPlaceholder: "Search tools, e.g. jwt…",
+    eyebrow: "Local-first devtools",
+    searchPlaceholder: "Search tools, paste content, or type jwt / base64 / #ff8800…",
     searchLabel: "Search tools",
+    resultCount: "{count} results · esc to clear",
+    enterHint: "Press Enter to open the first result — {name}",
     all: "All",
-    empty: "No matching tools.",
     clearFilters: "Clear filters",
-    recent: "Recently used",
+    recent: "Recent",
     clearRecent: "Clear",
+    planned: "Planned",
+    plannedCta: "Request one on GitHub →",
+    match: {
+      name: "name match",
+      keyword: "keyword {keyword}",
+      category: "category match",
+      description: "description match",
+    },
+    emptyTitle: "“{query}” isn't a tool yet",
+    emptyTitleCategory: "Nothing in this category yet",
+    emptyBody:
+      "No tool matches that. Clear the filters to see them all, or open an issue to vote for it.",
+    reportIssue: "Open an issue",
+    suggestions: "Try:",
   },
 
   categories: {
@@ -207,14 +225,19 @@ export const en: Dictionary = {
   },
 
   hashTool: {
-    inputHint: "Text or a file — everything is computed locally",
     textLabel: "Text to hash",
-    textPlaceholder: "Enter the text you want to hash",
-    resultTitle: "Digests",
+    textPlaceholder: "Type or paste the text you want to hash…",
+    autoHint: "Hashes update as you type",
+    encodingLabel: "Digest encoding",
     busy: "Computing…",
-    resultHint: "The same data under several common digest algorithms",
-    waiting: "Hashes update as you type",
-    emptyState: "Enter text or choose a file on the left.",
+    textMeta: "UTF-8 · {bytes} bytes",
+    fileMeta: "{name} · {size}",
+    emptyState: "Enter text or choose a file — digests will show up here.",
+    verifyLabel: "Verify",
+    verifyPlaceholder: "Paste an expected digest to compare…",
+    verifyIdle: "Compare",
+    verifyMatch: "Matches {algorithm}",
+    verifyMismatch: "No match",
   },
 
   jsonTool: {

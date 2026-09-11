@@ -23,11 +23,13 @@ export const zh = {
     file: "文件",
     selectFile: "选择文件",
     localOnly: "全部计算都在本机完成",
+    localOnlyNote: "全部在本机计算 · 不上传",
     download: "下载",
   },
 
   header: {
     allTools: "全部工具",
+    breadcrumb: "面包屑导航",
     toggleTheme: "切换主题",
     theme: {
       light: "浅色",
@@ -38,12 +40,13 @@ export const zh = {
   },
 
   footer: {
-    tagline: "Tinker · 一系列轻量、纯前端的开发者小工具，无需登录、即开即用。",
+    tagline: "Tinker · 无需登录，数据只留在本机。",
   },
 
   home: {
     title: "开发者工具箱",
-    subtitle: "一系列轻量、纯前端的开发者小工具。",
+    /** {count} 是可用工具数，由 readyTools.length 填充，加工具时文案自动跟上 */
+    subtitle: "{count} 个纯前端小工具，数据不出浏览器，打开就能用。",
   },
 
   notFound: {
@@ -52,13 +55,29 @@ export const zh = {
   },
 
   explorer: {
-    searchPlaceholder: "搜索工具，例如 jwt…",
+    eyebrow: "Local-first devtools",
+    searchPlaceholder: "搜索工具、粘贴内容，或输入 jwt / base64 / #ff8800…",
     searchLabel: "搜索工具",
+    resultCount: "{count} 个结果 · esc 清除",
+    enterHint: "回车直接打开第一个结果「{name}」",
     all: "全部",
-    empty: "没有匹配的工具。",
     clearFilters: "清除筛选",
-    recent: "最近使用",
+    recent: "最近",
     clearRecent: "清除",
+    planned: "规划中",
+    plannedCta: "去 GitHub 提需求 →",
+    /** 搜索结果行右端的匹配原因 */
+    match: {
+      name: "名称匹配",
+      keyword: "关键字 {keyword}",
+      category: "分类匹配",
+      description: "描述匹配",
+    },
+    emptyTitle: "「{query}」还在规划中",
+    emptyTitleCategory: "这个分类下暂时没有工具",
+    emptyBody: "没有匹配的工具。清空筛选看看全部，或者去仓库投一票。",
+    reportIssue: "提一个 issue",
+    suggestions: "试试：",
   },
 
   categories: {
@@ -200,14 +219,19 @@ export const zh = {
   },
 
   hashTool: {
-    inputHint: "文本或文件，全部计算都在本机完成",
     textLabel: "待计算文本",
-    textPlaceholder: "输入要计算摘要的文本",
-    resultTitle: "摘要结果",
+    textPlaceholder: "输入或粘贴要计算摘要的文本…",
+    autoHint: "输入即算，无需点按钮",
+    encodingLabel: "摘要编码",
     busy: "计算中…",
-    resultHint: "同一份数据的几种常见摘要算法",
-    waiting: "输入后自动计算",
-    emptyState: "在左侧输入文本或选择文件。",
+    textMeta: "UTF-8 · {bytes} 字节",
+    fileMeta: "{name} · {size}",
+    emptyState: "输入文本或选择文件后，这里会列出各算法的摘要。",
+    verifyLabel: "校验",
+    verifyPlaceholder: "粘贴一个期望的摘要，自动比对…",
+    verifyIdle: "比对",
+    verifyMatch: "匹配 {algorithm}",
+    verifyMismatch: "不匹配",
   },
 
   jsonTool: {

@@ -1,6 +1,7 @@
 "use client"
 
 import { useDict } from "@/i18n/context"
+import { REPO_URL } from "@/lib/links"
 
 function GithubMark(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -14,12 +15,11 @@ export function SiteFooter() {
   const dict = useDict()
 
   return (
-    <footer className="relative mt-auto border-t">
-      <div aria-hidden className="bg-gradient-brand absolute inset-x-0 -top-px h-px opacity-70" />
-      <div className="text-muted-foreground mx-auto flex w-full max-w-6xl flex-col gap-1 px-4 py-6 text-xs sm:flex-row sm:items-center sm:justify-between sm:px-6">
+    <footer className="mt-auto border-t">
+      <div className="text-muted-foreground mx-auto flex w-full max-w-6xl flex-col gap-1.5 px-4 py-[18px] text-[13px] sm:flex-row sm:items-center sm:justify-between sm:px-7">
         <p>{dict.footer.tagline}</p>
         <a
-          href="https://github.com/Q11v/tinker"
+          href={REPO_URL}
           target="_blank"
           rel="noreferrer"
           className="hover:text-foreground inline-flex items-center gap-1.5 transition-colors"

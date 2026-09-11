@@ -30,18 +30,29 @@ export const CATEGORY_ORDER: ToolCategory[] = [
   "text",
 ]
 
-/** 每个分类对应一个主题色变量（对应 globals.css 里的 --chart-1..5），用于卡片图标着色 */
-const CATEGORY_ACCENTS = [
-  "var(--chart-1)",
-  "var(--chart-2)",
-  "var(--chart-3)",
-  "var(--chart-4)",
-  "var(--chart-5)",
-]
+/**
+ * 每个分类对应 globals.css 里的一组变量：
+ * --chart-N 是强调色（箭头 hover、卡片光斑），--tool-tint-N / --tool-ink-N 是图标块的底色与字色。
+ * 只有 5 组，分类多于 5 个时循环复用。
+ */
+const ACCENT_SLOTS = 5
+
+function accentSlot(category: ToolCategory): number {
+  return (CATEGORY_ORDER.indexOf(category) % ACCENT_SLOTS) + 1
+}
 
 export function categoryAccent(category: ToolCategory): string {
-  const index = CATEGORY_ORDER.indexOf(category)
-  return CATEGORY_ACCENTS[index % CATEGORY_ACCENTS.length]
+  return `var(--chart-${accentSlot(category)})`
+}
+
+/** 图标块底色。深色模式是强调色的低透明度，浅色模式是手调的浅实色 */
+export function categoryTint(category: ToolCategory): string {
+  return `var(--tool-tint-${accentSlot(category)})`
+}
+
+/** 图标块字色。深色模式等于强调色，浅色模式压深到能过对比度 */
+export function categoryInk(category: ToolCategory): string {
+  return `var(--tool-ink-${accentSlot(category)})`
 }
 
 /**
@@ -146,6 +157,23 @@ export const tools: Tool[] = [
 
 export const readyTools = tools.filter((tool) => tool.status === "ready")
 
+export const plannedTools = tools.filter((tool) => tool.status === "planned")
+
+/**
+ * 首页主推的三张大卡片。写成 slug 白名单而不是取 tools 的前三个，
+ * 是因为「主推谁」是产品决定，不该被数组顺序的调整悄悄改掉。
+ */
+const FEATURED_SLUGS: ToolSlug[] = ["jwt", "hash", "json"]
+
+export const featuredTools = FEATURED_SLUGS.map((slug) => {
+  const tool = readyTools.find((item) => item.slug === slug)
+  if (!tool) throw new Error(`主推工具 ${slug} 不在 readyTools 里`)
+  return tool
+})
+
+/** 主推之外的 ready 工具，顺序沿用 tools 里的声明顺序 */
+export const restTools = readyTools.filter((tool) => !FEATURED_SLUGS.includes(tool.slug))
+
 export function getTool(slug: string): Tool | undefined {
   return tools.find((tool) => tool.slug === slug)
 }
@@ -173,4 +201,33 @@ export function searchTools(query: string, textOf: (tool: Tool) => ToolSearchTex
       .toLowerCase()
       .includes(q)
   })
+}
+
+/** 搜索结果行右端要标注的匹配原因，keyword 还要带上命中的那个词 */
+export type MatchReason =
+  | { kind: "name" }
+  | { kind: "category" }
+  | { kind: "description" }
+  | { kind: "keyword"; keyword: string }
+
+/**
+ * 这个工具是凭什么被搜出来的。名称命中最有说服力，所以优先级最高；
+ * 描述最弱 —— 只有前面都没命中时才说是描述匹配。
+ * 判断逻辑必须和 searchTools 的匹配范围保持一致，否则会出现「搜到了但说不出原因」。
+ */
+export function matchReason(query: string, tool: Tool, text: ToolSearchText): MatchReason | null {
+  const q = query.trim().toLowerCase()
+  if (!q) return null
+
+  if (text.name.toLowerCase().includes(q)) return { kind: "name" }
+
+  const keyword = [...text.keywords, ...tool.keywords].find((item) =>
+    item.toLowerCase().includes(q)
+  )
+  if (keyword) return { kind: "keyword", keyword }
+
+  if (text.category.toLowerCase().includes(q)) return { kind: "category" }
+  if (text.description.toLowerCase().includes(q)) return { kind: "description" }
+
+  return null
 }

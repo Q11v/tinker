@@ -10,6 +10,20 @@
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
   --font-heading: var(--font-sans);
+  /*
+    卡片、行、工具条这些容器在深色模式下是一层层半透明白，浅色模式下是纯白 + 描边。
+    两套值差别太大，没法用 --card 加一个透明度表达，所以单独抽成 surface 三级：
+    sunken（代码区、分段控件底槽）< 默认 < raised（搜索条、工具条）。
+  */
+  --color-accent-cool: var(--accent-cool);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-surface-hover: var(--surface-hover);
+  --color-border-hover: var(--border-hover);
+  --shadow-search: var(--search-shadow);
+  --shadow-card-hover: var(--card-hover-shadow);
+  --shadow-segment: var(--segment-shadow);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -67,11 +81,41 @@
   --border: oklch(0.91 0.014 285);
   --input: oklch(0.91 0.014 285);
   --ring: oklch(0.55 0.22 279);
+
+  /* 眉标、搜索图标、⏎ 提示与「去提需求」共用的冷色强调；浅色模式要压深才能站在白底上 */
+  --accent-cool: oklch(0.52 0.1 215);
+  --surface: oklch(1 0 0);
+  --surface-raised: oklch(1 0 0);
+  --surface-sunken: oklch(0.955 0.012 285);
+  --surface-hover: oklch(0.975 0.01 285);
+  /* 行与卡片 hover 时唯一变化的那条边；深浅两套方向相反：浅色变深，深色变亮 */
+  --border-hover: oklch(0.78 0.05 285);
+  --search-shadow: 0 18px 36px -26px rgba(40, 20, 90, 0.5);
+  --card-hover-shadow: 0 18px 34px -22px rgba(40, 20, 90, 0.45);
+  --segment-shadow: 0 1px 2px rgba(20, 10, 50, 0.08);
+
   --chart-1: oklch(0.6 0.21 279);
   --chart-2: oklch(0.72 0.15 200);
   --chart-3: oklch(0.77 0.16 75);
   --chart-4: oklch(0.66 0.22 15);
   --chart-5: oklch(0.68 0.17 155);
+
+  /*
+    分类图标块的底色与字色。深色模式可以直接用 --chart-N 加透明度推出来，
+    浅色模式不行 —— 同一个色相压到 6% 透明度会灰得看不出分类，
+    所以浅色两列都是手调过的实色（底色偏白、字色压深到能过对比度）。
+  */
+  --tool-tint-1: oklch(0.94 0.035 285);
+  --tool-tint-2: oklch(0.94 0.03 205);
+  --tool-tint-3: oklch(0.95 0.04 85);
+  --tool-tint-4: oklch(0.95 0.03 25);
+  --tool-tint-5: oklch(0.94 0.04 155);
+  --tool-ink-1: oklch(0.42 0.16 279);
+  --tool-ink-2: oklch(0.45 0.1 210);
+  --tool-ink-3: oklch(0.48 0.11 70);
+  --tool-ink-4: oklch(0.47 0.16 20);
+  --tool-ink-5: oklch(0.42 0.1 155);
+
   --radius: 0.75rem;
   --gradient-brand: linear-gradient(
     135deg,
@@ -80,6 +124,16 @@
     oklch(0.7 0.18 220) 70%,
     oklch(0.75 0.16 195) 100%
   );
+  /* hero 主标题专用：比 --gradient-brand 更长的过渡，起点压到接近前景色，52px 大字才不会糊 */
+  --gradient-hero: linear-gradient(
+    100deg,
+    oklch(0.3 0.06 285) 15%,
+    oklch(0.52 0.22 295) 55%,
+    oklch(0.55 0.14 215) 100%
+  );
+  --gradient-card: linear-gradient(160deg, oklch(1 0 0), oklch(1 0 0));
+  --hero-glow: radial-gradient(closest-side, oklch(0.8 0.1 300 / 0.5), transparent);
+
   --sidebar: oklch(0.985 0.006 285);
   --sidebar-foreground: oklch(0.19 0.03 285);
   --sidebar-primary: oklch(0.55 0.22 279);
@@ -106,14 +160,37 @@
   --accent: oklch(0.32 0.07 310);
   --accent-foreground: oklch(0.92 0.03 320);
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 12%);
+  --border: oklch(1 0 0 / 9%);
   --input: oklch(1 0 0 / 16%);
   --ring: oklch(0.73 0.19 279);
+
+  --accent-cool: oklch(0.78 0.13 200);
+  --surface: oklch(1 0 0 / 3.5%);
+  --surface-raised: oklch(1 0 0 / 6%);
+  --surface-sunken: oklch(0 0 0 / 25%);
+  --surface-hover: oklch(1 0 0 / 7.5%);
+  --border-hover: oklch(1 0 0 / 28%);
+  --search-shadow: 0 20px 40px -24px rgba(0, 0, 0, 0.8);
+  --card-hover-shadow: 0 18px 34px -22px rgba(0, 0, 0, 0.6);
+  --segment-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+
   --chart-1: oklch(0.68 0.2 279);
   --chart-2: oklch(0.78 0.13 200);
   --chart-3: oklch(0.8 0.15 80);
   --chart-4: oklch(0.72 0.19 20);
   --chart-5: oklch(0.75 0.15 155);
+
+  --tool-tint-1: oklch(0.68 0.2 279 / 18%);
+  --tool-tint-2: oklch(0.78 0.13 200 / 16%);
+  --tool-tint-3: oklch(0.8 0.15 80 / 16%);
+  --tool-tint-4: oklch(0.72 0.19 20 / 16%);
+  --tool-tint-5: oklch(0.75 0.15 155 / 16%);
+  --tool-ink-1: var(--chart-1);
+  --tool-ink-2: var(--chart-2);
+  --tool-ink-3: var(--chart-3);
+  --tool-ink-4: var(--chart-4);
+  --tool-ink-5: var(--chart-5);
+
   --gradient-brand: linear-gradient(
     135deg,
     oklch(0.66 0.22 300) 0%,
@@ -121,6 +198,15 @@
     oklch(0.74 0.17 220) 70%,
     oklch(0.78 0.15 195) 100%
   );
+  --gradient-hero: linear-gradient(
+    100deg,
+    oklch(1 0 0) 20%,
+    oklch(0.8 0.15 290) 60%,
+    oklch(0.82 0.12 205) 100%
+  );
+  --gradient-card: linear-gradient(160deg, oklch(1 0 0 / 9%), oklch(1 0 0 / 3%));
+  --hero-glow: radial-gradient(closest-side, oklch(0.5 0.2 290 / 0.55), transparent);
+
   --sidebar: oklch(0.21 0.03 280);
   --sidebar-foreground: oklch(0.96 0.01 280);
   --sidebar-primary: oklch(0.73 0.19 279);
@@ -151,8 +237,41 @@
     color: transparent;
   }
 
+  .text-gradient-hero {
+    background-image: var(--gradient-hero);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+
   .bg-gradient-brand {
     background-image: var(--gradient-brand);
+  }
+
+  /* 主推卡片的底：深色是从左上往下淡出的一层白，浅色退化成纯白 */
+  .bg-gradient-card {
+    background-image: var(--gradient-card);
+  }
+
+  .bg-hero-glow {
+    background-image: var(--hero-glow);
+  }
+
+  /* 眉标、分类小标签、键帽这类等宽小字，字号与字距成套出现 */
+  .text-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+  }
+
+  .text-label-mono {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
   }
 
   @keyframes blob-float {
@@ -172,9 +291,22 @@
     animation: blob-float 16s ease-in-out infinite;
   }
 
+  /* 设计稿要求：reduce 时关掉 hero 光斑动画与卡片位移 */
   @media (prefers-reduced-motion: reduce) {
     .animate-blob {
       animation: none;
     }
+
+    .hover-lift:hover {
+      transform: none;
+    }
+  }
+
+  .hover-lift {
+    transition: all 160ms ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-2px);
   }
 }

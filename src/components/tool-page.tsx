@@ -26,7 +26,7 @@ export async function ToolPage({
   const dict = await getDictionary(lang)
 
   return (
-    <ToolShell tool={tool} locale={lang} dict={dict}>
+    <ToolShell tool={tool} dict={dict}>
       {children}
     </ToolShell>
   )

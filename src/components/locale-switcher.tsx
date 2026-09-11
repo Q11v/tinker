@@ -15,7 +15,7 @@ import { LOCALE_LABELS, LOCALES, localePath, stripLocale } from "@/i18n/config"
 import { useI18n } from "@/i18n/context"
 import { cn } from "@/lib/utils"
 
-export function LocaleSwitcher() {
+export function LocaleSwitcher({ className }: { className?: string }) {
   const pathname = usePathname()
   const { locale, dict } = useI18n()
 
@@ -28,8 +28,8 @@ export function LocaleSwitcher() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label={dict.header.language}>
-          <Languages className="size-4" />
+        <Button variant="ghost" size="icon" aria-label={dict.header.language} className={className}>
+          <Languages className="size-3.5" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

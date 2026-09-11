@@ -1,15 +1,28 @@
 "use client"
 
-import { Search } from "lucide-react"
-import { useMemo, useState } from "react"
+import { CornerDownLeft } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useEffect, useMemo, useRef, useState } from "react"
 
+import { PlannedTools } from "@/components/planned-tools"
 import { RecentTools } from "@/components/recent-tools"
+import { SearchHero } from "@/components/search-hero"
 import { ToolCard } from "@/components/tool-card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { ToolEmptyState } from "@/components/tool-empty-state"
+import { ToolRow } from "@/components/tool-row"
 import { useI18n } from "@/i18n/context"
-import { CATEGORY_ORDER, readyTools, searchTools, type Tool, type ToolCategory } from "@/lib/tools"
-import { cn } from "@/lib/utils"
+import { format } from "@/i18n/format"
+import { consumeSearchFocus, subscribeSearchFocus } from "@/lib/search-focus"
+import {
+  CATEGORY_ORDER,
+  featuredTools,
+  matchReason,
+  readyTools,
+  restTools,
+  searchTools,
+  type Tool,
+  type ToolCategory,
+} from "@/lib/tools"
 
 /**
  * 分类栏是固定的一整排，不随搜索结果增删。
@@ -22,8 +35,22 @@ const CATEGORIES: ToolCategory[] = CATEGORY_ORDER.filter((category) =>
 
 export function ToolExplorer() {
   const { dict, href } = useI18n()
+  const router = useRouter()
   const [query, setQuery] = useState("")
   const [category, setCategory] = useState<ToolCategory | "all">("all")
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  // 顶栏的 ⌘K：首页已挂载时是一个事件，从工具页跳回来时是挂载后补上的那一次
+  useEffect(() => {
+    function focus() {
+      inputRef.current?.focus()
+      inputRef.current?.select()
+    }
+
+    const unsubscribe = subscribeSearchFocus(focus)
+    if (consumeSearchFocus()) focus()
+    return unsubscribe
+  }, [])
 
   const textOf = useMemo(
     () => (tool: Tool) => ({
@@ -44,70 +71,105 @@ export function ToolExplorer() {
     [matched, category]
   )
 
-  // 只有在没有任何筛选时才露出「最近使用」，否则会干扰搜索结果的阅读
+  // 只有在没有任何筛选时才露出「最近使用」「主推卡片」「规划中」，否则会干扰结果的阅读
   const filtering = query.trim().length > 0 || category !== "all"
 
-  // 当前搜索词下还有结果的分类，其余的置灰，避免点进去只看到空状态
-  const nonEmpty = useMemo(() => new Set(matched.map((tool) => tool.category)), [matched])
+  // 胶囊上的数量跟着搜索词走；数量为 0 的分类顺便置灰，避免点进去只看到空状态
+  const counts = useMemo(() => {
+    const result: Record<string, number> = { all: matched.length }
+    for (const name of CATEGORIES) {
+      result[name] = matched.filter((tool) => tool.category === name).length
+    }
+    return result
+  }, [matched])
 
   function reset() {
     setQuery("")
     setCategory("all")
+    inputRef.current?.focus()
+  }
+
+  // 回车直接打开第一个结果，省掉一次鼠标移动
+  function openFirst() {
+    const first = visible[0]
+    if (first) router.push(href(`/tools/${first.slug}`))
+  }
+
+  const reasonLabel = (tool: Tool) => {
+    const reason = matchReason(query, tool, textOf(tool))
+    if (!reason) return undefined
+    if (reason.kind === "keyword") {
+      return format(dict.explorer.match.keyword, { keyword: reason.keyword })
+    }
+    return dict.explorer.match[reason.kind]
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <div className="relative flex-1">
-          <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-          <Input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder={dict.explorer.searchPlaceholder}
-            className="pl-9"
-            aria-label={dict.explorer.searchLabel}
-          />
-        </div>
-        <div className="flex flex-wrap gap-1.5">
-          {(["all", ...CATEGORIES] as const).map((name) => {
-            const active = category === name
-            // 选中项永远保持可点，否则又会失去退出筛选的入口
-            const empty = !active && name !== "all" && !nonEmpty.has(name)
+    <>
+      <SearchHero
+        query={query}
+        onQueryChange={setQuery}
+        category={category}
+        onCategoryChange={setCategory}
+        categories={CATEGORIES}
+        counts={counts}
+        resultCount={visible.length}
+        inputRef={inputRef}
+        onSubmit={openFirst}
+        onEscape={reset}
+      />
 
-            return (
-              <Button
-                key={name}
-                type="button"
-                size="sm"
-                variant={active ? "secondary" : "ghost"}
-                aria-pressed={active}
-                disabled={empty}
-                onClick={() => setCategory(name)}
-                className={cn("text-xs", !active && "text-muted-foreground")}
-              >
-                {name === "all" ? dict.explorer.all : dict.categories[name]}
-              </Button>
-            )
-          })}
-        </div>
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-[26px] px-4 pt-2 pb-7 sm:px-7 sm:pb-[28px]">
+        {filtering ? null : <RecentTools />}
+
+        {visible.length === 0 ? (
+          <ToolEmptyState query={query} onReset={reset} />
+        ) : filtering ? (
+          <div className="grid gap-2.5 md:grid-cols-2">
+            {visible.map((tool) => (
+              <ToolRow
+                key={tool.slug}
+                tool={tool}
+                dict={dict}
+                href={href(`/tools/${tool.slug}`)}
+                note={reasonLabel(tool)}
+              />
+            ))}
+          </div>
+        ) : (
+          <>
+            <div className="grid gap-3.5 md:grid-cols-2 lg:grid-cols-3">
+              {featuredTools.map((tool) => (
+                <ToolCard
+                  key={tool.slug}
+                  tool={tool}
+                  dict={dict}
+                  href={href(`/tools/${tool.slug}`)}
+                />
+              ))}
+            </div>
+            <div className="grid gap-2.5 md:grid-cols-2">
+              {restTools.map((tool) => (
+                <ToolRow
+                  key={tool.slug}
+                  tool={tool}
+                  dict={dict}
+                  href={href(`/tools/${tool.slug}`)}
+                />
+              ))}
+            </div>
+          </>
+        )}
+
+        {query.trim() && visible.length > 0 ? (
+          <p className="text-foreground/85 bg-muted dark:bg-transparent dark:border-dashed dark:border flex items-center gap-2.5 rounded-[12px] px-4 py-3 text-[13px]">
+            <CornerDownLeft className="text-accent-cool size-3.5 shrink-0" strokeWidth={2} />
+            {format(dict.explorer.enterHint, { name: dict.tools[visible[0].slug].name })}
+          </p>
+        ) : null}
+
+        {filtering ? null : <PlannedTools />}
       </div>
-
-      {filtering ? null : <RecentTools />}
-
-      {visible.length === 0 ? (
-        <div className="text-muted-foreground flex flex-col items-center gap-3 rounded-xl border border-dashed py-16 text-center text-sm">
-          <p>{dict.explorer.empty}</p>
-          <Button type="button" size="sm" variant="outline" onClick={reset}>
-            {dict.explorer.clearFilters}
-          </Button>
-        </div>
-      ) : (
-        <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
-          {visible.map((tool) => (
-            <ToolCard key={tool.slug} tool={tool} dict={dict} href={href(`/tools/${tool.slug}`)} />
-          ))}
-        </div>
-      )}
-    </div>
+    </>
   )
 }

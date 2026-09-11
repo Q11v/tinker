@@ -4,15 +4,14 @@ import Link from "next/link"
 import { useMemo, useSyncExternalStore } from "react"
 
 import { ToolIcon } from "@/components/tool-icon"
-import { Button } from "@/components/ui/button"
+import { useI18n } from "@/i18n/context"
 import {
   clearRecentTools,
   getRecentToolsServerSnapshot,
   getRecentToolsSnapshot,
   subscribeRecentTools,
 } from "@/lib/recent-tools"
-import { useI18n } from "@/i18n/context"
-import { categoryAccent, getTool, type Tool } from "@/lib/tools"
+import { categoryInk, categoryTint, getTool, type Tool } from "@/lib/tools"
 
 function useRecentTools(): Tool[] {
   const slugs = useSyncExternalStore(
@@ -30,20 +29,24 @@ function useRecentTools(): Tool[] {
 
 function RecentToolChip({ tool }: { tool: Tool }) {
   const { dict, href } = useI18n()
-  const accent = categoryAccent(tool.category)
 
   return (
     <Link
       href={href(`/tools/${tool.slug}`)}
-      style={{ "--tool-accent": accent } as React.CSSProperties}
-      className="bg-card focus-visible:ring-ring hover:border-(--tool-accent) inline-flex items-center gap-2 rounded-lg border py-1.5 pr-3 pl-1.5 text-sm transition-colors hover:shadow-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+      className="bg-muted dark:bg-surface-hover hover:border-border-hover focus-visible:ring-ring/50 inline-flex items-center gap-2 rounded-[10px] border border-transparent py-1.5 pr-3 pl-2 text-[13px] transition-colors focus-visible:ring-3 focus-visible:outline-none"
     >
-      <ToolIcon icon={tool.icon} accent={accent} size="xs" />
+      <ToolIcon
+        icon={tool.icon}
+        tint={categoryTint(tool.category)}
+        ink={categoryInk(tool.category)}
+        size="xs"
+      />
       {dict.tools[tool.slug].name}
     </Link>
   )
 }
 
+/** 首页的「最近使用」条，只在没有任何筛选时出现 */
 export function RecentTools() {
   const { dict } = useI18n()
   const tools = useRecentTools()
@@ -52,26 +55,20 @@ export function RecentTools() {
   if (tools.length === 0) return null
 
   return (
-    <section className="space-y-3">
-      <div className="flex items-center justify-between gap-4">
-        <h2 className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
-          {dict.explorer.recent}
-        </h2>
-        <Button
-          type="button"
-          size="sm"
-          variant="ghost"
-          onClick={clearRecentTools}
-          className="text-muted-foreground hover:text-foreground -mr-2 h-7 text-xs"
-        >
-          {dict.explorer.clearRecent}
-        </Button>
-      </div>
+    <section className="bg-surface flex flex-wrap items-center gap-x-3.5 gap-y-2.5 rounded-[14px] border px-[18px] py-3.5">
+      <h2 className="text-label-mono text-muted-foreground">{dict.explorer.recent}</h2>
       <div className="flex flex-wrap gap-2">
         {tools.map((tool) => (
           <RecentToolChip key={tool.slug} tool={tool} />
         ))}
       </div>
+      <button
+        type="button"
+        onClick={clearRecentTools}
+        className="text-muted-foreground hover:text-foreground focus-visible:ring-ring/50 ml-auto rounded-md text-[13px] transition-colors focus-visible:ring-3 focus-visible:outline-none"
+      >
+        {dict.explorer.clearRecent}
+      </button>
     </section>
   )
 }

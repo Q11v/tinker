@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:oklch(0.955 0.006 285); font-family:"Space Grotesk","Noto Sans SC","PingFang SC",system-ui,sans-serif; -webkit-font-smoothing:antialiased; }
+  a { color:oklch(0.55 0.22 279); text-decoration:none; }
+  a:hover { color:oklch(0.45 0.2 279); }
+  * { box-sizing:border-box; }
+</style>
+</helmet>
+
+<section style="display:flex;flex-direction:column;gap:28px;padding:56px 64px 72px">
+  <div style="display:flex;align-items:baseline;gap:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:oklch(0.5 0.03 285)">
+    <span>Turn 2</span><span>·</span><span>单栏结构 · 深色为准 + 浅色模式</span>
+  </div>
+
+  <div style="display:flex;flex-wrap:wrap;gap:64px;align-items:flex-start">
+
+    <div id="2a" style="display:flex;flex-direction:column;gap:18px;width:1280px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="display:inline-flex;align-items:center;height:26px;padding:0 10px;border-radius:7px;background:oklch(0.19 0.03 285);color:#fff;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;letter-spacing:.06em">2a</span>
+        <span style="font-size:18px;font-weight:600;color:oklch(0.19 0.03 285)">深色模式（主）</span>
+        <span style="font-size:14px;color:oklch(0.5 0.03 285)">沿用 <a href="#1a">1a</a> 的单栏结构，去掉侧栏；顶栏收下分类，首页三张主推 + 两列紧凑行。</span>
+      </div>
+
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;color:oklch(0.55 0.03 285);text-transform:uppercase">首页</div>
+      <div style="border-radius:22px;overflow:hidden;border:1px solid oklch(0.88 0.014 285);box-shadow:0 40px 70px -40px rgba(30,15,70,.5);background:oklch(0.16 0.024 280);color:oklch(0.96 0.01 280)">
+        <div style="display:flex;align-items:center;gap:18px;height:60px;padding:0 28px;border-bottom:1px solid rgba(255,255,255,.09)">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="width:28px;height:28px;border-radius:9px;background:linear-gradient(135deg,oklch(0.66 0.22 300),oklch(0.74 0.17 220));display:flex;align-items:center;justify-content:center;color:#0d0a18;font-weight:700;font-size:14px">T</span>
+            <span style="font-size:16px;font-weight:600;letter-spacing:-.01em">Tinker</span>
+          </div>
+          <div style="display:flex;gap:4px;margin-left:14px">
+            <span style="padding:6px 12px;border-radius:8px;background:rgba(255,255,255,.08);font-size:13px">全部工具</span>
+            <span style="padding:6px 12px;border-radius:8px;font-size:13px;color:oklch(0.7 0.025 280)">最近</span>
+            <span style="padding:6px 12px;border-radius:8px;font-size:13px;color:oklch(0.7 0.025 280)">关于</span>
+          </div>
+          <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+            <span style="display:flex;align-items:center;gap:6px;height:30px;padding:0 10px;border-radius:8px;border:1px solid rgba(255,255,255,.14);font-family:'JetBrains Mono',monospace;font-size:11px;color:oklch(0.7 0.025 280)">⌘K</span>
+            <span style="width:30px;height:30px;border-radius:8px;border:1px solid rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;font-size:12px;color:oklch(0.7 0.025 280)">文</span>
+            <span style="width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:13px">☾</span>
+          </div>
+        </div>
+
+        <div style="padding:52px 28px 20px;display:flex;flex-direction:column;align-items:center;gap:22px;position:relative;overflow:hidden">
+          <div style="position:absolute;top:-160px;left:50%;transform:translateX(-50%);width:820px;height:320px;border-radius:50%;background:radial-gradient(closest-side,oklch(0.5 0.2 290 / .55),transparent);filter:blur(12px)"></div>
+          <div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:12px">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:oklch(0.78 0.13 200)">Local-first devtools</span>
+            <h1 style="margin:0;font-size:52px;line-height:1.1;font-weight:700;letter-spacing:-.02em;background:linear-gradient(100deg,#fff 20%,oklch(0.8 0.15 290) 60%,oklch(0.82 0.12 205));-webkit-background-clip:text;background-clip:text;color:transparent">开发者工具箱</h1>
+            <p style="margin:0;font-size:16px;color:oklch(0.74 0.025 280)">九个纯前端小工具，数据不出浏览器，打开就能用。</p>
+          </div>
+          <div style="position:relative;width:720px;display:flex;align-items:center;gap:12px;height:56px;padding:0 18px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);box-shadow:0 20px 40px -24px rgba(0,0,0,.8)">
+            <span style="font-size:16px;color:oklch(0.78 0.13 200)">⌕</span>
+            <span style="font-size:15px;color:oklch(0.62 0.025 280)">搜索工具、粘贴内容，或输入 jwt / base64 / #ff8800…</span>
+            <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:11px;color:oklch(0.62 0.025 280);border:1px solid rgba(255,255,255,.14);border-radius:6px;padding:3px 7px">Enter</span>
+          </div>
+          <div style="position:relative;display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+            <span style="padding:7px 14px;border-radius:999px;background:#fff;color:oklch(0.18 0.03 285);font-size:13px;font-weight:500">全部 9</span>
+            <span style="padding:7px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);font-size:13px;color:oklch(0.8 0.02 280)">加密与安全 2</span>
+            <span style="padding:7px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);font-size:13px;color:oklch(0.8 0.02 280)">编码转换 2</span>
+            <span style="padding:7px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);font-size:13px;color:oklch(0.8 0.02 280)">格式化 2</span>
+            <span style="padding:7px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);font-size:13px;color:oklch(0.8 0.02 280)">生成器 2</span>
+            <span style="padding:7px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);font-size:13px;color:oklch(0.8 0.02 280)">时间日期 1</span>
+          </div>
+        </div>
+
+        <div style="padding:28px;display:flex;flex-direction:column;gap:26px">
+          <sc-if value="{{ showRecent }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:oklch(0.68 0.025 280)">最近</span>
+              <div style="display:flex;gap:8px">
+                <span style="display:flex;align-items:center;gap:8px;padding:6px 12px 6px 8px;border-radius:10px;background:rgba(255,255,255,.07);font-size:13px"><span style="width:20px;height:20px;border-radius:6px;background:oklch(0.68 0.2 279 / .22);color:oklch(0.78 0.16 279);font-family:'JetBrains Mono',monospace;font-size:10px;display:flex;align-items:center;justify-content:center">##</span>哈希计算</span>
+                <span style="display:flex;align-items:center;gap:8px;padding:6px 12px 6px 8px;border-radius:10px;background:rgba(255,255,255,.07);font-size:13px"><span style="width:20px;height:20px;border-radius:6px;background:oklch(0.68 0.2 279 / .22);color:oklch(0.78 0.16 279);font-family:'JetBrains Mono',monospace;font-size:10px;display:flex;align-items:center;justify-content:center">JW</span>JWT 工具</span>
+              </div>
+              <span style="margin-left:auto;font-size:13px;color:oklch(0.62 0.025 280)">清除</span>
+            </div>
+          </sc-if>
+
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+            <sc-for list="{{ featured }}" as="tool" hint-placeholder-count="3">
+              <div style="position:relative;padding:22px;border-radius:18px;background:linear-gradient(160deg,rgba(255,255,255,.09),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.1);min-height:186px;display:flex;flex-direction:column;gap:14px;overflow:hidden" style-hover="border-color:rgba(255,255,255,.28)">
+                <div style="position:absolute;right:-28px;top:-28px;width:130px;height:130px;border-radius:50%;opacity:.18;background:{{ tool.accent }};filter:blur(28px)"></div>
+                <div style="position:relative;display:flex;align-items:flex-start;justify-content:space-between">
+                  <span style="width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:600;background:{{ tool.tint }};color:{{ tool.accent }}">{{ tool.glyph }}</span>
+                  <span style="font-size:15px;color:oklch(0.7 0.025 280)">↗</span>
+                </div>
+                <div style="position:relative;display:flex;flex-direction:column;gap:7px">
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <span style="font-size:17px;font-weight:600">{{ tool.name }}</span>
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;padding:2px 7px;border-radius:5px;border:1px solid rgba(255,255,255,.16);color:oklch(0.72 0.025 280)">{{ tool.catName }}</span>
+                  </div>
+                  <p style="margin:0;font-size:13.5px;line-height:1.6;color:oklch(0.72 0.025 280);text-wrap:pretty">{{ tool.desc }}</p>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+            <sc-for list="{{ rest }}" as="tool" hint-placeholder-count="6">
+              <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:14px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07)" style-hover="background:rgba(255,255,255,.075)">
+                <span style="width:34px;height:34px;flex:none;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;background:{{ tool.tint }};color:{{ tool.accent }}">{{ tool.glyph }}</span>
+                <div style="min-width:0;display:flex;flex-direction:column;gap:3px">
+                  <span style="font-size:14.5px;font-weight:500">{{ tool.name }}</span>
+                  <span style="font-size:12.5px;color:oklch(0.68 0.025 280);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ tool.short }}</span>
+                </div>
+                <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;color:oklch(0.62 0.025 280)">{{ tool.catName }}</span>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:12px;padding:14px 18px;border-radius:14px;border:1px dashed rgba(255,255,255,.14)">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:oklch(0.66 0.025 280)">规划中</span>
+            <span style="font-size:13.5px;color:oklch(0.74 0.025 280)">正则测试 · 文本对比</span>
+            <span style="margin-left:auto;font-size:13px;color:oklch(0.78 0.13 200)">去 GitHub 提需求 →</span>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;padding:18px 28px;border-top:1px solid rgba(255,255,255,.08);font-size:13px;color:oklch(0.66 0.025 280)">
+          <span>Tinker · 无需登录，数据只留在本机。</span>
+          <span style="margin-left:auto">GitHub</span>
+        </div>
+      </div>
+
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;color:oklch(0.55 0.03 285);text-transform:uppercase;margin-top:8px">工具详情页 · 哈希计算（单栏）</div>
+      <div style="border-radius:22px;overflow:hidden;border:1px solid oklch(0.88 0.014 285);box-shadow:0 40px 70px -40px rgba(30,15,70,.5);background:oklch(0.16 0.024 280);color:oklch(0.96 0.01 280)">
+        <div style="display:flex;align-items:center;gap:18px;height:60px;padding:0 28px;border-bottom:1px solid rgba(255,255,255,.09)">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="width:28px;height:28px;border-radius:9px;background:linear-gradient(135deg,oklch(0.66 0.22 300),oklch(0.74 0.17 220));display:flex;align-items:center;justify-content:center;color:#0d0a18;font-weight:700;font-size:14px">T</span>
+            <span style="font-size:16px;font-weight:600">Tinker</span>
+          </div>
+          <span style="font-size:13px;color:oklch(0.62 0.025 280)">/</span>
+          <span style="font-size:13px;color:oklch(0.8 0.02 280)">加密与安全</span>
+          <span style="font-size:13px;color:oklch(0.62 0.025 280)">/</span>
+          <span style="font-size:13px">哈希计算</span>
+          <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+            <span style="display:flex;align-items:center;gap:6px;height:30px;padding:0 10px;border-radius:8px;border:1px solid rgba(255,255,255,.14);font-family:'JetBrains Mono',monospace;font-size:11px;color:oklch(0.7 0.025 280)">⌘K</span>
+            <span style="width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:13px">☾</span>
+          </div>
+        </div>
+
+        <div style="padding:26px 28px 34px;display:flex;flex-direction:column;gap:18px">
+          <div style="display:flex;align-items:center;gap:14px">
+            <span style="width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:600;background:oklch(0.68 0.2 279 / .18);color:oklch(0.78 0.16 279)">##</span>
+            <div style="display:flex;flex-direction:column;gap:3px">
+              <div style="display:flex;align-items:center;gap:9px">
+                <h2 style="margin:0;font-size:24px;font-weight:600;letter-spacing:-.015em">哈希计算</h2>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:2px 7px;border-radius:5px;border:1px solid rgba(255,255,255,.16);color:oklch(0.72 0.025 280)">加密与安全</span>
+              </div>
+              <span style="font-size:13.5px;color:oklch(0.72 0.025 280)">计算文本或文件的 MD5 / SHA-1 / SHA-256 / SHA-384 / SHA-512 摘要。</span>
+            </div>
+            <span style="margin-left:auto;font-size:13px;color:oklch(0.66 0.025 280)">全部在本机计算 · 不上传</span>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08)">
+            <div style="display:flex;padding:3px;border-radius:9px;background:rgba(0,0,0,.3)">
+              <span style="padding:5px 14px;border-radius:7px;background:rgba(255,255,255,.14);font-size:12.5px">文本</span>
+              <span style="padding:5px 14px;border-radius:7px;font-size:12.5px;color:oklch(0.7 0.025 280)">文件</span>
+            </div>
+            <span style="font-size:12.5px;color:oklch(0.68 0.025 280)">输入即算，无需点按钮</span>
+            <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:oklch(0.68 0.025 280)">UTF-8 · 23 字节</span>
+          </div>
+
+          <div style="border-radius:16px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.25);padding:16px 18px;min-height:104px">
+            <pre style="margin:0;font-family:'JetBrains Mono',monospace;font-size:13.5px;line-height:1.7;color:oklch(0.9 0.015 280);white-space:pre-wrap">hello tinker 你好世界</pre>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <sc-for list="{{ digests }}" as="row" hint-placeholder-count="4">
+              <div style="display:flex;align-items:center;gap:16px;padding:13px 16px;border-radius:12px;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.035)">
+                <span style="width:84px;flex:none;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:oklch(0.82 0.02 280)">{{ row.algo }}</span>
+                <span style="flex:1;min-width:0;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:oklch(0.78 0.02 280);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ row.value }}</span>
+                <span style="flex:none;padding:5px 11px;border-radius:8px;background:rgba(255,255,255,.09);font-size:12px;color:oklch(0.88 0.02 280)">复制</span>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:12px;background:rgba(255,255,255,.05);font-size:13px;color:oklch(0.78 0.02 280)">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:oklch(0.7 0.025 280)">校验</span>
+            <span style="flex:1;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:oklch(0.62 0.025 280)">粘贴一个期望的摘要，自动比对…</span>
+            <span style="padding:5px 11px;border-radius:8px;border:1px solid rgba(255,255,255,.16);font-size:12px">比对</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="2b" style="display:flex;flex-direction:column;gap:18px;width:1280px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="display:inline-flex;align-items:center;height:26px;padding:0 10px;border-radius:7px;background:oklch(0.55 0.22 279);color:#fff;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;letter-spacing:.06em">2b</span>
+        <span style="font-size:18px;font-weight:600;color:oklch(0.19 0.03 285)">浅色模式</span>
+        <span style="font-size:14px;color:oklch(0.5 0.03 285)">同一套结构与间距，只换配色层：白卡、浅灰底、品牌紫做强调。</span>
+      </div>
+
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;color:oklch(0.55 0.03 285);text-transform:uppercase">首页</div>
+      <div style="border-radius:22px;overflow:hidden;border:1px solid oklch(0.88 0.014 285);box-shadow:0 40px 70px -44px rgba(40,25,90,.35);background:oklch(0.995 0.004 285);color:oklch(0.19 0.03 285)">
+        <div style="display:flex;align-items:center;gap:18px;height:60px;padding:0 28px;border-bottom:1px solid oklch(0.92 0.012 285);background:#fff">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="width:28px;height:28px;border-radius:9px;background:linear-gradient(135deg,oklch(0.62 0.24 300),oklch(0.7 0.18 220));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px">T</span>
+            <span style="font-size:16px;font-weight:600;letter-spacing:-.01em">Tinker</span>
+          </div>
+          <div style="display:flex;gap:4px;margin-left:14px">
+            <span style="padding:6px 12px;border-radius:8px;background:oklch(0.955 0.014 285);font-size:13px">全部工具</span>
+            <span style="padding:6px 12px;border-radius:8px;font-size:13px;color:oklch(0.5 0.03 285)">最近</span>
+            <span style="padding:6px 12px;border-radius:8px;font-size:13px;color:oklch(0.5 0.03 285)">关于</span>
+          </div>
+          <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+            <span style="display:flex;align-items:center;gap:6px;height:30px;padding:0 10px;border-radius:8px;border:1px solid oklch(0.91 0.014 285);font-family:'JetBrains Mono',monospace;font-size:11px;color:oklch(0.5 0.03 285)">⌘K</span>
+            <span style="width:30px;height:30px;border-radius:8px;border:1px solid oklch(0.91 0.014 285);display:flex;align-items:center;justify-content:center;font-size:12px;color:oklch(0.5 0.03 285)">文</span>
+            <span style="width:30px;height:30px;border-radius:8px;background:oklch(0.94 0.03 285);display:flex;align-items:center;justify-content:center;font-size:13px;color:oklch(0.4 0.12 279)">☀</span>
+          </div>
+        </div>
+
+        <div style="padding:52px 28px 20px;display:flex;flex-direction:column;align-items:center;gap:22px;position:relative;overflow:hidden">
+          <div style="position:absolute;top:-190px;left:50%;transform:translateX(-50%);width:900px;height:340px;border-radius:50%;background:radial-gradient(closest-side,oklch(0.8 0.1 300 / .5),transparent);filter:blur(10px)"></div>
+          <div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:12px">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:oklch(0.52 0.1 215)">Local-first devtools</span>
+            <h1 style="margin:0;font-size:52px;line-height:1.1;font-weight:700;letter-spacing:-.02em;background:linear-gradient(100deg,oklch(0.3 0.06 285) 15%,oklch(0.52 0.22 295) 55%,oklch(0.55 0.14 215));-webkit-background-clip:text;background-clip:text;color:transparent">开发者工具箱</h1>
+            <p style="margin:0;font-size:16px;color:oklch(0.45 0.03 285)">九个纯前端小工具，数据不出浏览器，打开就能用。</p>
+          </div>
+          <div style="position:relative;width:720px;display:flex;align-items:center;gap:12px;height:56px;padding:0 18px;border-radius:14px;background:#fff;border:1px solid oklch(0.89 0.016 285);box-shadow:0 18px 36px -26px rgba(40,20,90,.5)">
+            <span style="font-size:16px;color:oklch(0.55 0.22 279)">⌕</span>
+            <span style="font-size:15px;color:oklch(0.55 0.03 285)">搜索工具、粘贴内容，或输入 jwt / base64 / #ff8800…</span>
+            <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:11px;color:oklch(0.55 0.03 285);border:1px solid oklch(0.91 0.014 285);border-radius:6px;padding:3px 7px">Enter</span>
+          </div>
+          <div style="position:relative;display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+            <span style="padding:7px 14px;border-radius:999px;background:oklch(0.19 0.03 285);color:#fff;font-size:13px;font-weight:500">全部 9</span>
+            <span style="padding:7px 14px;border-radius:999px;border:1px solid oklch(0.9 0.014 285);background:#fff;font-size:13px;color:oklch(0.35 0.03 285)">加密与安全 2</span>
+            <span style="padding:7px 14px;border-radius:999px;border:1px solid oklch(0.9 0.014 285);background:#fff;font-size:13px;color:oklch(0.35 0.03 285)">编码转换 2</span>
+            <span style="padding:7px 14px;border-radius:999px;border:1px solid oklch(0.9 0.014 285);background:#fff;font-size:13px;color:oklch(0.35 0.03 285)">格式化 2</span>
+            <span style="padding:7px 14px;border-radius:999px;border:1px solid oklch(0.9 0.014 285);background:#fff;font-size:13px;color:oklch(0.35 0.03 285)">生成器 2</span>
+            <span style="padding:7px 14px;border-radius:999px;border:1px solid oklch(0.9 0.014 285);background:#fff;font-size:13px;color:oklch(0.35 0.03 285)">时间日期 1</span>
+          </div>
+        </div>
+
+        <div style="padding:28px;display:flex;flex-direction:column;gap:26px">
+          <sc-if value="{{ showRecent }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:14px;background:#fff;border:1px solid oklch(0.92 0.012 285)">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:oklch(0.5 0.03 285)">最近</span>
+              <div style="display:flex;gap:8px">
+                <span style="display:flex;align-items:center;gap:8px;padding:6px 12px 6px 8px;border-radius:10px;background:oklch(0.96 0.014 285);font-size:13px"><span style="width:20px;height:20px;border-radius:6px;background:oklch(0.94 0.035 285);color:oklch(0.42 0.16 279);font-family:'JetBrains Mono',monospace;font-size:10px;display:flex;align-items:center;justify-content:center">##</span>哈希计算</span>
+                <span style="display:flex;align-items:center;gap:8px;padding:6px 12px 6px 8px;border-radius:10px;background:oklch(0.96 0.014 285);font-size:13px"><span style="width:20px;height:20px;border-radius:6px;background:oklch(0.94 0.035 285);color:oklch(0.42 0.16 279);font-family:'JetBrains Mono',monospace;font-size:10px;display:flex;align-items:center;justify-content:center">JW</span>JWT 工具</span>
+              </div>
+              <span style="margin-left:auto;font-size:13px;color:oklch(0.5 0.03 285)">清除</span>
+            </div>
+          </sc-if>
+
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+            <sc-for list="{{ featured }}" as="tool" hint-placeholder-count="3">
+              <div style="position:relative;padding:22px;border-radius:18px;background:#fff;border:1px solid oklch(0.91 0.014 285);min-height:186px;display:flex;flex-direction:column;gap:14px;overflow:hidden;box-shadow:0 1px 2px rgba(30,15,70,.04)" style-hover="box-shadow:0 18px 34px -22px rgba(40,20,90,.45)">
+                <div style="position:absolute;right:-34px;top:-34px;width:130px;height:130px;border-radius:50%;opacity:.22;background:{{ tool.accent }};filter:blur(30px)"></div>
+                <div style="position:relative;display:flex;align-items:flex-start;justify-content:space-between">
+                  <span style="width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:600;background:{{ tool.tintLight }};color:{{ tool.inkAccent }}">{{ tool.glyph }}</span>
+                  <span style="font-size:15px;color:oklch(0.58 0.03 285)">↗</span>
+                </div>
+                <div style="position:relative;display:flex;flex-direction:column;gap:7px">
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <span style="font-size:17px;font-weight:600">{{ tool.name }}</span>
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;padding:2px 7px;border-radius:5px;border:1px solid oklch(0.9 0.014 285);color:oklch(0.48 0.03 285)">{{ tool.catName }}</span>
+                  </div>
+                  <p style="margin:0;font-size:13.5px;line-height:1.6;color:oklch(0.45 0.03 285);text-wrap:pretty">{{ tool.desc }}</p>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+            <sc-for list="{{ rest }}" as="tool" hint-placeholder-count="6">
+              <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:14px;background:#fff;border:1px solid oklch(0.92 0.012 285)" style-hover="border-color:oklch(0.78 0.05 285)">
+                <span style="width:34px;height:34px;flex:none;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;background:{{ tool.tintLight }};color:{{ tool.inkAccent }}">{{ tool.glyph }}</span>
+                <div style="min-width:0;display:flex;flex-direction:column;gap:3px">
+                  <span style="font-size:14.5px;font-weight:500">{{ tool.name }}</span>
+                  <span style="font-size:12.5px;color:oklch(0.5 0.03 285);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ tool.short }}</span>
+                </div>
+                <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;color:oklch(0.55 0.03 285)">{{ tool.catName }}</span>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:12px;padding:14px 18px;border-radius:14px;border:1px dashed oklch(0.87 0.018 285)">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:oklch(0.52 0.03 285)">规划中</span>
+            <span style="font-size:13.5px;color:oklch(0.42 0.03 285)">正则测试 · 文本对比</span>
+            <span style="margin-left:auto;font-size:13px;color:oklch(0.5 0.14 250)">去 GitHub 提需求 →</span>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;padding:18px 28px;border-top:1px solid oklch(0.92 0.012 285);font-size:13px;color:oklch(0.5 0.03 285);background:#fff">
+          <span>Tinker · 无需登录，数据只留在本机。</span>
+          <span style="margin-left:auto">GitHub</span>
+        </div>
+      </div>
+
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;color:oklch(0.55 0.03 285);text-transform:uppercase;margin-top:8px">工具详情页 · 哈希计算（单栏）</div>
+      <div style="border-radius:22px;overflow:hidden;border:1px solid oklch(0.88 0.014 285);box-shadow:0 40px 70px -44px rgba(40,25,90,.35);background:oklch(0.995 0.004 285);color:oklch(0.19 0.03 285)">
+        <div style="display:flex;align-items:center;gap:18px;height:60px;padding:0 28px;border-bottom:1px solid oklch(0.92 0.012 285);background:#fff">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="width:28px;height:28px;border-radius:9px;background:linear-gradient(135deg,oklch(0.62 0.24 300),oklch(0.7 0.18 220));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px">T</span>
+            <span style="font-size:16px;font-weight:600">Tinker</span>
+          </div>
+          <span style="font-size:13px;color:oklch(0.6 0.03 285)">/</span>
+          <span style="font-size:13px;color:oklch(0.42 0.03 285)">加密与安全</span>
+          <span style="font-size:13px;color:oklch(0.6 0.03 285)">/</span>
+          <span style="font-size:13px">哈希计算</span>
+          <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+            <span style="display:flex;align-items:center;gap:6px;height:30px;padding:0 10px;border-radius:8px;border:1px solid oklch(0.91 0.014 285);font-family:'JetBrains Mono',monospace;font-size:11px;color:oklch(0.5 0.03 285)">⌘K</span>
+            <span style="width:30px;height:30px;border-radius:8px;background:oklch(0.94 0.03 285);display:flex;align-items:center;justify-content:center;font-size:13px;color:oklch(0.4 0.12 279)">☀</span>
+          </div>
+        </div>
+
+        <div style="padding:26px 28px 34px;display:flex;flex-direction:column;gap:18px">
+          <div style="display:flex;align-items:center;gap:14px">
+            <span style="width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:600;background:oklch(0.94 0.035 285);color:oklch(0.42 0.16 279)">##</span>
+            <div style="display:flex;flex-direction:column;gap:3px">
+              <div style="display:flex;align-items:center;gap:9px">
+                <h2 style="margin:0;font-size:24px;font-weight:600;letter-spacing:-.015em">哈希计算</h2>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:2px 7px;border-radius:5px;border:1px solid oklch(0.9 0.014 285);color:oklch(0.48 0.03 285)">加密与安全</span>
+              </div>
+              <span style="font-size:13.5px;color:oklch(0.45 0.03 285)">计算文本或文件的 MD5 / SHA-1 / SHA-256 / SHA-384 / SHA-512 摘要。</span>
+            </div>
+            <span style="margin-left:auto;font-size:13px;color:oklch(0.5 0.03 285)">全部在本机计算 · 不上传</span>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:12px;background:#fff;border:1px solid oklch(0.92 0.012 285)">
+            <div style="display:flex;padding:3px;border-radius:9px;background:oklch(0.955 0.012 285)">
+              <span style="padding:5px 14px;border-radius:7px;background:#fff;font-size:12.5px;font-weight:500;box-shadow:0 1px 2px rgba(20,10,50,.08)">文本</span>
+              <span style="padding:5px 14px;border-radius:7px;font-size:12.5px;color:oklch(0.5 0.03 285)">文件</span>
+            </div>
+            <span style="font-size:12.5px;color:oklch(0.5 0.03 285)">输入即算，无需点按钮</span>
+            <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:oklch(0.5 0.03 285)">UTF-8 · 23 字节</span>
+          </div>
+
+          <div style="border-radius:16px;border:1px solid oklch(0.91 0.014 285);background:#fff;padding:16px 18px;min-height:104px">
+            <pre style="margin:0;font-family:'JetBrains Mono',monospace;font-size:13.5px;line-height:1.7;color:oklch(0.22 0.03 285);white-space:pre-wrap">hello tinker 你好世界</pre>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <sc-for list="{{ digests }}" as="row" hint-placeholder-count="4">
+              <div style="display:flex;align-items:center;gap:16px;padding:13px 16px;border-radius:12px;border:1px solid oklch(0.93 0.012 285);background:#fff">
+                <span style="width:84px;flex:none;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:oklch(0.35 0.05 285)">{{ row.algo }}</span>
+                <span style="flex:1;min-width:0;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:oklch(0.3 0.03 285);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ row.value }}</span>
+                <span style="flex:none;padding:5px 11px;border-radius:8px;background:oklch(0.96 0.014 285);font-size:12px;color:oklch(0.34 0.05 285)">复制</span>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:12px;background:oklch(0.96 0.02 285);font-size:13px;color:oklch(0.35 0.04 285)">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:oklch(0.45 0.06 285)">校验</span>
+            <span style="flex:1;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:oklch(0.5 0.03 285)">粘贴一个期望的摘要，自动比对…</span>
+            <span style="padding:5px 11px;border-radius:8px;background:#fff;border:1px solid oklch(0.9 0.014 285);font-size:12px">比对</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section style="display:flex;flex-direction:column;gap:28px;padding:0 64px 96px">
+  <div style="display:flex;align-items:baseline;gap:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:oklch(0.5 0.03 285)">
+    <span>Turn 1</span><span>·</span><span>Tinker 开发者工具箱 · 两个方向</span>
+  </div>
+
+  <div style="display:flex;flex-wrap:wrap;gap:64px;align-items:flex-start">
+
+    <div id="1a" style="display:flex;flex-direction:column;gap:18px;width:1280px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="display:inline-flex;align-items:center;height:26px;padding:0 10px;border-radius:7px;background:oklch(0.19 0.03 285);color:#fff;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;letter-spacing:.06em">1a</span>
+        <span style="font-size:18px;font-weight:600;color:oklch(0.19 0.03 285)">深色控制台</span>
+        <span style="font-size:14px;color:oklch(0.5 0.03 285)">墨色底 + 品牌光谱，工具按分类色块编号；首屏是一条命令栏，找工具靠打字不靠扫视。</span>
+      </div>
+
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;color:oklch(0.55 0.03 285);text-transform:uppercase">首页</div>
+      <div style="border-radius:22px;overflow:hidden;border:1px solid oklch(0.88 0.014 285);box-shadow:0 40px 70px -40px rgba(30,15,70,.5);background:oklch(0.16 0.024 280);color:oklch(0.96 0.01 280)">
+        <div style="display:flex;align-items:center;gap:18px;height:60px;padding:0 28px;border-bottom:1px solid rgba(255,255,255,.09)">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="width:28px;height:28px;border-radius:9px;background:linear-gradient(135deg,oklch(0.66 0.22 300),oklch(0.74 0.17 220));display:flex;align-items:center;justify-content:center;color:#0d0a18;font-weight:700;font-size:14px">T</span>
+            <span style="font-size:16px;font-weight:600;letter-spacing:-.01em">Tinker</span>
+          </div>
+          <div style="display:flex;gap:4px;margin-left:14px">
+            <span style="padding:6px 12px;border-radius:8px;background:rgba(255,255,255,.08);font-size:13px">全部工具</span>
+            <span style="padding:6px 12px;border-radius:8px;font-size:13px;color:oklch(0.7 0.025 280)">最近</span>
+            <span style="padding:6px 12px;border-radius:8px;font-size:13px;color:oklch(0.7 0.025 280)">关于</span>
+          </div>
+          <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+            <span style="display:flex;align-items:center;gap:6px;height:30px;padding:0 10px;border-radius:8px;border:1px solid rgba(255,255,255,.14);font-family:'JetBrains Mono',monospace;font-size:11px;color:oklch(0.7 0.025 280)">⌘K</span>
+            <span style="width:30px;height:30px;border-radius:8px;border:1px solid rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;font-size:12px;color:oklch(0.7 0.025 280)">文</span>
+            <span style="width:30px;height:30px;border-radius:8px;border:1px solid rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;font-size:13px;color:oklch(0.7 0.025 280)">☾</span>
+          </div>
+        </div>
+
+        <div style="padding:52px 28px 20px;display:flex;flex-direction:column;align-items:center;gap:22px;position:relative;overflow:hidden">
+          <div style="position:absolute;top:-160px;left:50%;transform:translateX(-50%);width:820px;height:320px;border-radius:50%;background:radial-gradient(closest-side,oklch(0.5 0.2 290 / .55),transparent);filter:blur(12px)"></div>
+          <div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:12px">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:oklch(0.78 0.13 200)">Local-first devtools</span>
+            <h1 style="margin:0;font-size:52px;line-height:1.1;font-weight:700;letter-spacing:-.02em;background:linear-gradient(100deg,#fff 20%,oklch(0.8 0.15 290) 60%,oklch(0.82 0.12 205));-webkit-background-clip:text;background-clip:text;color:transparent">开发者工具箱</h1>
+            <p style="margin:0;font-size:16px;color:oklch(0.74 0.025 280)">九个纯前端小工具，数据不出浏览器，打开就能用。</p>
+          </div>
+          <div style="position:relative;width:720px;display:flex;align-items:center;gap:12px;height:56px;padding:0 18px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);box-shadow:0 20px 40px -24px rgba(0,0,0,.8)">
+            <span style="font-size:16px;color:oklch(0.78 0.13 200)">⌕</span>
+            <span style="font-size:15px;color:oklch(0.62 0.025 280)">搜索工具、粘贴内容，或输入 jwt / base64 / #ff8800…</span>
+            <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:11px;color:oklch(0.62 0.025 280);border:1px solid rgba(255,255,255,.14);border-radius:6px;padding:3px 7px">Enter</span>
+          </div>
+          <div style="position:relative;display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+            <span style="padding:7px 14px;border-radius:999px;background:#fff;color:oklch(0.18 0.03 285);font-size:13px;font-weight:500">全部 9</span>
+            <span style="padding:7px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);font-size:13px;color:oklch(0.8 0.02 280)">加密与安全 2</span>
+            <span style="padding:7px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);font-size:13px;color:oklch(0.8 0.02 280)">编码转换 2</span>
+            <span style="padding:7px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);font-size:13px;color:oklch(0.8 0.02 280)">格式化 2</span>
+            <span style="padding:7px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);font-size:13px;color:oklch(0.8 0.02 280)">生成器 2</span>
+            <span style="padding:7px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);font-size:13px;color:oklch(0.8 0.02 280)">时间日期 1</span>
+          </div>
+        </div>
+
+        <div style="padding:28px;display:flex;flex-direction:column;gap:26px">
+          <sc-if value="{{ showRecent }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:oklch(0.68 0.025 280)">最近</span>
+              <div style="display:flex;gap:8px">
+                <span style="display:flex;align-items:center;gap:8px;padding:6px 12px 6px 8px;border-radius:10px;background:rgba(255,255,255,.07);font-size:13px"><span style="width:20px;height:20px;border-radius:6px;background:oklch(0.68 0.2 279 / .22);color:oklch(0.78 0.16 279);font-family:'JetBrains Mono',monospace;font-size:10px;display:flex;align-items:center;justify-content:center">##</span>哈希计算</span>
+                <span style="display:flex;align-items:center;gap:8px;padding:6px 12px 6px 8px;border-radius:10px;background:rgba(255,255,255,.07);font-size:13px"><span style="width:20px;height:20px;border-radius:6px;background:oklch(0.68 0.2 279 / .22);color:oklch(0.78 0.16 279);font-family:'JetBrains Mono',monospace;font-size:10px;display:flex;align-items:center;justify-content:center">JW</span>JWT 工具</span>
+              </div>
+              <span style="margin-left:auto;font-size:13px;color:oklch(0.62 0.025 280)">清除</span>
+            </div>
+          </sc-if>
+
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+            <sc-for list="{{ featured }}" as="tool" hint-placeholder-count="3">
+              <div style="position:relative;padding:22px;border-radius:18px;background:linear-gradient(160deg,rgba(255,255,255,.09),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.1);min-height:186px;display:flex;flex-direction:column;gap:14px;overflow:hidden" style-hover="border-color:rgba(255,255,255,.28)">
+                <div style="position:absolute;right:-28px;top:-28px;width:130px;height:130px;border-radius:50%;opacity:.18;background:{{ tool.accent }};filter:blur(28px)"></div>
+                <div style="position:relative;display:flex;align-items:flex-start;justify-content:space-between">
+                  <span style="width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:600;background:{{ tool.tint }};color:{{ tool.accent }}">{{ tool.glyph }}</span>
+                  <span style="font-size:15px;color:oklch(0.7 0.025 280)">↗</span>
+                </div>
+                <div style="position:relative;display:flex;flex-direction:column;gap:7px">
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <span style="font-size:17px;font-weight:600">{{ tool.name }}</span>
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;padding:2px 7px;border-radius:5px;border:1px solid rgba(255,255,255,.16);color:oklch(0.72 0.025 280)">{{ tool.catName }}</span>
+                  </div>
+                  <p style="margin:0;font-size:13.5px;line-height:1.6;color:oklch(0.72 0.025 280);text-wrap:pretty">{{ tool.desc }}</p>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+            <sc-for list="{{ rest }}" as="tool" hint-placeholder-count="6">
+              <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:14px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07)" style-hover="background:rgba(255,255,255,.075)">
+                <span style="width:34px;height:34px;flex:none;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;background:{{ tool.tint }};color:{{ tool.accent }}">{{ tool.glyph }}</span>
+                <div style="min-width:0;display:flex;flex-direction:column;gap:3px">
+                  <span style="font-size:14.5px;font-weight:500">{{ tool.name }}</span>
+                  <span style="font-size:12.5px;color:oklch(0.68 0.025 280);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ tool.short }}</span>
+                </div>
+                <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;color:oklch(0.62 0.025 280)">{{ tool.catName }}</span>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:12px;padding:14px 18px;border-radius:14px;border:1px dashed rgba(255,255,255,.14)">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:oklch(0.66 0.025 280)">规划中</span>
+            <span style="font-size:13.5px;color:oklch(0.74 0.025 280)">正则测试 · 文本对比</span>
+            <span style="margin-left:auto;font-size:13px;color:oklch(0.78 0.13 200)">去 GitHub 提需求 →</span>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;padding:18px 28px;border-top:1px solid rgba(255,255,255,.08);font-size:13px;color:oklch(0.66 0.025 280)">
+          <span>Tinker · 无需登录，数据只留在本机。</span>
+          <span style="margin-left:auto">GitHub</span>
+        </div>
+      </div>
+
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;color:oklch(0.55 0.03 285);text-transform:uppercase;margin-top:8px">工具详情页 · JSON 格式化</div>
+      <div style="border-radius:22px;overflow:hidden;border:1px solid oklch(0.88 0.014 285);box-shadow:0 40px 70px -40px rgba(30,15,70,.5);background:oklch(0.16 0.024 280);color:oklch(0.96 0.01 280)">
+        <div style="display:flex;align-items:center;gap:18px;height:60px;padding:0 28px;border-bottom:1px solid rgba(255,255,255,.09)">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="width:28px;height:28px;border-radius:9px;background:linear-gradient(135deg,oklch(0.66 0.22 300),oklch(0.74 0.17 220));display:flex;align-items:center;justify-content:center;color:#0d0a18;font-weight:700;font-size:14px">T</span>
+            <span style="font-size:16px;font-weight:600">Tinker</span>
+          </div>
+          <span style="font-size:13px;color:oklch(0.62 0.025 280)">/</span>
+          <span style="font-size:13px;color:oklch(0.8 0.02 280)">格式化</span>
+          <span style="font-size:13px;color:oklch(0.62 0.025 280)">/</span>
+          <span style="font-size:13px">JSON 格式化</span>
+          <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+            <span style="display:flex;align-items:center;gap:6px;height:30px;padding:0 10px;border-radius:8px;border:1px solid rgba(255,255,255,.14);font-family:'JetBrains Mono',monospace;font-size:11px;color:oklch(0.7 0.025 280)">⌘K</span>
+            <span style="width:30px;height:30px;border-radius:8px;border:1px solid rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;font-size:13px;color:oklch(0.7 0.025 280)">☾</span>
+          </div>
+        </div>
+
+        <div style="padding:26px 28px;display:flex;flex-direction:column;gap:18px">
+          <div style="display:flex;align-items:center;gap:14px">
+            <span style="width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:600;background:oklch(0.8 0.15 80 / .18);color:oklch(0.84 0.14 80)">{ }</span>
+            <div style="display:flex;flex-direction:column;gap:3px">
+              <div style="display:flex;align-items:center;gap:9px">
+                <h2 style="margin:0;font-size:22px;font-weight:600;letter-spacing:-.01em">JSON 格式化</h2>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:2px 7px;border-radius:5px;border:1px solid rgba(255,255,255,.16);color:oklch(0.72 0.025 280)">格式化</span>
+              </div>
+              <span style="font-size:13.5px;color:oklch(0.72 0.025 280)">格式化、压缩与校验 JSON，支持树形浏览和路径提取。</span>
+            </div>
+            <div style="margin-left:auto;display:flex;gap:8px">
+              <span style="padding:8px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.14);font-size:13px;color:oklch(0.84 0.02 280)">示例</span>
+              <span style="padding:8px 14px;border-radius:10px;background:#fff;color:oklch(0.18 0.03 285);font-size:13px;font-weight:500">格式化</span>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08)">
+            <div style="display:flex;padding:3px;border-radius:9px;background:rgba(0,0,0,.3)">
+              <span style="padding:5px 12px;border-radius:7px;background:rgba(255,255,255,.12);font-size:12.5px">美化</span>
+              <span style="padding:5px 12px;border-radius:7px;font-size:12.5px;color:oklch(0.7 0.025 280)">压缩</span>
+              <span style="padding:5px 12px;border-radius:7px;font-size:12.5px;color:oklch(0.7 0.025 280)">树形</span>
+            </div>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:oklch(0.68 0.025 280)">缩进 2</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:oklch(0.68 0.025 280)">排序键 关</span>
+            <span style="margin-left:auto;display:flex;align-items:center;gap:7px;font-size:12.5px;color:oklch(0.75 0.15 155)"><span style="width:7px;height:7px;border-radius:50%;background:oklch(0.75 0.15 155)"></span>有效 JSON · 4 键 · 312 B</span>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+            <div style="border-radius:16px;border:1px solid rgba(255,255,255,.1);overflow:hidden;background:rgba(0,0,0,.25)">
+              <div style="display:flex;align-items:center;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.08);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:oklch(0.66 0.025 280)">
+                输入<span style="margin-left:auto;text-transform:none;letter-spacing:0">粘贴 / 拖入文件</span>
+              </div>
+              <pre style="margin:0;padding:16px;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.75;color:oklch(0.86 0.02 280);white-space:pre-wrap">{"name":"tinker","version":"0.4.1","tools":["jwt","hash","base64"],"meta":{"offline":true,"locale":"zh-CN"}}</pre>
+            </div>
+            <div style="border-radius:16px;border:1px solid rgba(255,255,255,.1);overflow:hidden;background:rgba(0,0,0,.25)">
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.08);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:oklch(0.66 0.025 280)">
+                输出<span style="margin-left:auto;text-transform:none;letter-spacing:0;color:oklch(0.82 0.12 205)">复制</span><span style="text-transform:none;letter-spacing:0;color:oklch(0.82 0.12 205)">下载</span>
+              </div>
+              <pre style="margin:0;padding:16px;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.75;color:oklch(0.86 0.02 280)">{
+  <span style="color:oklch(0.82 0.12 205)">"name"</span>: <span style="color:oklch(0.84 0.14 80)">"tinker"</span>,
+  <span style="color:oklch(0.82 0.12 205)">"version"</span>: <span style="color:oklch(0.84 0.14 80)">"0.4.1"</span>,
+  <span style="color:oklch(0.82 0.12 205)">"tools"</span>: [
+    <span style="color:oklch(0.84 0.14 80)">"jwt"</span>, <span style="color:oklch(0.84 0.14 80)">"hash"</span>, <span style="color:oklch(0.84 0.14 80)">"base64"</span>
+  ],
+  <span style="color:oklch(0.82 0.12 205)">"meta"</span>: {
+    <span style="color:oklch(0.82 0.12 205)">"offline"</span>: <span style="color:oklch(0.78 0.16 279)">true</span>,
+    <span style="color:oklch(0.82 0.12 205)">"locale"</span>: <span style="color:oklch(0.84 0.14 80)">"zh-CN"</span>
+  }
+}</pre>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:10px;font-size:12.5px;color:oklch(0.66 0.025 280)">
+            <span style="font-family:'JetBrains Mono',monospace">路径</span>
+            <span style="font-family:'JetBrains Mono',monospace;padding:4px 9px;border-radius:7px;background:rgba(255,255,255,.06);color:oklch(0.86 0.02 280)">$.meta.offline</span>
+            <span>点击右侧任意值即可复制其 JSON 路径</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;color:oklch(0.55 0.03 285);text-transform:uppercase;margin-top:8px">搜索结果 / 空状态</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div style="border-radius:22px;overflow:hidden;border:1px solid oklch(0.88 0.014 285);background:oklch(0.16 0.024 280);color:oklch(0.96 0.01 280);padding:24px;display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;align-items:center;gap:12px;height:48px;padding:0 16px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18)">
+            <span style="font-size:15px;color:oklch(0.78 0.13 200)">⌕</span>
+            <span style="font-size:14.5px">base64</span>
+            <span style="margin-left:auto;font-size:13px;color:oklch(0.66 0.025 280)">2 个结果 · esc 清除</span>
+          </div>
+          <sc-for list="{{ results }}" as="tool" hint-placeholder-count="2">
+            <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)">
+              <span style="width:34px;height:34px;flex:none;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;background:{{ tool.tint }};color:{{ tool.accent }}">{{ tool.glyph }}</span>
+              <div style="display:flex;flex-direction:column;gap:3px">
+                <span style="font-size:14.5px;font-weight:500">{{ tool.name }}</span>
+                <span style="font-size:12.5px;color:oklch(0.68 0.025 280)">{{ tool.short }}</span>
+              </div>
+              <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:oklch(0.62 0.025 280)">{{ tool.match }}</span>
+            </div>
+          </sc-for>
+          <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:12px;border:1px dashed rgba(255,255,255,.14);font-size:13px;color:oklch(0.74 0.025 280)">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:oklch(0.82 0.12 205)">⏎</span>
+            直接把剪贴板里的字符串丢进 Base64 编解码
+          </div>
+        </div>
+
+        <div style="border-radius:22px;overflow:hidden;border:1px solid oklch(0.88 0.014 285);background:oklch(0.16 0.024 280);color:oklch(0.96 0.01 280);padding:24px;display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;align-items:center;gap:12px;height:48px;padding:0 16px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18)">
+            <span style="font-size:15px;color:oklch(0.78 0.13 200)">⌕</span>
+            <span style="font-size:14.5px">{{ query }}</span>
+            <span style="margin-left:auto;font-size:13px;color:oklch(0.66 0.025 280)">0 个结果</span>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:34px 20px;border-radius:16px;border:1px dashed rgba(255,255,255,.14);text-align:center">
+            <span style="width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:16px;color:oklch(0.7 0.025 280)">∅</span>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <span style="font-size:15px;font-weight:500">还没有「{{ query }}」这个工具</span>
+              <span style="font-size:13px;color:oklch(0.7 0.025 280);max-width:320px;text-wrap:pretty">它在规划列表里。你可以先看看相近的工具，或者去仓库催一下。</span>
+            </div>
+            <div style="display:flex;gap:8px">
+              <span style="padding:8px 14px;border-radius:10px;background:#fff;color:oklch(0.18 0.03 285);font-size:13px;font-weight:500">清除筛选</span>
+              <span style="padding:8px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.16);font-size:13px">提一个 issue</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <span style="font-size:12.5px;color:oklch(0.66 0.025 280);align-self:center">试试：</span>
+            <span style="padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.07);font-size:12.5px">JSON 格式化</span>
+            <span style="padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.07);font-size:12.5px">URL 编解码</span>
+            <span style="padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.07);font-size:12.5px">哈希计算</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="1b" style="display:flex;flex-direction:column;gap:18px;width:1280px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="display:inline-flex;align-items:center;height:26px;padding:0 10px;border-radius:7px;background:oklch(0.55 0.22 279);color:#fff;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;letter-spacing:.06em">1b</span>
+        <span style="font-size:18px;font-weight:600;color:oklch(0.19 0.03 285)">浅色工作台</span>
+        <span style="font-size:14px;color:oklch(0.5 0.03 285)">常驻侧栏 + 实色品牌方块；工具在同一页里直接跑，首页最下方就是一个能用的输入框。</span>
+      </div>
+
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;color:oklch(0.55 0.03 285);text-transform:uppercase">首页</div>
+      <div style="border-radius:22px;overflow:hidden;border:1px solid oklch(0.88 0.014 285);box-shadow:0 40px 70px -44px rgba(40,25,90,.35);background:oklch(0.995 0.004 285);color:oklch(0.19 0.03 285);display:flex;min-height:820px">
+        <div style="width:232px;flex:none;border-right:1px solid oklch(0.91 0.014 285);background:oklch(0.985 0.006 285);display:flex;flex-direction:column;gap:20px;padding:20px 16px">
+          <div style="display:flex;align-items:center;gap:10px;padding:0 6px">
+            <span style="width:28px;height:28px;border-radius:9px;background:oklch(0.55 0.22 279);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px">T</span>
+            <span style="font-size:16px;font-weight:600;letter-spacing:-.01em">Tinker</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;height:36px;padding:0 10px;border-radius:10px;border:1px solid oklch(0.91 0.014 285);background:#fff">
+            <span style="font-size:13px;color:oklch(0.5 0.03 285)">⌕</span>
+            <span style="font-size:13px;color:oklch(0.58 0.03 285)">搜索</span>
+            <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:oklch(0.6 0.03 285)">⌘K</span>
+          </div>
+          <sc-for list="{{ groups }}" as="group" hint-placeholder-count="5">
+            <div style="display:flex;flex-direction:column;gap:2px">
+              <span style="padding:6px 8px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:oklch(0.58 0.03 285)">{{ group.name }}</span>
+              <sc-for list="{{ group.items }}" as="tool" hint-placeholder-count="2">
+                <div style="display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:9px;font-size:13.5px;color:oklch(0.3 0.03 285)" style-hover="background:oklch(0.955 0.012 285)">
+                  <span style="width:8px;height:8px;border-radius:3px;background:{{ tool.accent }}"></span>{{ tool.name }}
+                </div>
+              </sc-for>
+            </div>
+          </sc-for>
+          <div style="margin-top:auto;display:flex;align-items:center;gap:8px;padding:8px;font-size:12.5px;color:oklch(0.5 0.03 285)">
+            <span>中 / EN</span><span style="margin-left:auto">☀</span>
+          </div>
+        </div>
+
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+          <div style="padding:40px 40px 28px;border-bottom:1px solid oklch(0.93 0.012 285);display:flex;align-items:flex-end;gap:28px">
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <h1 style="margin:0;font-size:40px;font-weight:700;letter-spacing:-.025em;line-height:1.1">开发者工具箱</h1>
+              <p style="margin:0;font-size:15.5px;color:oklch(0.45 0.03 285);max-width:460px;text-wrap:pretty">九个纯前端小工具，全部在浏览器里算完，不上传、不登录。</p>
+            </div>
+            <div style="margin-left:auto;display:flex;gap:10px">
+              <div style="padding:14px 18px;border-radius:14px;border:1px solid oklch(0.91 0.014 285);background:#fff;display:flex;flex-direction:column;gap:2px">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:600;color:oklch(0.55 0.22 279)">9</span>
+                <span style="font-size:12px;color:oklch(0.5 0.03 285)">可用工具</span>
+              </div>
+              <div style="padding:14px 18px;border-radius:14px;border:1px solid oklch(0.91 0.014 285);background:#fff;display:flex;flex-direction:column;gap:2px">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:600;color:oklch(0.19 0.03 285)">0</span>
+                <span style="font-size:12px;color:oklch(0.5 0.03 285)">上传的字节</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="padding:26px 40px 40px;display:flex;flex-direction:column;gap:24px">
+            <sc-if value="{{ showRecent }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;align-items:center;gap:12px">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:oklch(0.5 0.03 285)">继续</span>
+                <span style="display:flex;align-items:center;gap:8px;padding:7px 13px 7px 9px;border-radius:999px;border:1px solid oklch(0.91 0.014 285);background:#fff;font-size:13px"><span style="width:8px;height:8px;border-radius:3px;background:oklch(0.6 0.21 279)"></span>哈希计算</span>
+                <span style="display:flex;align-items:center;gap:8px;padding:7px 13px 7px 9px;border-radius:999px;border:1px solid oklch(0.91 0.014 285);background:#fff;font-size:13px"><span style="width:8px;height:8px;border-radius:3px;background:oklch(0.6 0.21 279)"></span>JWT 工具</span>
+                <span style="margin-left:auto;font-size:12.5px;color:oklch(0.5 0.03 285)">清除</span>
+              </div>
+            </sc-if>
+
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+              <sc-for list="{{ featured }}" as="tool" hint-placeholder-count="3">
+                <div style="position:relative;border-radius:18px;padding:20px;min-height:168px;display:flex;flex-direction:column;justify-content:space-between;background:{{ tool.accent }};color:#fff;overflow:hidden">
+                  <span style="position:absolute;right:-10px;bottom:-26px;font-family:'JetBrains Mono',monospace;font-size:96px;font-weight:600;color:rgba(255,255,255,.16);line-height:1">{{ tool.glyph }}</span>
+                  <span style="position:relative;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;opacity:.85">{{ tool.catName }}</span>
+                  <div style="position:relative;display:flex;flex-direction:column;gap:7px">
+                    <span style="font-size:19px;font-weight:600">{{ tool.name }}</span>
+                    <p style="margin:0;font-size:13px;line-height:1.6;color:rgba(255,255,255,.9);text-wrap:pretty">{{ tool.desc }}</p>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+              <sc-for list="{{ rest }}" as="tool" hint-placeholder-count="6">
+                <div style="display:flex;align-items:center;gap:12px;padding:15px 16px;border-radius:14px;border:1px solid oklch(0.91 0.014 285);background:#fff" style-hover="border-color:oklch(0.75 0.06 285)">
+                  <span style="width:32px;height:32px;flex:none;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;background:{{ tool.tintLight }};color:{{ tool.inkAccent }}">{{ tool.glyph }}</span>
+                  <div style="min-width:0;display:flex;flex-direction:column;gap:2px">
+                    <span style="font-size:14px;font-weight:500">{{ tool.name }}</span>
+                    <span style="font-size:12.5px;color:oklch(0.5 0.03 285);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ tool.short }}</span>
+                  </div>
+                  <span style="margin-left:auto;font-size:14px;color:oklch(0.62 0.03 285)">→</span>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="border-radius:18px;border:1px solid oklch(0.91 0.014 285);background:#fff;overflow:hidden">
+              <div style="display:flex;align-items:center;gap:10px;padding:13px 18px;border-bottom:1px solid oklch(0.93 0.012 285)">
+                <span style="font-size:14px;font-weight:600">随手一试</span>
+                <span style="font-size:12.5px;color:oklch(0.5 0.03 285)">粘贴任意内容，Tinker 猜它属于哪个工具</span>
+                <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10.5px;padding:3px 8px;border-radius:6px;background:oklch(0.94 0.045 315);color:oklch(0.32 0.09 310)">识别为 JWT</span>
+              </div>
+              <div style="padding:16px 18px;display:flex;gap:14px;align-items:flex-start">
+                <pre style="flex:1;margin:0;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.7;color:oklch(0.35 0.03 285);white-space:pre-wrap;word-break:break-all">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IlRpbmtlciJ9.dQw4w9WgXcQ</pre>
+                <span style="flex:none;padding:9px 16px;border-radius:10px;background:oklch(0.55 0.22 279);color:#fff;font-size:13px;font-weight:500">在 JWT 工具中打开</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;color:oklch(0.55 0.03 285);text-transform:uppercase;margin-top:8px">工具详情页 · 哈希计算</div>
+      <div style="border-radius:22px;overflow:hidden;border:1px solid oklch(0.88 0.014 285);box-shadow:0 40px 70px -44px rgba(40,25,90,.35);background:oklch(0.995 0.004 285);color:oklch(0.19 0.03 285);display:flex;min-height:640px">
+        <div style="width:232px;flex:none;border-right:1px solid oklch(0.91 0.014 285);background:oklch(0.985 0.006 285);display:flex;flex-direction:column;gap:20px;padding:20px 16px">
+          <div style="display:flex;align-items:center;gap:10px;padding:0 6px">
+            <span style="width:28px;height:28px;border-radius:9px;background:oklch(0.55 0.22 279);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px">T</span>
+            <span style="font-size:16px;font-weight:600">Tinker</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;height:36px;padding:0 10px;border-radius:10px;border:1px solid oklch(0.91 0.014 285);background:#fff">
+            <span style="font-size:13px;color:oklch(0.5 0.03 285)">⌕</span>
+            <span style="font-size:13px;color:oklch(0.58 0.03 285)">搜索</span>
+            <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:oklch(0.6 0.03 285)">⌘K</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <span style="padding:6px 8px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:oklch(0.58 0.03 285)">加密与安全</span>
+            <div style="display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:9px;font-size:13.5px;color:oklch(0.3 0.03 285)"><span style="width:8px;height:8px;border-radius:3px;background:oklch(0.6 0.21 279)"></span>JWT 工具</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:9px;font-size:13.5px;font-weight:600;color:oklch(0.32 0.12 279);background:oklch(0.94 0.03 285)"><span style="width:8px;height:8px;border-radius:3px;background:oklch(0.6 0.21 279)"></span>哈希计算</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <span style="padding:6px 8px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:oklch(0.58 0.03 285)">编码转换</span>
+            <div style="display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:9px;font-size:13.5px;color:oklch(0.3 0.03 285)"><span style="width:8px;height:8px;border-radius:3px;background:oklch(0.72 0.15 200)"></span>Base64 编解码</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:9px;font-size:13.5px;color:oklch(0.3 0.03 285)"><span style="width:8px;height:8px;border-radius:3px;background:oklch(0.72 0.15 200)"></span>URL 编解码</div>
+          </div>
+          <div style="margin-top:auto;display:flex;align-items:center;gap:8px;padding:8px;font-size:12.5px;color:oklch(0.5 0.03 285)">
+            <span>中 / EN</span><span style="margin-left:auto">☀</span>
+          </div>
+        </div>
+
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+          <div style="padding:30px 40px 22px;border-bottom:1px solid oklch(0.93 0.012 285);display:flex;align-items:center;gap:16px">
+            <span style="width:46px;height:46px;border-radius:14px;background:oklch(0.6 0.21 279);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:600">##</span>
+            <div style="display:flex;flex-direction:column;gap:3px">
+              <div style="display:flex;align-items:center;gap:9px">
+                <h2 style="margin:0;font-size:24px;font-weight:700;letter-spacing:-.02em">哈希计算</h2>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:2px 7px;border-radius:5px;background:oklch(0.94 0.03 285);color:oklch(0.34 0.1 279)">加密与安全</span>
+              </div>
+              <span style="font-size:13.5px;color:oklch(0.45 0.03 285)">计算文本或文件的 MD5 / SHA-1 / SHA-256 / SHA-384 / SHA-512 摘要。</span>
+            </div>
+            <span style="margin-left:auto;font-size:13px;color:oklch(0.5 0.03 285)">全部在本机计算 · 不上传</span>
+          </div>
+
+          <div style="padding:24px 40px 36px;display:flex;flex-direction:column;gap:18px">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="display:flex;padding:3px;border-radius:10px;background:oklch(0.955 0.012 285)">
+                <span style="padding:6px 14px;border-radius:8px;background:#fff;font-size:13px;font-weight:500;box-shadow:0 1px 2px rgba(20,10,50,.08)">文本</span>
+                <span style="padding:6px 14px;border-radius:8px;font-size:13px;color:oklch(0.5 0.03 285)">文件</span>
+              </div>
+              <span style="font-size:12.5px;color:oklch(0.5 0.03 285)">输入即算，无需点按钮</span>
+              <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:12px;color:oklch(0.5 0.03 285)">UTF-8 · 23 字节</span>
+            </div>
+
+            <div style="border-radius:16px;border:1px solid oklch(0.91 0.014 285);background:#fff;padding:16px 18px;min-height:104px">
+              <pre style="margin:0;font-family:'JetBrains Mono',monospace;font-size:13.5px;line-height:1.7;color:oklch(0.22 0.03 285);white-space:pre-wrap">hello tinker 你好世界</pre>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <sc-for list="{{ digests }}" as="row" hint-placeholder-count="4">
+                <div style="display:flex;align-items:center;gap:16px;padding:13px 16px;border-radius:12px;border:1px solid oklch(0.93 0.012 285);background:#fff">
+                  <span style="width:84px;flex:none;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:oklch(0.35 0.05 285)">{{ row.algo }}</span>
+                  <span style="flex:1;min-width:0;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:oklch(0.3 0.03 285);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ row.value }}</span>
+                  <span style="flex:none;padding:5px 11px;border-radius:8px;background:oklch(0.96 0.014 285);font-size:12px;color:oklch(0.34 0.05 285)">复制</span>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:12px;background:oklch(0.96 0.02 285);font-size:13px;color:oklch(0.35 0.04 285)">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:oklch(0.45 0.06 285)">校验</span>
+              <span style="flex:1;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:oklch(0.5 0.03 285)">粘贴一个期望的摘要，自动比对…</span>
+              <span style="padding:5px 11px;border-radius:8px;background:#fff;border:1px solid oklch(0.9 0.014 285);font-size:12px">比对</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;color:oklch(0.55 0.03 285);text-transform:uppercase;margin-top:8px">搜索结果 / 空状态</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div style="border-radius:22px;border:1px solid oklch(0.88 0.014 285);background:oklch(0.995 0.004 285);padding:24px;display:flex;flex-direction:column;gap:14px;color:oklch(0.19 0.03 285)">
+          <div style="display:flex;align-items:center;gap:12px;height:46px;padding:0 16px;border-radius:12px;border:1px solid oklch(0.55 0.22 279);background:#fff;box-shadow:0 0 0 3px oklch(0.55 0.22 279 / .12)">
+            <span style="font-size:14px;color:oklch(0.55 0.22 279)">⌕</span>
+            <span style="font-size:14.5px">base64</span>
+            <span style="margin-left:auto;font-size:12.5px;color:oklch(0.5 0.03 285)">2 个结果</span>
+          </div>
+          <sc-for list="{{ results }}" as="tool" hint-placeholder-count="2">
+            <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:14px;border:1px solid oklch(0.91 0.014 285);background:#fff">
+              <span style="width:32px;height:32px;flex:none;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;background:{{ tool.tintLight }};color:{{ tool.inkAccent }}">{{ tool.glyph }}</span>
+              <div style="display:flex;flex-direction:column;gap:2px">
+                <span style="font-size:14px;font-weight:500">{{ tool.name }}</span>
+                <span style="font-size:12.5px;color:oklch(0.5 0.03 285)">{{ tool.short }}</span>
+              </div>
+              <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:oklch(0.55 0.03 285)">{{ tool.match }}</span>
+            </div>
+          </sc-for>
+          <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:12px;background:oklch(0.96 0.02 285);font-size:13px;color:oklch(0.34 0.05 285)">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:oklch(0.45 0.15 279)">⏎</span>
+            回车直接用剪贴板内容打开第一个结果
+          </div>
+        </div>
+
+        <div style="border-radius:22px;border:1px solid oklch(0.88 0.014 285);background:oklch(0.995 0.004 285);padding:24px;display:flex;flex-direction:column;gap:14px;color:oklch(0.19 0.03 285)">
+          <div style="display:flex;align-items:center;gap:12px;height:46px;padding:0 16px;border-radius:12px;border:1px solid oklch(0.91 0.014 285);background:#fff">
+            <span style="font-size:14px;color:oklch(0.5 0.03 285)">⌕</span>
+            <span style="font-size:14.5px">{{ query }}</span>
+            <span style="margin-left:auto;font-size:12.5px;color:oklch(0.5 0.03 285)">0 个结果</span>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:34px 20px;border-radius:16px;border:1px dashed oklch(0.86 0.02 285);text-align:center;background:#fff">
+            <span style="width:44px;height:44px;border-radius:14px;background:oklch(0.96 0.02 285);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:16px;color:oklch(0.5 0.03 285)">∅</span>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <span style="font-size:15px;font-weight:600">「{{ query }}」还在规划中</span>
+              <span style="font-size:13px;color:oklch(0.48 0.03 285);max-width:320px;text-wrap:pretty">没有匹配的工具。清空筛选看看全部九个，或者去仓库投一票。</span>
+            </div>
+            <div style="display:flex;gap:8px">
+              <span style="padding:8px 14px;border-radius:10px;background:oklch(0.55 0.22 279);color:#fff;font-size:13px;font-weight:500">清除筛选</span>
+              <span style="padding:8px 14px;border-radius:10px;border:1px solid oklch(0.9 0.014 285);background:#fff;font-size:13px">提一个 issue</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <span style="font-size:12.5px;color:oklch(0.5 0.03 285);align-self:center">试试：</span>
+            <span style="padding:6px 12px;border-radius:999px;border:1px solid oklch(0.91 0.014 285);background:#fff;font-size:12.5px">JSON 格式化</span>
+            <span style="padding:6px 12px;border-radius:999px;border:1px solid oklch(0.91 0.014 285);background:#fff;font-size:12.5px">URL 编解码</span>
+            <span style="padding:6px 12px;border-radius:999px;border:1px solid oklch(0.91 0.014 285);background:#fff;font-size:12.5px">哈希计算</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showRecent&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;内容&quot;},&quot;emptyQuery&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;正则测试&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;内容&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const A = {
+      crypto: ["oklch(0.68 0.2 279)", "oklch(0.68 0.2 279 / .18)", "oklch(0.6 0.21 279)", "oklch(0.94 0.035 285)", "oklch(0.42 0.16 279)", "加密与安全"],
+      encoding: ["oklch(0.78 0.13 200)", "oklch(0.78 0.13 200 / .16)", "oklch(0.62 0.12 210)", "oklch(0.94 0.03 205)", "oklch(0.45 0.1 210)", "编码转换"],
+      format: ["oklch(0.8 0.15 80)", "oklch(0.8 0.15 80 / .16)", "oklch(0.68 0.14 70)", "oklch(0.95 0.04 85)", "oklch(0.48 0.11 70)", "格式化"],
+      generator: ["oklch(0.72 0.19 20)", "oklch(0.72 0.19 20 / .16)", "oklch(0.62 0.2 20)", "oklch(0.95 0.03 25)", "oklch(0.47 0.16 20)", "生成器"],
+      datetime: ["oklch(0.75 0.15 155)", "oklch(0.75 0.15 155 / .16)", "oklch(0.6 0.13 155)", "oklch(0.94 0.04 155)", "oklch(0.42 0.1 155)", "时间日期"]
+    };
+    const t = (slug, cat, glyph, name, desc, short) => {
+      const [accent, tint, inkAccent, tintLight, deep, catName] = A[cat];
+      return { slug, cat, catName, glyph, name, desc, short, accent, tint, inkAccent: deep, tintLight };
+    };
+    const tools = [
+      t("jwt", "crypto", "JW", "JWT 工具", "解码 JWT、校验签名与声明，或用自己的密钥签发新的 Token。", "解码、验签、重新签发"),
+      t("hash", "crypto", "##", "哈希计算", "计算文本或文件的 MD5 / SHA-1 / SHA-256 / SHA-512 摘要。", "MD5 / SHA 系列摘要"),
+      t("json", "format", "{ }", "JSON 格式化", "格式化、压缩与校验 JSON，支持树形浏览和路径提取。", "美化、压缩、树形浏览"),
+      t("base64", "encoding", "64", "Base64 编解码", "文本、图片与二进制数据的 Base64 / Base64URL 互转。", "文本 / 图片 / 二进制互转"),
+      t("url", "encoding", "://", "URL 编解码", "百分号编码互转，并拆解 URL 的各个组成部分与查询参数。", "百分号编码与参数拆解"),
+      t("color", "format", "◐", "颜色转换", "HEX / RGB / HSL / OKLCH 互转，附对比度检查。", "HEX / RGB / HSL / OKLCH"),
+      t("generator", "generator", "⚄", "随机生成器", "批量生成 UUID v4 / v7、NanoID，以及高强度密码。", "UUID / NanoID / 密码"),
+      t("qrcode", "generator", "▦", "二维码生成", "把文本、链接或 Wi-Fi 配置生成为可下载的二维码。", "文本 / 链接 / Wi-Fi"),
+      t("timestamp", "datetime", "◷", "时间戳转换", "Unix 时间戳与日期互转，支持多时区对照。", "Unix ↔ 日期，多时区")
+    ];
+    const by = (s) => tools.find((x) => x.slug === s);
+    const order = ["crypto", "encoding", "format", "generator", "datetime"];
+    return {
+      tools,
+      featured: tools.slice(0, 3),
+      rest: tools.slice(3),
+      groups: order.map((c) => ({ name: A[c][5], items: tools.filter((x) => x.cat === c) })),
+      results: [
+        Object.assign({ match: "名称匹配" }, by("base64")),
+        Object.assign({ match: "关键字 atob" }, by("url"))
+      ],
+      digests: [
+        { algo: "MD5", value: "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08" },
+        { algo: "SHA-1", value: "aaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d1c0ba9a2f1f6b0c6c2a1e7d3" },
+        { algo: "SHA-256", value: "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824" },
+        { algo: "SHA-512", value: "9b71d224bd62f3785d96d46ad3ea3d73319bfbc2890caadae2dff72519673ca7" }
+      ],
+      showRecent: this.props.showRecent ?? true,
+      query: this.props.emptyQuery ?? "正则测试"
+    };
+  }
+}
+</script>
+</body>
+</html>
