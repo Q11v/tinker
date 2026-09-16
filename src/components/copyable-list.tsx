@@ -8,7 +8,10 @@ export interface CopyableListItem {
   value: string
 }
 
-/** 一行一个可复制值的结果列表；带 label 时展示成"字段名 · 值"两栏，不带就是纯值列表 */
+/**
+ * 一行一个可复制值的结果列表；带 label 时展示成"字段名 · 值"两栏，不带就是纯值列表。
+ * 值一律 break-all 换行：这里的内容（长密码、URL 参数）是用来核对的，截断了等于没显示。
+ */
 export function CopyableList({ items }: { items: CopyableListItem[] }) {
   return (
     <ul className="divide-y rounded-lg border">
@@ -20,13 +23,13 @@ export function CopyableList({ items }: { items: CopyableListItem[] }) {
           >
             <span className="text-muted-foreground text-xs">{item.label}</span>
             <div className="flex items-center justify-between gap-2">
-              <code className="min-w-0 flex-1 truncate font-mono text-[13px]">{item.value}</code>
+              <code className="min-w-0 flex-1 font-mono text-[13px] break-all">{item.value}</code>
               <CopyButton value={item.value} size="icon" />
             </div>
           </li>
         ) : (
           <li key={item.key} className="flex items-center justify-between gap-2 px-3 py-1.5">
-            <code className="min-w-0 flex-1 truncate font-mono text-[13px]">{item.value}</code>
+            <code className="min-w-0 flex-1 font-mono text-[13px] break-all">{item.value}</code>
             <CopyButton value={item.value} size="icon" />
           </li>
         )

@@ -25,7 +25,7 @@ export function Panel({
   children: React.ReactNode
 }) {
   return (
-    <div className="bg-card flex flex-col rounded-xl border">
+    <div className="bg-card flex min-w-0 flex-col rounded-xl border">
       {/*
         窄屏上 hint 可能有四五十个字，action 里又常常挂着两个 SegmentedControl 加一个复制按钮。
         没有 min-w-0 的话 flex 子项不会收缩到内容宽度以下，标题区会把 action 挤出面板；

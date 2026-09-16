@@ -5,9 +5,9 @@ import { useEffect, useState } from "react"
 
 import { CopyButton } from "@/components/copy-button"
 import { CopyableList } from "@/components/copyable-list"
+import { NumberInput } from "@/components/number-input"
 import { Panel } from "@/components/tool-panel"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
   Select,
@@ -78,14 +78,7 @@ export function UuidPanel() {
 
           <div className="space-y-2">
             <Label htmlFor="uuid-count">{text.countLabel}</Label>
-            <Input
-              id="uuid-count"
-              inputMode="numeric"
-              value={String(count)}
-              onChange={(event) =>
-                setCount(Math.min(200, Math.max(1, Number.parseInt(event.target.value, 10) || 1)))
-              }
-            />
+            <NumberInput id="uuid-count" value={count} onValueChange={setCount} min={1} max={200} />
             <p className="text-muted-foreground text-xs">{text.countRange}</p>
           </div>
 
