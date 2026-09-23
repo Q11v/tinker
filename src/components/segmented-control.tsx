@@ -18,6 +18,7 @@ export function SegmentedControl<T extends string>({
   options,
   size = "sm",
   label,
+  className,
 }: {
   value: T
   onChange: (value: T) => void
@@ -25,12 +26,13 @@ export function SegmentedControl<T extends string>({
   size?: keyof typeof SIZES
   /** 读屏用的组名，比如「来源」「编码」 */
   label?: string
+  className?: string
 }) {
   return (
     <div
       role="group"
       aria-label={label}
-      className={cn("bg-surface-sunken flex items-center", SIZES[size].track)}
+      className={cn("bg-surface-sunken flex items-center", SIZES[size].track, className)}
     >
       {options.map((option) => (
         <button

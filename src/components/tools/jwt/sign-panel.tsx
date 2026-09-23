@@ -1,77 +1,109 @@
 "use client"
 
-import { AlertTriangle, KeyRound, Loader2, PenLine, Sparkles } from "lucide-react"
-import { useCallback, useMemo, useState } from "react"
+import { Loader2, Sparkles } from "lucide-react"
+import { useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
 
 import { CopyButton } from "@/components/copy-button"
-import { JsonBlock } from "@/components/json-block"
-import { Panel } from "@/components/tool-panel"
-import { AlgorithmSelect } from "@/components/tools/jwt/algorithm-select"
-import { KeyField } from "@/components/tools/jwt/key-field"
+import { JsonTokens } from "@/components/json-block"
+import { SegmentedControl } from "@/components/segmented-control"
+import { HighlightedTextarea } from "@/components/tools/jwt/highlighted-textarea"
+import { cardAction, JwtCard } from "@/components/tools/jwt/jwt-card"
+import { JwtToolbar } from "@/components/tools/jwt/jwt-toolbar"
+import { SecretInput } from "@/components/tools/jwt/secret-input"
 import { TokenPreview } from "@/components/tools/jwt/token-preview"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
 import { useDict } from "@/i18n/context"
 import { format } from "@/i18n/format"
 import {
-  decodeToken,
+  COMMON_SIGN_ALGORITHMS,
   errorOf,
   generateKeyPairPem,
   isSymmetric,
-  randomSecret,
   resolveKey,
   SAMPLE_SECRET,
   signToken,
   type JwtError,
-  type SecretEncoding,
+  type SignAlgorithm,
 } from "@/lib/jwt"
+import { generateUuidV4 } from "@/lib/uuid"
 import { cn, monoField } from "@/lib/utils"
 
 const DEFAULT_PAYLOAD = JSON.stringify(
-  { sub: "1234567890", name: "Ada Lovelace", roles: ["admin"] },
+  { sub: "1234567890", name: "Tinker User", aud: "tinker.dev" },
   null,
   2
 )
 
-export function SignPanel({ onUseToken }: { onUseToken: (token: string) => void }) {
+type Chip = "iatNow" | "exp1h" | "exp7d" | "jti"
+
+/** 快捷插入：直接改写 Payload 里的对应字段，已有的键原地更新、不挪位置 */
+function applyChip(chip: Chip, payload: Record<string, unknown>): Record<string, unknown> {
+  const now = Math.floor(Date.now() / 1000)
+  switch (chip) {
+    case "iatNow":
+      return { ...payload, iat: now }
+    case "exp1h":
+      return { ...payload, exp: now + 3600 }
+    case "exp7d":
+      return { ...payload, exp: now + 7 * 24 * 3600 }
+    case "jti":
+      return { ...payload, jti: generateUuidV4() }
+  }
+}
+
+const CHIPS: Chip[] = ["iatNow", "exp1h", "exp7d", "jti"]
+
+type SignState =
+  | { kind: "idle"; message: string }
+  | { kind: "pending" }
+  | { kind: "done"; token: string }
+  | { kind: "failed"; error: JwtError }
+
+/**
+ * 签发：左边改 Payload，右边实时出 Token。
+ * 设计稿在密钥卡片底部画了一枚「签发 Token」按钮，但同一张稿的工具条写着「右侧实时生成」——
+ * 既然输入即签，那枚按钮就没有要做的事了，这里不画它。
+ */
+export function SignPanel({
+  modeSwitch,
+  onOpenInDecode,
+}: {
+  modeSwitch: React.ReactNode
+  /** 非对称算法交出去的是配套公钥：解码页要验签，拿私钥没用 */
+  onOpenInDecode: (token: string, key: string) => void
+}) {
   const dict = useDict()
   const text = dict.jwtTool.sign
-  const [alg, setAlg] = useState("HS256")
-  const [key, setKey] = useState(SAMPLE_SECRET)
-  const [encoding, setEncoding] = useState<SecretEncoding>("utf8")
-  const [payloadText, setPayloadText] = useState(DEFAULT_PAYLOAD)
-  const [kid, setKid] = useState("")
-  const [withIssuedAt, setWithIssuedAt] = useState(true)
-  const [expiresIn, setExpiresIn] = useState("2h")
+  const [alg, setAlg] = useState<SignAlgorithm>("HS256")
+  // 共享密钥与私钥分开存：来回切算法时，PEM 不会把密钥框挤掉，反之亦然
+  const [secret, setSecret] = useState(SAMPLE_SECRET)
+  const [privateKey, setPrivateKey] = useState("")
   const [publicKey, setPublicKey] = useState("")
-  const [token, setToken] = useState("")
-  const [error, setError] = useState<JwtError | null>(null)
-  const [busy, setBusy] = useState(false)
+  const [generating, setGenerating] = useState(false)
+  const [payloadText, setPayloadText] = useState(DEFAULT_PAYLOAD)
 
   const symmetric = isSymmetric(alg)
+  const key = symmetric ? secret : privateKey
 
-  // 展示签名后真正写进 Token 的 payload（含自动补的 iat / exp）
-  const signedPayload = useMemo(() => {
-    if (!token) return ""
-    const result = decodeToken(token)
-    return result.ok && result.value.payload ? JSON.stringify(result.value.payload, null, 2) : ""
-  }, [token])
+  async function handleGenerateKeyPair() {
+    setGenerating(true)
+    try {
+      const pair = await generateKeyPairPem(alg)
+      setPrivateKey(pair.privateKey)
+      setPublicKey(pair.publicKey)
+      toast.success(format(text.keyPairGenerated, { alg }))
+    } catch (generateError) {
+      const err = errorOf(generateError)
+      toast.error(format(dict.errors.jwt[err.code], err.params ?? {}))
+    } finally {
+      setGenerating(false)
+    }
+  }
 
-  /** JwtError -> 当前语言的句子 */
-  const messageOf = useCallback(
-    (value: unknown) => {
-      const err = errorOf(value)
-      return format(dict.errors.jwt[err.code], err.params ?? {})
-    },
-    [dict]
-  )
-
-  const parsedPayload = useMemo(() => {
+  const parsed = useMemo(() => {
     try {
       const value: unknown = JSON.parse(payloadText)
       if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -79,199 +111,218 @@ export function SignPanel({ onUseToken }: { onUseToken: (token: string) => void 
       }
       return { ok: true as const, value: value as Record<string, unknown> }
     } catch (parseError) {
+      const err = errorOf(parseError)
       return {
         ok: false as const,
-        error: format(text.jsonSyntaxError, { message: messageOf(parseError) }),
+        error: format(text.jsonSyntaxError, {
+          message: format(dict.errors.jwt[err.code], err.params ?? {}),
+        }),
       }
     }
-  }, [payloadText, text, messageOf])
+  }, [payloadText, text, dict])
 
-  async function handleGenerateKey() {
-    setPublicKey("")
-    if (symmetric) {
-      setKey(randomSecret(32))
-      toast.success(text.secretGenerated)
-      return
-    }
-    setBusy(true)
-    try {
-      const pair = await generateKeyPairPem(alg)
-      setKey(pair.privateKey)
-      setPublicKey(pair.publicKey)
-      toast.success(format(text.keyPairGenerated, { alg }))
-    } catch (generateError) {
-      toast.error(messageOf(generateError))
-    } finally {
-      setBusy(false)
-    }
-  }
+  // 与校验一样：输入不完整时直接在渲染期给结论，完整了才走异步签名
+  const gate: SignState | null = !parsed.ok
+    ? { kind: "idle", message: text.needPayload }
+    : !key.trim()
+      ? { kind: "idle", message: symmetric ? text.needSecret : text.needPrivateKey }
+      : null
 
-  async function handleSign() {
-    if (!parsedPayload.ok) return
-    setBusy(true)
-    setError(null)
-    try {
-      const resolved = await resolveKey(alg, key, "sign", encoding)
-      const signed = await signToken({
-        alg,
-        payload: parsedPayload.value,
-        key: resolved,
-        header: kid.trim() ? { kid: kid.trim() } : undefined,
-        setIssuedAt: withIssuedAt,
-        expiresIn: expiresIn.trim() || undefined,
-      })
-      setToken(signed)
-      toast.success(text.tokenGenerated)
-    } catch (signError) {
-      setToken("")
-      setError(errorOf(signError))
-    } finally {
-      setBusy(false)
+  // 用规范化后的 JSON 做键：只改了缩进不必重签
+  const input = parsed.ok ? JSON.stringify([parsed.value, alg, key]) : ""
+  const [result, setResult] = useState<{ input: string; state: SignState } | null>(null)
+
+  useEffect(() => {
+    if (!parsed.ok || !key.trim()) return
+    let cancelled = false
+    const payload = parsed.value
+    const timer = setTimeout(async () => {
+      let state: SignState
+      try {
+        const material = await resolveKey(alg, key, "sign")
+        state = { kind: "done", token: await signToken({ alg, payload, key: material }) }
+      } catch (signError) {
+        state = { kind: "failed", error: errorOf(signError) }
+      }
+      if (!cancelled) setResult({ input: JSON.stringify([payload, alg, key]), state })
+    }, 200)
+
+    return () => {
+      cancelled = true
+      clearTimeout(timer)
     }
-  }
+  }, [parsed, alg, key])
+
+  const state: SignState = gate ?? (result?.input === input ? result.state : { kind: "pending" })
+  const token = state.kind === "done" ? state.token : ""
 
   return (
-    <div className="space-y-6">
-      <Panel accent="sky" title={text.keyTitle} hint={text.keyHint}>
-        <div className="grid gap-4 lg:grid-cols-[220px_1fr]">
-          <AlgorithmSelect id="sign-alg" value={alg} onChange={setAlg} />
-          <KeyField
-            id="sign-key"
-            alg={alg}
-            usage="sign"
-            value={key}
-            onChange={setKey}
-            encoding={encoding}
-            onEncodingChange={setEncoding}
-            actions={
-              <Button variant="outline" size="sm" onClick={handleGenerateKey} disabled={busy}>
-                <Sparkles className="size-3.5" />
-                {symmetric ? text.randomSecret : text.generateKeyPair}
+    <div className="flex flex-col gap-[18px]">
+      <JwtToolbar>
+        {modeSwitch}
+        <span className="text-muted-foreground text-[12.5px] max-lg:hidden">{text.hint}</span>
+        <span className="text-muted-foreground ml-auto font-mono text-[11.5px]">{alg}</span>
+      </JwtToolbar>
+
+      <div className="grid items-start gap-3.5 lg:grid-cols-2">
+        <div className="flex min-w-0 flex-col gap-3.5">
+          <JwtCard
+            segment="payload"
+            label={text.payloadLabel}
+            action={
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cardAction}
+                disabled={!parsed.ok}
+                onClick={() => parsed.ok && setPayloadText(JSON.stringify(parsed.value, null, 2))}
+              >
+                {text.format}
               </Button>
             }
-          />
-        </div>
-      </Panel>
-
-      {publicKey ? (
-        <Alert>
-          <KeyRound />
-          <AlertTitle className="flex items-center justify-between gap-2">
-            {text.publicKeyLabel}
-            <CopyButton value={publicKey} />
-          </AlertTitle>
-          <AlertDescription>
-            <pre className="mt-1 max-h-40 w-full overflow-auto font-mono text-[12px] whitespace-pre">
-              {publicKey}
-            </pre>
-          </AlertDescription>
-        </Alert>
-      ) : null}
-
-      <Panel
-        accent="violet"
-        title="Payload"
-        hint={text.payloadHint}
-        action={
-          <Button variant="ghost" size="sm" onClick={() => setPayloadText(DEFAULT_PAYLOAD)}>
-            {text.reset}
-          </Button>
-        }
-      >
-        <div className="space-y-2">
-          <Textarea
-            id="sign-payload"
-            value={payloadText}
-            onChange={(event) => setPayloadText(event.target.value)}
-            spellCheck={false}
-            autoComplete="off"
-            aria-invalid={!parsedPayload.ok}
-            className={cn(monoField, "max-h-80 min-h-40")}
-          />
-          {parsedPayload.ok ? (
-            <p className="text-muted-foreground text-xs">{text.autoClaimsNote}</p>
-          ) : (
-            <p className="text-destructive text-xs">{parsedPayload.error}</p>
-          )}
-        </div>
-
-        <div className="mt-4 grid gap-4 border-t pt-4 sm:grid-cols-3">
-          <div className="space-y-2">
-            <Label htmlFor="sign-kid">{text.kidLabel}</Label>
-            <Input
-              id="sign-kid"
-              value={kid}
-              onChange={(event) => setKid(event.target.value)}
-              placeholder={text.kidPlaceholder}
-              autoComplete="off"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="sign-exp">{text.expLabel}</Label>
-            <Input
-              id="sign-exp"
-              value={expiresIn}
-              onChange={(event) => setExpiresIn(event.target.value)}
-              placeholder={text.expPlaceholder}
-              autoComplete="off"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="sign-iat">{text.iatLabel}</Label>
-            <div className="flex h-8 items-center gap-2">
-              <Switch id="sign-iat" checked={withIssuedAt} onCheckedChange={setWithIssuedAt} />
-              <span className="text-muted-foreground text-sm">{text.iatNote}</span>
-            </div>
-          </div>
-        </div>
-      </Panel>
-
-      <div className="flex flex-wrap items-center gap-2">
-        <Button onClick={handleSign} disabled={busy || !parsedPayload.ok || !key.trim()}>
-          {busy ? <Loader2 className="size-3.5 animate-spin" /> : <PenLine className="size-3.5" />}
-          {text.generate}
-        </Button>
-        <p className="text-muted-foreground text-xs">{text.cryptoNote}</p>
-      </div>
-
-      {error ? (
-        <Alert variant="destructive">
-          <AlertTriangle />
-          <AlertTitle>{text.failedTitle}</AlertTitle>
-          <AlertDescription>
-            {format(dict.errors.jwt[error.code], error.params ?? {})}
-          </AlertDescription>
-        </Alert>
-      ) : null}
-
-      {token ? (
-        <div className="space-y-3">
-          <h2 className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
-            {text.resultTitle}
-          </h2>
-          <Panel
-            accent="sky"
-            title="Token"
-            hint={text.resultHint}
-            action={
-              <div className="flex items-center gap-1">
-                <Button variant="outline" size="sm" onClick={() => onUseToken(token)}>
-                  {text.openInDecode}
-                </Button>
-                <CopyButton value={token} />
-              </div>
-            }
           >
-            <TokenPreview token={token} />
-            {signedPayload ? (
-              <div className="mt-4 border-t pt-4">
-                <p className="text-muted-foreground mb-2 text-xs">{text.finalPayload}</p>
-                <JsonBlock value={signedPayload} />
+            <HighlightedTextarea
+              id="jwt-sign-payload"
+              label={text.payloadLabel}
+              value={payloadText}
+              onChange={setPayloadText}
+              invalid={!parsed.ok}
+              highlight={<JsonTokens value={payloadText} />}
+              className="min-h-[168px] px-4 py-3.5 text-base leading-[1.8] md:text-[12.5px]"
+            />
+            {!parsed.ok ? (
+              <p className="text-destructive border-t px-4 py-2.5 text-xs">{parsed.error}</p>
+            ) : null}
+          </JwtCard>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-muted-foreground text-xs">{text.quickInsert}</span>
+            {CHIPS.map((chip) => (
+              <button
+                key={chip}
+                type="button"
+                disabled={!parsed.ok}
+                onClick={() =>
+                  parsed.ok &&
+                  setPayloadText(JSON.stringify(applyChip(chip, parsed.value), null, 2))
+                }
+                className="hover:border-border-hover hover:bg-surface-hover rounded-full border px-[11px] py-[5px] font-mono text-[11.5px] transition-colors disabled:pointer-events-none disabled:opacity-50"
+              >
+                {text.chips[chip]}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex min-w-0 flex-col gap-3.5">
+          <div className="bg-surface dark:bg-surface-sunken flex flex-col gap-3 rounded-[16px] border px-4 py-3.5">
+            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2">
+              <span className="text-muted-foreground text-xs">{text.algorithm}</span>
+              <SegmentedControl
+                label={text.algorithm}
+                value={alg}
+                onChange={setAlg}
+                options={COMMON_SIGN_ALGORITHMS.map((value) => ({ value, label: value }))}
+                className="flex-wrap"
+              />
+            </div>
+
+            <div className="flex flex-col gap-[7px]">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                <Label htmlFor="jwt-sign-key" className="text-muted-foreground text-xs font-normal">
+                  {symmetric ? text.secretLabel : text.privateLabel}
+                </Label>
+                {/* 手上没有现成 PEM 的时候，本机生成一对是最快的试法 */}
+                {!symmetric ? (
+                  <button
+                    type="button"
+                    onClick={handleGenerateKeyPair}
+                    disabled={generating}
+                    className="text-accent-cool hover:bg-surface-hover ml-auto flex items-center gap-1.5 rounded-[6px] px-1.5 py-0.5 text-xs transition-colors disabled:opacity-60"
+                  >
+                    {generating ? (
+                      <Loader2 className="size-3 animate-spin" />
+                    ) : (
+                      <Sparkles className="size-3" />
+                    )}
+                    {generating ? text.generating : text.generateKeyPair}
+                  </button>
+                ) : null}
+              </div>
+
+              {symmetric ? (
+                <SecretInput
+                  id="jwt-sign-key"
+                  value={secret}
+                  onChange={setSecret}
+                  placeholder={text.secretPlaceholder}
+                  defaultVisible
+                />
+              ) : (
+                <>
+                  <Textarea
+                    id="jwt-sign-key"
+                    value={privateKey}
+                    onChange={(event) => setPrivateKey(event.target.value)}
+                    placeholder={text.privatePlaceholder}
+                    spellCheck={false}
+                    autoComplete="off"
+                    className={cn(monoField, "max-h-56 min-h-28 md:text-[12px]")}
+                  />
+                  <p className="text-muted-foreground text-[11.5px]">{text.privateNote}</p>
+                </>
+              )}
+            </div>
+
+            {/* 自己生成的密钥对，公钥得能拿走：不然签出来的 Token 没人能验 */}
+            {!symmetric && publicKey ? (
+              <div className="flex flex-col gap-1.5 border-t pt-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground text-xs">{text.publicKeyLabel}</span>
+                  <CopyButton value={publicKey} className={cn(cardAction, "ml-auto")} />
+                </div>
+                <pre className="bg-surface-sunken text-foreground/80 max-h-28 overflow-auto rounded-[10px] p-2.5 font-mono text-[11px] leading-[1.5]">
+                  {publicKey}
+                </pre>
               </div>
             ) : null}
-          </Panel>
+          </div>
+
+          <JwtCard
+            label={text.resultLabel}
+            action={
+              <>
+                <CopyButton value={token} className={cardAction} />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={cardAction}
+                  disabled={!token}
+                  onClick={() => onOpenInDecode(token, symmetric ? secret : publicKey)}
+                >
+                  {text.openInDecode}
+                </Button>
+              </>
+            }
+          >
+            <div aria-live="polite" className="px-4 py-3.5">
+              {state.kind === "done" ? (
+                <TokenPreview token={state.token} />
+              ) : state.kind === "failed" ? (
+                <p className="text-destructive text-[13px]">
+                  {format(text.failed, {
+                    message: format(dict.errors.jwt[state.error.code], state.error.params ?? {}),
+                  })}
+                </p>
+              ) : (
+                <p className="text-muted-foreground text-[13px]">
+                  {state.kind === "idle" ? state.message : text.signing}
+                </p>
+              )}
+            </div>
+          </JwtCard>
         </div>
-      ) : null}
+      </div>
     </div>
   )
 }

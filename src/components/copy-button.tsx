@@ -11,11 +11,13 @@ import { cn } from "@/lib/utils"
 interface CopyButtonProps {
   value: string
   label?: string
+  /** 读屏用的名字，默认同 label；一列里有多个复制按钮时用它区分，比如「复制 exp」 */
+  ariaLabel?: string
   size?: "sm" | "icon"
   className?: string
 }
 
-export function CopyButton({ value, label, size = "sm", className }: CopyButtonProps) {
+export function CopyButton({ value, label, ariaLabel, size = "sm", className }: CopyButtonProps) {
   const dict = useDict()
   const [copied, setCopied] = useState(false)
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -48,7 +50,7 @@ export function CopyButton({ value, label, size = "sm", className }: CopyButtonP
       size={size}
       onClick={copy}
       disabled={!value}
-      aria-label={label ?? dict.common.copy}
+      aria-label={ariaLabel ?? label ?? dict.common.copy}
       // 图标态默认 32px，移动端偏小；窄屏放大到 36px（列表行高就是 36px，再大会撑破行）
       className={cn("text-muted-foreground", size === "icon" && "max-sm:size-9", className)}
     >

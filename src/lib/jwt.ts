@@ -25,6 +25,27 @@ export const ALGORITHM_GROUPS = [
 
 export const ALGORITHMS = ALGORITHM_GROUPS.flatMap((group) => group.items)
 
+/**
+ * 签发页列出的算法。校验能认 ALGORITHMS 里的全部 13 个（算法由 Token 自己声明），
+ * 但签发得由人来挑，所以这里只摆日常真的会用到的：
+ * HMAC 三档 + RS256（OIDC 最常见）+ PS256（FAPI 一类场景要求）+ ES256 + EdDSA。
+ */
+export const COMMON_SIGN_ALGORITHMS = [
+  "HS256",
+  "HS384",
+  "HS512",
+  "RS256",
+  "PS256",
+  "ES256",
+  "EdDSA",
+] as const
+
+export type SignAlgorithm = (typeof COMMON_SIGN_ALGORITHMS)[number]
+
+export function isSupportedAlg(alg: string | undefined): alg is (typeof ALGORITHMS)[number] {
+  return alg !== undefined && (ALGORITHMS as readonly string[]).includes(alg)
+}
+
 export type KeyMaterial = JoseCryptoKey | Uint8Array
 
 /** HMAC 系列用同一把共享密钥签名和校验，其余算法是公私钥非对称 */
@@ -33,8 +54,6 @@ export function isSymmetric(alg: string): boolean {
 }
 
 export type SecretEncoding = "utf8" | "base64url" | "hex"
-
-export const SECRET_ENCODINGS: SecretEncoding[] = ["utf8", "base64url", "hex"]
 
 /* ------------------------------------------------------------------ */
 /* 编解码基础工具                                                       */
@@ -47,12 +66,6 @@ function base64UrlToBytes(input: string): Uint8Array {
   const bytes = new Uint8Array(binary.length)
   for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i)
   return bytes
-}
-
-function bytesToBase64Url(bytes: Uint8Array): string {
-  let binary = ""
-  for (const byte of bytes) binary += String.fromCharCode(byte)
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "")
 }
 
 function hexToBytes(input: string): Uint8Array {
@@ -138,20 +151,16 @@ export function decodeToken(token: string): DecodeResult {
 /* 声明（claims）                                                      */
 /* ------------------------------------------------------------------ */
 
-/** 有标准含义的声明，说明文案在字典的 jwt.claims / jwt.headers 里 */
+/** 有标准含义的声明 */
 export const REGISTERED_CLAIMS = ["iss", "sub", "aud", "exp", "nbf", "iat", "jti"] as const
 
-export const REGISTERED_HEADERS = ["alg", "typ", "cty", "kid", "jku", "x5t"] as const
+/** 声明表里带中文短名的键：标准声明之外再加几个 OIDC / 业务里最常见的 */
+export const LABELED_CLAIMS = [...REGISTERED_CLAIMS, "name", "email", "scope", "roles"] as const
 
-export type RegisteredClaim = (typeof REGISTERED_CLAIMS)[number]
-export type RegisteredHeader = (typeof REGISTERED_HEADERS)[number]
+export type LabeledClaim = (typeof LABELED_CLAIMS)[number]
 
-export function isRegisteredClaim(key: string): key is RegisteredClaim {
-  return (REGISTERED_CLAIMS as readonly string[]).includes(key)
-}
-
-export function isRegisteredHeader(key: string): key is RegisteredHeader {
-  return (REGISTERED_HEADERS as readonly string[]).includes(key)
+export function hasClaimLabel(key: string): key is LabeledClaim {
+  return (LABELED_CLAIMS as readonly string[]).includes(key)
 }
 
 const TIME_CLAIMS = new Set(["exp", "nbf", "iat", "auth_time", "updated_at"])
@@ -354,12 +363,6 @@ export async function resolveKey(
 ): Promise<KeyMaterial> {
   if (isSymmetric(alg)) return secretToBytes(material, encoding)
   return importAsymmetric(material, alg, usage)
-}
-
-export function randomSecret(bytes = 32): string {
-  const buffer = new Uint8Array(bytes)
-  crypto.getRandomValues(buffer)
-  return bytesToBase64Url(buffer)
 }
 
 export async function generateKeyPairPem(

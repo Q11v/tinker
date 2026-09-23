@@ -16,8 +16,8 @@ function classify(text: string): Kind {
   return "number"
 }
 
-/** 极简 JSON 着色，够用即可，不引入额外的高亮依赖 */
-export function JsonBlock({ value, className }: { value: string; className?: string }) {
+/** 着色后的 span 序列，不带外层容器；JsonBlock 和需要把高亮垫在 textarea 底下的编辑器共用 */
+export function JsonTokens({ value }: { value: string }) {
   const parts = useMemo(() => {
     const result: { text: string; kind: Kind }[] = []
     let index = 0
@@ -31,6 +31,15 @@ export function JsonBlock({ value, className }: { value: string; className?: str
     return result
   }, [value])
 
+  return parts.map((part, i) => (
+    <span key={i} className={JSON_COLOR[part.kind]}>
+      {part.text}
+    </span>
+  ))
+}
+
+/** 极简 JSON 着色，够用即可，不引入额外的高亮依赖 */
+export function JsonBlock({ value, className }: { value: string; className?: string }) {
   return (
     <pre
       className={cn(
@@ -38,11 +47,7 @@ export function JsonBlock({ value, className }: { value: string; className?: str
         className
       )}
     >
-      {parts.map((part, i) => (
-        <span key={i} className={JSON_COLOR[part.kind]}>
-          {part.text}
-        </span>
-      ))}
+      <JsonTokens value={value} />
     </pre>
   )
 }

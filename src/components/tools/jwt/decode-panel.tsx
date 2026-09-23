@@ -1,205 +1,260 @@
 "use client"
 
-import { AlertTriangle, ShieldCheck, Trash2 } from "lucide-react"
-import { useMemo, useState } from "react"
+import { KeyRound } from "lucide-react"
+import Link from "next/link"
+import { useEffect, useMemo, useState } from "react"
 
 import { CopyButton } from "@/components/copy-button"
 import { JsonBlock } from "@/components/json-block"
 import { SegmentedControl } from "@/components/segmented-control"
-import { Panel } from "@/components/tool-panel"
+import { ChecksList } from "@/components/tools/jwt/checks-list"
 import { ClaimsTable } from "@/components/tools/jwt/claims-table"
-import { TokenInput } from "@/components/tools/jwt/token-input"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
+import { HighlightedTextarea } from "@/components/tools/jwt/highlighted-textarea"
+import { cardAction, JwtCard } from "@/components/tools/jwt/jwt-card"
+import { JwtToolbar, toolbarButton } from "@/components/tools/jwt/jwt-toolbar"
+import { SEGMENT_COLOR, SEGMENTS } from "@/components/tools/jwt/segment-colors"
+import { SignatureCard } from "@/components/tools/jwt/signature-card"
+import { TokenSegments } from "@/components/tools/jwt/token-preview"
+import { TONE } from "@/components/tools/jwt/tones"
+import { useSignatureCheck } from "@/components/tools/jwt/use-signature-check"
+import { VerdictCard } from "@/components/tools/jwt/verdict-card"
+import { useModifierKey } from "@/hooks/use-modifier-key"
 import { useNowSeconds } from "@/hooks/use-now-seconds"
-import { useDict } from "@/i18n/context"
+import { useI18n } from "@/i18n/context"
 import { format } from "@/i18n/format"
-import { decodeToken, isRegisteredHeader, SAMPLE_TOKEN } from "@/lib/jwt"
+import { checkClaims, decodeToken, type JwtError } from "@/lib/jwt"
+import { cn } from "@/lib/utils"
 
-type PayloadView = "json" | "detail"
+type PayloadView = "claims" | "json"
 
-interface DecodePanelProps {
-  token: string
-  onTokenChange: (token: string) => void
-  onGoVerify: () => void
+/** 焦点在别的输入框里时，粘贴归那个输入框，不抢 */
+function isEditable(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false
+  return target.isContentEditable || target.closest("input, textarea, select") !== null
 }
 
-export function DecodePanel({ token, onTokenChange, onGoVerify }: DecodePanelProps) {
-  const dict = useDict()
+interface DecodePanelProps {
+  /** 两种模式共用一个工具条开关，由外层传进来放在工具条最左边 */
+  modeSwitch: React.ReactNode
+  /** 只有当前可见的面板才接管页面级粘贴 */
+  active: boolean
+  token: string
+  onTokenChange: (token: string) => void
+  onSample: () => void
+  secret: string
+  onSecretChange: (secret: string) => void
+  base64Secret: boolean
+  onBase64SecretChange: (value: boolean) => void
+}
+
+export function DecodePanel({
+  modeSwitch,
+  active,
+  token,
+  onTokenChange,
+  onSample,
+  secret,
+  onSecretChange,
+  base64Secret,
+  onBase64SecretChange,
+}: DecodePanelProps) {
+  const { dict, href } = useI18n()
   const text = dict.jwtTool.decode
-  const result = useMemo(() => decodeToken(token), [token])
+  const modifier = useModifierKey()
   const nowSeconds = useNowSeconds()
-  const [payloadView, setPayloadView] = useState<PayloadView>("json")
-  const headerJson =
-    result.ok && result.value.header ? JSON.stringify(result.value.header, null, 2) : ""
-  const payloadJson =
-    result.ok && result.value.payload ? JSON.stringify(result.value.payload, null, 2) : ""
+  const [payloadView, setPayloadView] = useState<PayloadView>("claims")
 
-  // Header 只有 alg/typ 这两个最常见字段时，用一行摘要代替完整 JSON，减少和 footer 的重复
-  const headerEntries = result.ok && result.value.header ? Object.entries(result.value.header) : []
-  const isMinimalHeader =
-    headerEntries.length > 0 && headerEntries.every(([key]) => key === "alg" || key === "typ")
+  const result = useMemo(() => decodeToken(token), [token])
+  const decoded = result.ok ? result.value : null
+  const alg = decoded?.alg
+  const signature = useSignatureCheck(
+    token,
+    decoded ? alg : undefined,
+    secret,
+    base64Secret ? "base64url" : "utf8"
+  )
+  const checks = useMemo(
+    () => checkClaims(decoded?.payload ?? null, {}, nowSeconds),
+    [decoded, nowSeconds]
+  )
 
-  const payloadViews = [
-    { value: "json" as const, label: text.viewJson },
-    { value: "detail" as const, label: text.viewDetail },
-  ]
+  // 空状态里写着「⌘V 直接读剪贴板」：焦点不在任何输入框时，在页面上粘贴也直接当作 Token
+  useEffect(() => {
+    if (!active) return
+    function onPaste(event: ClipboardEvent) {
+      if (isEditable(event.target)) return
+      const pasted = event.clipboardData?.getData("text").trim()
+      if (!pasted) return
+      event.preventDefault()
+      onTokenChange(pasted)
+    }
+    document.addEventListener("paste", onPaste)
+    return () => document.removeEventListener("paste", onPaste)
+  }, [active, onTokenChange])
 
   /** JwtError -> 当前语言的句子 */
-  const messageOf = (error: {
-    code: keyof typeof dict.errors.jwt
-    params?: Record<string, string>
-  }) => format(dict.errors.jwt[error.code], error.params ?? {})
+  const messageOf = (error: JwtError) => format(dict.errors.jwt[error.code], error.params ?? {})
+
+  const trimmed = token.trim()
+  const headerJson = decoded?.header ? JSON.stringify(decoded.header, null, 2) : ""
+  const payloadJson = decoded?.payload ? JSON.stringify(decoded.payload, null, 2) : ""
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <Label htmlFor="jwt-token">JWT</Label>
-          <div className="flex items-center gap-1">
-            <Button variant="ghost" size="sm" onClick={() => onTokenChange(SAMPLE_TOKEN)}>
-              {text.sample}
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => onTokenChange("")} disabled={!token}>
-              <Trash2 className="size-3.5" />
-              {dict.common.clear}
-            </Button>
-            <CopyButton value={token} label={dict.common.copy} />
-          </div>
+    <div className="flex flex-col gap-[18px]">
+      <JwtToolbar>
+        {modeSwitch}
+        <span className="text-muted-foreground text-[12.5px] max-lg:hidden">{text.hint}</span>
+        <div className="ml-auto flex items-center gap-2">
+          <button type="button" onClick={onSample} className={toolbarButton}>
+            {text.sample}
+          </button>
+          <button
+            type="button"
+            onClick={() => onTokenChange("")}
+            disabled={!token}
+            className={toolbarButton}
+          >
+            {dict.common.clear}
+          </button>
         </div>
-        <TokenInput
+      </JwtToolbar>
+
+      <JwtCard
+        label={text.tokenLabel}
+        meta={
+          <div className="flex items-center gap-3 max-sm:hidden" aria-hidden>
+            {SEGMENTS.map((segment) => (
+              <span
+                key={segment}
+                className="text-muted-foreground flex items-center gap-1.5 text-[11.5px]"
+              >
+                <span className={cn("size-[7px] rounded-[2px]", SEGMENT_COLOR[segment].dot)} />
+                {segment}
+              </span>
+            ))}
+          </div>
+        }
+        action={
+          trimmed ? (
+            <span className="text-muted-foreground font-mono text-[11px]">
+              {format(text.tokenMeta, {
+                chars: trimmed.length,
+                segments: trimmed.split(".").length,
+              })}
+            </span>
+          ) : null
+        }
+      >
+        <HighlightedTextarea
           id="jwt-token"
+          label={text.tokenLabel}
           value={token}
           onChange={onTokenChange}
           placeholder={text.placeholder}
-          className="max-h-64 min-h-28"
+          invalid={Boolean(trimmed) && !result.ok}
+          highlight={<TokenSegments value={token} />}
+          className="min-h-24 p-4 text-base leading-[1.85] md:text-[13px]"
         />
-      </div>
+      </JwtCard>
 
-      {!result.ok ? (
-        token.trim() ? (
-          <Alert variant="destructive">
-            <AlertTriangle />
-            <AlertTitle>{text.parseFailed}</AlertTitle>
-            <AlertDescription>{messageOf(result.error)}</AlertDescription>
-          </Alert>
-        ) : null
-      ) : (
-        <>
-          {result.value.alg === "none" ? (
-            <Alert variant="destructive">
-              <AlertTriangle />
-              <AlertTitle>{text.algNoneTitle}</AlertTitle>
-              <AlertDescription>{text.algNoneBody}</AlertDescription>
-            </Alert>
+      {!trimmed ? (
+        <div className="flex flex-col items-center gap-2.5 rounded-[12px] border border-dashed px-4 py-[22px] text-center">
+          <span className="bg-muted text-muted-foreground flex size-[38px] items-center justify-center rounded-[12px]">
+            <KeyRound className="size-[18px]" strokeWidth={1.75} />
+          </span>
+          <p className="text-[13.5px] font-medium">{text.emptyTitle}</p>
+          <p className="text-muted-foreground text-xs text-pretty">
+            {format(text.emptyBody, { shortcut: `${modifier}V` })}
+          </p>
+        </div>
+      ) : !result.ok ? (
+        <div className={cn("flex flex-col gap-[9px] rounded-[12px] border p-3.5", TONE.bad.box)}>
+          <div className="flex items-center gap-[9px]">
+            <span className={cn("size-[9px] rounded-full", TONE.bad.dot)} />
+            <p className={cn("text-[13.5px] font-semibold", TONE.bad.ink)}>{text.invalidTitle}</p>
+          </div>
+          <p className="text-foreground/80 text-xs leading-[1.6]">{messageOf(result.error)}</p>
+          {/* JWE 本来就不是 Base64 能解开的东西，只有段数不对时才值得去 Base64 工具看看 */}
+          {result.error.code === "segmentCount" ? (
+            <Link href={href("/tools/base64")} className={cn(toolbarButton, "self-start")}>
+              {text.tryBase64}
+            </Link>
           ) : null}
-
-          <div className="space-y-3">
-            <div className="flex items-center justify-between gap-2">
-              <h2 className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
-                {text.resultTitle}
-              </h2>
-              <Button variant="outline" size="sm" onClick={onGoVerify}>
-                <ShieldCheck className="size-3.5" />
-                {text.goVerify}
-              </Button>
-            </div>
-
-            <Panel
-              accent="rose"
-              title="Header"
-              hint={text.headerHint}
-              action={<CopyButton value={headerJson} />}
-              footer={
-                !isMinimalHeader && result.value.header ? (
-                  <>
-                    {headerEntries
-                      .filter(([key]) => isRegisteredHeader(key))
-                      .map(
-                        ([key, value]) =>
-                          `${key}: ${typeof value === "string" ? value : JSON.stringify(value)} · ${
-                            dict.jwtTool.headers[key as keyof typeof dict.jwtTool.headers]
-                          }`
-                      )
-                      .join("　") || text.noStandardFields}
-                  </>
-                ) : undefined
-              }
+        </div>
+      ) : (
+        <div className="grid items-start gap-3.5 lg:grid-cols-[1.35fr_1fr]">
+          <div className="flex min-w-0 flex-col gap-3.5">
+            <JwtCard
+              segment="header"
+              label="Header"
+              action={<CopyButton value={headerJson} className={cardAction} />}
             >
-              {result.value.headerError ? (
-                <p className="text-destructive text-sm">
+              {decoded?.headerError ? (
+                <p className="text-destructive px-4 py-3.5 text-[13px]">
                   {format(dict.errors.jwt.headerPrefix, {
-                    message: messageOf(result.value.headerError),
+                    message: messageOf(decoded.headerError),
                   })}
                 </p>
-              ) : isMinimalHeader ? (
-                <div className="flex flex-col gap-2">
-                  {headerEntries.map(([key, value]) => (
-                    <div key={key} className="flex items-center gap-2">
-                      <Badge
-                        variant="outline"
-                        className="border-rose-500/30 bg-rose-500/10 font-mono text-rose-600 dark:text-rose-400"
-                      >
-                        {key}: {String(value)}
-                      </Badge>
-                      <span className="text-muted-foreground text-xs">
-                        {isRegisteredHeader(key) ? dict.jwtTool.headers[key] : null}
-                      </span>
-                    </div>
-                  ))}
-                </div>
               ) : (
-                <JsonBlock value={headerJson} />
+                <JsonBlock
+                  value={headerJson}
+                  className="px-4 py-3.5 text-[12.5px] leading-[1.75]"
+                />
               )}
-            </Panel>
+            </JwtCard>
 
-            <Panel
-              accent="violet"
-              title="Payload"
-              hint={text.payloadHint}
+            <JwtCard
+              segment="payload"
+              label="Payload"
               action={
-                <div className="flex items-center gap-1">
-                  {!result.value.payloadError && result.value.payload ? (
+                decoded?.payload ? (
+                  <>
                     <SegmentedControl
+                      label={text.viewLabel}
                       value={payloadView}
                       onChange={setPayloadView}
-                      options={payloadViews}
+                      options={[
+                        { value: "claims" as const, label: text.viewClaims },
+                        { value: "json" as const, label: text.viewJson },
+                      ]}
                     />
-                  ) : null}
-                  <CopyButton value={payloadJson} />
-                </div>
+                    {payloadView === "json" ? (
+                      <CopyButton value={payloadJson} className={cardAction} />
+                    ) : null}
+                  </>
+                ) : null
               }
             >
-              {result.value.payloadError ? (
-                <p className="text-destructive text-sm">
+              {decoded?.payloadError ? (
+                <p className="text-destructive px-4 py-3.5 text-[13px]">
                   {format(dict.errors.jwt.payloadPrefix, {
-                    message: messageOf(result.value.payloadError),
+                    message: messageOf(decoded.payloadError),
                   })}
                 </p>
-              ) : payloadView === "detail" && result.value.payload ? (
-                <>
-                  <p className="text-muted-foreground mb-3 text-xs">{text.detailNote}</p>
-                  <ClaimsTable payload={result.value.payload} nowSeconds={nowSeconds} />
-                </>
+              ) : payloadView === "claims" && decoded?.payload ? (
+                <ClaimsTable payload={decoded.payload} nowSeconds={nowSeconds} />
               ) : (
-                <JsonBlock value={payloadJson} />
+                <JsonBlock
+                  value={payloadJson}
+                  className="px-4 py-3.5 text-[12.5px] leading-[1.75]"
+                />
               )}
-            </Panel>
-
-            <Panel
-              accent="sky"
-              title="Signature"
-              hint={text.signatureHint}
-              action={<CopyButton value={result.value.segments.signature} />}
-            >
-              <p className="bg-muted/50 rounded-lg border p-3 font-mono text-[13px] break-all text-sky-600 dark:text-sky-400">
-                {result.value.segments.signature || text.emptySignature}
-              </p>
-            </Panel>
+            </JwtCard>
           </div>
-        </>
+
+          <div className="flex min-w-0 flex-col gap-3.5">
+            <VerdictCard signature={signature} checks={checks} alg={alg} />
+            <SignatureCard
+              alg={alg}
+              secret={secret}
+              onSecretChange={onSecretChange}
+              base64Secret={base64Secret}
+              onBase64SecretChange={onBase64SecretChange}
+              signature={signature}
+            />
+            <ChecksList signature={signature} checks={checks} alg={alg} nowSeconds={nowSeconds} />
+          </div>
+        </div>
       )}
     </div>
   )

@@ -1,28 +1,38 @@
-"use client"
-
-import { useDict } from "@/i18n/context"
+import { SEGMENT_COLOR, SEGMENTS } from "@/components/tools/jwt/segment-colors"
 import { cn } from "@/lib/utils"
 
-/** 按 jwt.io 的习惯给三段着色：header / payload / signature */
-export function TokenPreview({ token, className }: { token: string; className?: string }) {
-  const dict = useDict()
-  const parts = token.trim().split(".")
-  if (parts.length !== 3) return null
+/**
+ * 按 header / payload / signature 给 Token 着色，原样保留每一个字符（包括空白），
+ * 这样既能单独展示，也能垫在 HighlightedTextarea 底下与原文逐字对齐。
+ * 多出来的第 4 段起用中性色，让「段数不对」一眼可见。
+ */
+export function TokenSegments({ value }: { value: string }) {
+  const parts = value.split(".")
 
+  return parts.map((part, index) => (
+    <span key={index}>
+      {index > 0 ? <span className="text-muted-foreground">.</span> : null}
+      <span
+        className={
+          index < SEGMENTS.length ? SEGMENT_COLOR[SEGMENTS[index]].text : "text-foreground"
+        }
+      >
+        {part}
+      </span>
+    </span>
+  ))
+}
+
+/** 只读的着色 Token，签发结果用 */
+export function TokenPreview({ token, className }: { token: string; className?: string }) {
   return (
-    <div
+    <pre
       className={cn(
-        "bg-muted/50 rounded-lg border p-3 font-mono text-[13px] leading-relaxed break-all",
+        "m-0 font-mono text-[12.5px] leading-[1.85] whitespace-pre-wrap break-all",
         className
       )}
     >
-      <span className="text-rose-600 dark:text-rose-400">{parts[0]}</span>
-      <span className="text-muted-foreground">.</span>
-      <span className="text-violet-600 dark:text-violet-400">{parts[1]}</span>
-      <span className="text-muted-foreground">.</span>
-      <span className="text-sky-600 dark:text-sky-400">
-        {parts[2] || dict.jwtTool.preview.noSignature}
-      </span>
-    </div>
+      <TokenSegments value={token} />
+    </pre>
   )
 }

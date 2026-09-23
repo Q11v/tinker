@@ -1,26 +1,11 @@
 "use client"
 
 import { usePathname, useRouter } from "next/navigation"
-import { useEffect, useSyncExternalStore } from "react"
+import { useEffect } from "react"
 
+import { useModifierKey } from "@/hooks/use-modifier-key"
 import { useI18n } from "@/i18n/context"
 import { requestSearchFocus } from "@/lib/search-focus"
-
-/*
-  修饰键要按平台显示，但服务端渲染不知道用户在用什么系统。
-  走 useSyncExternalStore：服务端与 hydration 阶段都用 ⌘，之后 React 再用客户端快照重渲一次，
-  这样既不会 hydration 不一致，也不用在 effect 里 setState。
-  平台不会变，所以 subscribe 是个空订阅。
-*/
-const noopSubscribe = () => () => {}
-
-function getModifier(): string {
-  return navigator.platform.toLowerCase().startsWith("mac") ? "⌘" : "Ctrl "
-}
-
-function getServerModifier(): string {
-  return "⌘"
-}
 
 /**
  * 顶栏右侧的 ⌘K 胶囊，同时也是全站快捷键的注册点 —— 顶栏在每个页面都挂载，
@@ -31,7 +16,7 @@ export function SearchShortcut() {
   const router = useRouter()
   const pathname = usePathname()
   const home = href()
-  const modifier = useSyncExternalStore(noopSubscribe, getModifier, getServerModifier)
+  const modifier = useModifierKey()
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {

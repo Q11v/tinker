@@ -1,54 +1,63 @@
 "use client"
 
-import { useState } from "react"
+import { useCallback, useState } from "react"
 
+import { SegmentedControl } from "@/components/segmented-control"
 import { DecodePanel } from "@/components/tools/jwt/decode-panel"
 import { SignPanel } from "@/components/tools/jwt/sign-panel"
-import { VerifyPanel } from "@/components/tools/jwt/verify-panel"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useDict } from "@/i18n/context"
-import { SAMPLE_SECRET } from "@/lib/jwt"
+import { SAMPLE_SECRET, SAMPLE_TOKEN } from "@/lib/jwt"
 
-type TabKey = "decode" | "verify" | "sign"
+type Mode = "decode" | "sign"
 
 export function JwtTool() {
   const dict = useDict()
-  const [tab, setTab] = useState<TabKey>("decode")
-  // Token 在「解码」「校验」之间共享，切页不用重新粘贴；密钥只有「校验」用得到，
-  // 「签名」页自己管理独立的密钥状态
+  const [mode, setMode] = useState<Mode>("decode")
+  // 解码页的 Token 与校验密钥放在这一层：签发页「在解码模式打开」要把两样一起带过去
   const [token, setToken] = useState("")
-  const [secret, setSecret] = useState(SAMPLE_SECRET)
+  const [secret, setSecret] = useState("")
+  const [base64Secret, setBase64Secret] = useState(false)
 
+  const openInDecode = useCallback((nextToken: string, nextSecret: string) => {
+    setToken(nextToken)
+    setSecret(nextSecret)
+    setBase64Secret(false)
+    setMode("decode")
+  }, [])
+
+  const modeSwitch = (
+    <SegmentedControl
+      size="md"
+      label={dict.jwtTool.modeLabel}
+      value={mode}
+      onChange={setMode}
+      options={[
+        { value: "decode" as const, label: dict.jwtTool.modes.decode },
+        { value: "sign" as const, label: dict.jwtTool.modes.sign },
+      ]}
+    />
+  )
+
+  // 两个面板都常驻，只是藏起不用的那个，切换模式时各自的输入不会丢
   return (
-    <Tabs value={tab} onValueChange={(value) => setTab(value as TabKey)}>
-      <TabsList className="w-full sm:w-auto sm:self-start">
-        <TabsTrigger value="decode">{dict.jwtTool.tabs.decode}</TabsTrigger>
-        <TabsTrigger value="verify">{dict.jwtTool.tabs.verify}</TabsTrigger>
-        <TabsTrigger value="sign">{dict.jwtTool.tabs.sign}</TabsTrigger>
-      </TabsList>
-
-      {/* forceMount 保证三个面板的输入在切换标签时不丢失 */}
-      <TabsContent value="decode" forceMount className="mt-4 data-[state=inactive]:hidden">
-        <DecodePanel token={token} onTokenChange={setToken} onGoVerify={() => setTab("verify")} />
-      </TabsContent>
-
-      <TabsContent value="verify" forceMount className="mt-4 data-[state=inactive]:hidden">
-        <VerifyPanel
+    <>
+      <div hidden={mode !== "decode"}>
+        <DecodePanel
+          modeSwitch={modeSwitch}
+          active={mode === "decode"}
           token={token}
           onTokenChange={setToken}
+          // 示例 Token 顺手带上配套密钥，一点就能看到「签名有效」的完整结论
+          onSample={() => openInDecode(SAMPLE_TOKEN, SAMPLE_SECRET)}
           secret={secret}
           onSecretChange={setSecret}
+          base64Secret={base64Secret}
+          onBase64SecretChange={setBase64Secret}
         />
-      </TabsContent>
-
-      <TabsContent value="sign" forceMount className="mt-4 data-[state=inactive]:hidden">
-        <SignPanel
-          onUseToken={(value) => {
-            setToken(value)
-            setTab("decode")
-          }}
-        />
-      </TabsContent>
-    </Tabs>
+      </div>
+      <div hidden={mode !== "sign"}>
+        <SignPanel modeSwitch={modeSwitch} onOpenInDecode={openInDecode} />
+      </div>
+    </>
   )
 }
