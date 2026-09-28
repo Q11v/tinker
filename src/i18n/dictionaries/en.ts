@@ -102,6 +102,12 @@ export const en: Dictionary = {
       description: "Compute MD5 / SHA-1 / SHA-256 / SHA-384 / SHA-512 digests of text or files.",
       keywords: ["digest", "fingerprint", "integrity"],
     },
+    totp: {
+      name: "2FA Code Generator",
+      description:
+        "Generate live two-factor codes from a TOTP secret, and read or build otpauth links and setup QR codes.",
+      keywords: ["two-factor", "one-time password", "google authenticator", "verification code"],
+    },
     base64: {
       name: "Base64 Encoder",
       description: "Convert text, images and binary data to and from Base64 / Base64URL.",
@@ -221,6 +227,13 @@ export const en: Dictionary = {
     qrcode: {
       tooLong:
         "Too much data: {bytes} bytes as UTF-8, but error correction level {ecc} holds at most {max}",
+    },
+    totp: {
+      badBase32: "Not a valid Base32 secret — only A–Z and 2–7 are allowed",
+      uriInvalid: "Couldn't parse this otpauth link",
+      uriNotTotp: "Only time-based TOTP is supported, not counter-based HOTP",
+      uriNoSecret: "The link has no secret parameter",
+      uriParams: "The link's algorithm / digits / period settings aren't supported",
     },
   },
 
@@ -587,6 +600,44 @@ export const en: Dictionary = {
       hash: "Fragment",
       href: "Normalized",
     },
+  },
+
+  totpTool: {
+    secretTitle: "Secret",
+    secretHint: "A Base32 secret, or paste an otpauth:// link",
+    secretLabel: "Base32 secret",
+    secretPlaceholder: "JBSW Y3DP EHPK 3PXP",
+    secretFooter:
+      "Case, spaces and trailing = are ignored; pasting an otpauth:// link fills in the other settings",
+    generate: "Generate",
+    imported: "Imported from the otpauth link",
+    algorithmLabel: "Algorithm",
+    digitsLabel: "Digits",
+    periodLabel: "Period (s)",
+    codeTitle: "Current code",
+    codeHint: "Refreshes every {period} seconds",
+    codeLabel: "Current code",
+    remaining: "Refreshes in {seconds}s",
+    previous: "Previous",
+    next: "Next",
+    emptyState: "Enter a secret, or click “Generate” to create a new one.",
+    clockNote: "If it doesn't match your phone app, check that this machine's clock is accurate",
+    verifyLabel: "Verify",
+    verifyPlaceholder: "Enter a code to check whether it's valid…",
+    verifyIdle: "Compare",
+    verifyCurrent: "Matches the current code",
+    verifyPrevious: "Matches the previous window",
+    verifyNext: "Matches the next window",
+    verifyMismatch: "No match",
+    bindTitle: "Setup",
+    bindHint: "Build an otpauth link and QR code to scan into an authenticator app",
+    issuerLabel: "Issuer",
+    issuerPlaceholder: "GitHub",
+    accountLabel: "Account",
+    accountPlaceholder: "user@example.com",
+    manualSecretLabel: "Secret for manual entry",
+    uriLabel: "otpauth link",
+    qrEmpty: "Enter a secret to generate a scannable QR code.",
   },
 
   qrcodeTool: {

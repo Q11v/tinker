@@ -10,6 +10,7 @@ import {
   Palette,
   QrCode,
   Regex,
+  ShieldCheck,
   type LucideIcon,
 } from "lucide-react"
 
@@ -88,6 +89,13 @@ export const tools: Tool[] = [
     category: "crypto",
     icon: Fingerprint,
     keywords: ["hash", "sha", "sha1", "sha256", "sha512", "md5", "checksum", "digest"],
+    status: "ready",
+  },
+  {
+    slug: "totp",
+    category: "crypto",
+    icon: ShieldCheck,
+    keywords: ["2fa", "totp", "otp", "mfa", "authenticator", "otpauth", "rfc 6238"],
     status: "ready",
   },
   {
