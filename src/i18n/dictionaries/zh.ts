@@ -4,7 +4,6 @@
  */
 export const zh = {
   meta: {
-    siteName: "Tinker",
     title: "Tinker · 开发者小工具箱",
     titleTemplate: "%s · Tinker",
     description:
@@ -22,8 +21,6 @@ export const zh = {
     text: "文本",
     file: "文件",
     selectFile: "选择文件",
-    localOnly: "全部计算都在本机完成",
-    localOnlyNote: "全部在本机计算 · 不上传",
     download: "下载",
   },
 
@@ -64,8 +61,6 @@ export const zh = {
     clearFilters: "清除筛选",
     recent: "最近",
     clearRecent: "清除",
-    planned: "规划中",
-    plannedCta: "去 GitHub 提需求 →",
     /** 搜索结果行右端的匹配原因 */
     match: {
       name: "名称匹配",
@@ -90,6 +85,11 @@ export const zh = {
   },
 
   tools: {
+    binary: {
+      name: "进制转换",
+      description: "二进制、八进制、十进制与十六进制整数互转，支持大整数。",
+      keywords: ["二进制", "八进制", "十进制", "十六进制", "进制转换"],
+    },
     jwt: {
       name: "JWT 工具",
       description: "解码 JWT、校验签名与声明，或用自己的密钥签发新的 Token。",
@@ -530,6 +530,38 @@ export const zh = {
       "Asia/Tokyo": "东京",
       "Australia/Sydney": "悉尼",
     },
+  },
+
+  binaryTool: {
+    explorerTitle: "二进制位可视化",
+    widthHint: "{count} 位 · 点击切换",
+    msb: "高位 MSB",
+    lsb: "低位 LSB",
+    clickHint: "点击 0 / 1，实时改变数值",
+    explorerFooter: "每 8 位一组，每行最多 32 位，高位在前。悬停查看位序与权值，点击切换 0 / 1。",
+    inputTitle: "输入数值",
+    live: "实时转换",
+    allowedHint: "可用字符：{chars}，支持负数",
+    clearInput: "清空输入",
+    copyAll: "复制全部",
+    showPrefix: "显示进制前缀",
+    uppercase: "字母大写",
+    groupDigits: "数字分组",
+    examplesTitle: "试试这些数字",
+    examplesHint: "点击示例，快速了解不同进制的表达。",
+    precisionTitle: "精确到每一位",
+
+    widthLabel: "显示位数",
+    bitsUnavailable: "位面板支持 0 至 2²⁵⁶ − 1 的非负整数；其他整数仍可使用下方进制转换。",
+    bitLabel: "第 {position} 位，权值 2^{position}，当前为 {value}",
+    baseLabel: "输入进制",
+    inputLabel: "待转换整数",
+    placeholder: "例如 101010",
+    footer: "支持负整数和 0b / 0o / 0x 前缀（须与所选进制一致）；不支持小数。大整数精确转换。",
+    resultTitle: "转换结果",
+    invalid: "请输入所选进制的有效整数，并检查前缀是否匹配。",
+    tooLong: "输入不能超过 4096 个字符。",
+    bases: { "2": "二进制", "8": "八进制", "10": "十进制", "16": "十六进制" },
   },
 
   urlTool: {

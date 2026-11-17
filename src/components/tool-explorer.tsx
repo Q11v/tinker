@@ -4,7 +4,6 @@ import { CornerDownLeft } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
 
-import { PlannedTools } from "@/components/planned-tools"
 import { RecentTools } from "@/components/recent-tools"
 import { SearchHero } from "@/components/search-hero"
 import { ToolCard } from "@/components/tool-card"
@@ -71,7 +70,7 @@ export function ToolExplorer() {
     [matched, category]
   )
 
-  // 只有在没有任何筛选时才露出「最近使用」「主推卡片」「规划中」，否则会干扰结果的阅读
+  // 只有在没有任何筛选时才露出「最近使用」「主推卡片」，否则会干扰结果的阅读
   const filtering = query.trim().length > 0 || category !== "all"
 
   // 胶囊上的数量跟着搜索词走；数量为 0 的分类顺便置灰，避免点进去只看到空状态
@@ -167,8 +166,6 @@ export function ToolExplorer() {
             {format(dict.explorer.enterHint, { name: dict.tools[visible[0].slug].name })}
           </p>
         ) : null}
-
-        {filtering ? null : <PlannedTools />}
       </div>
     </>
   )

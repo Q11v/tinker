@@ -78,6 +78,13 @@ export interface Tool {
 
 export const tools: Tool[] = [
   {
+    slug: "binary",
+    category: "encoding",
+    icon: Binary,
+    keywords: ["binary", "octal", "decimal", "hexadecimal", "bin", "oct", "hex", "radix"],
+    status: "ready",
+  },
+  {
     slug: "jwt",
     category: "crypto",
     icon: KeyRound,
@@ -164,8 +171,6 @@ export const tools: Tool[] = [
 ]
 
 export const readyTools = tools.filter((tool) => tool.status === "ready")
-
-export const plannedTools = tools.filter((tool) => tool.status === "planned")
 
 /**
  * 首页主推的三张大卡片。写成 slug 白名单而不是取 tools 的前三个，

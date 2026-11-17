@@ -35,10 +35,6 @@ export function ToolShell({ tool, dict, children }: ToolShellProps) {
           </div>
           <p className="text-muted-foreground text-[13.5px] text-pretty">{text.description}</p>
         </div>
-        {/* 窄屏藏掉：这句是安心话，不值得挤掉标题的宽度 */}
-        <p className="text-muted-foreground mt-1.5 ml-auto shrink-0 text-[13px] max-lg:hidden">
-          {dict.common.localOnlyNote}
-        </p>
       </div>
 
       {children}

@@ -81,8 +81,6 @@ export const COMMON_TIMEZONES = [
   "Australia/Sydney",
 ] as const
 
-export type TimezoneId = (typeof COMMON_TIMEZONES)[number]
-
 export function formatInTimeZone(ms: number, timeZone: string, bcp47: string): string {
   return new Intl.DateTimeFormat(bcp47, {
     timeZone,

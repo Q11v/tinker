@@ -6,7 +6,6 @@ import type { Dictionary } from "@/i18n/dictionaries"
  */
 export const en: Dictionary = {
   meta: {
-    siteName: "Tinker",
     title: "Tinker · Developer Toolbox",
     titleTemplate: "%s · Tinker",
     description:
@@ -24,8 +23,6 @@ export const en: Dictionary = {
     text: "Text",
     file: "File",
     selectFile: "Choose a file",
-    localOnly: "Everything runs locally in your browser",
-    localOnlyNote: "Computed locally · never uploaded",
     download: "Download",
   },
 
@@ -65,8 +62,6 @@ export const en: Dictionary = {
     clearFilters: "Clear filters",
     recent: "Recent",
     clearRecent: "Clear",
-    planned: "Planned",
-    plannedCta: "Request one on GitHub →",
     match: {
       name: "name match",
       keyword: "keyword {keyword}",
@@ -91,6 +86,12 @@ export const en: Dictionary = {
   },
 
   tools: {
+    binary: {
+      name: "Base Converter",
+      description:
+        "Convert integers between binary, octal, decimal and hexadecimal with full precision.",
+      keywords: ["binary", "octal", "decimal", "hexadecimal", "base conversion"],
+    },
     jwt: {
       name: "JWT Toolkit",
       description:
@@ -546,6 +547,41 @@ export const en: Dictionary = {
       "Asia/Tokyo": "Tokyo",
       "Australia/Sydney": "Sydney",
     },
+  },
+
+  binaryTool: {
+    explorerTitle: "Binary visualization",
+    widthHint: "{count} bits · click to toggle",
+    msb: "MSB",
+    lsb: "LSB",
+    clickHint: "Click 0 / 1 to update the value",
+    explorerFooter:
+      "Groups of 8, up to 32 bits per row, most significant first. Hover for bit positions and weights; click to toggle.",
+    inputTitle: "Input value",
+    live: "Live conversion",
+    allowedHint: "Characters: {chars}. Negative integers supported.",
+    clearInput: "Clear input",
+    copyAll: "Copy all",
+    showPrefix: "Show base prefixes",
+    uppercase: "Uppercase letters",
+    groupDigits: "Group digits",
+    examplesTitle: "Try these numbers",
+    examplesHint: "Choose an example to explore its representation in each base.",
+    precisionTitle: "Every bit counts",
+
+    widthLabel: "Display width",
+    bitsUnavailable:
+      "The bit panel supports unsigned integers from 0 to 2²⁵⁶ − 1. Other integers can still be converted below.",
+    bitLabel: "Bit {position}, weight 2^{position}, currently {value}",
+    baseLabel: "Input base",
+    inputLabel: "Integer to convert",
+    placeholder: "For example, 101010",
+    footer:
+      "Supports negative integers and matching 0b / 0o / 0x prefixes. Integers only, with full precision for large values.",
+    resultTitle: "Conversion results",
+    invalid: "Enter a valid integer in the selected base and check that its prefix matches.",
+    tooLong: "Input cannot exceed 4096 characters.",
+    bases: { "2": "Binary", "8": "Octal", "10": "Decimal", "16": "Hexadecimal" },
   },
 
   urlTool: {

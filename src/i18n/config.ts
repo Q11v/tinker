@@ -1,8 +1,9 @@
 /**
- * 新增一门语言只需要三步：
+ * 新增一门语言需要同步四处：
  * 1. 在 LOCALES 里加上代码
  * 2. 在 LOCALE_LABELS / LOCALE_HTML_LANG 里补上对应项
  * 3. 照着 dictionaries/zh.ts 写一份同构的字典，在 dictionaries/index.ts 里注册
+ * 4. 更新 public/index.html 的语言列表与备用链接（静态文件不经过字典加载器）
  * 类型系统会把漏掉的地方全部报出来。
  */
 export const LOCALES = ["zh", "en"] as const
